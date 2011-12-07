@@ -27,18 +27,13 @@ var nopt   = require('nopt'),
     params  = nopt(options, shorts),
     service = params.argv.remain[0];
 
-var extend = function(target, source, predicate) {
-  for (var key in source) {
-    if (target[key] === undefined && (!predicate || predicate(source[key])))
-      target[key] = source[key];
-  }
-  return target;
-};
 
 var editConfig = function(transform) {
   fs.readFile(CONFIG, function(error, data) {
+    
     var config = error ? {services: {}} : JSON.parse(data.toString());
     transform(config);
+    
     fs.writeFile(CONFIG, JSON.stringify(config, true, 2), function(error) {
       if (error) console.error('Error writing file: ' + CONFIG);
       process.exit(error ? 1 : 0);
@@ -50,9 +45,10 @@ var readConfig = function(service) {
   var config = {};
   try {
     var data = JSON.parse(fs.readFileSync(CONFIG).toString());
-    extend(config, data.services[service] || {});
-    extend(config, data, function(value) { return typeof value !== 'object' });
+    Vault.extend(config, data.services[service] || {});
+    Vault.extend(config, data, function(value) { return typeof value !== 'object' });
   } catch (e) {}
+  
   return config;
 };
 
@@ -72,7 +68,7 @@ if (params.config) {
   });
 
 } else {
-  extend(params, readConfig(service));
+  Vault.extend(params, readConfig(service));
   
   if (params.phrase === undefined) {
     console.error('Passphrase is not defined; pass `-p PHRASE` or run `vault -cp PHRASE`');
