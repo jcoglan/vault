@@ -7,9 +7,16 @@ var nopt   = require('nopt'),
     Vault  = require('../lib/vault'),
     CONFIG = process.env.HOME + '/.vault',
     
-    options = { config:   Boolean,
-                phrase:   String,
-                length:   Number
+    options = { 'config': Boolean,
+                'phrase': String,
+                'length': Number,
+                'lower':  Boolean,
+                'upper':  Boolean,
+                'alpha':  Boolean,
+                'number': Boolean,
+                'space':  Boolean,
+                'dash':   Boolean,
+                'symbol': Boolean
               },
     
     shorts  = { 'c': '--config',
@@ -60,7 +67,7 @@ if (params.config) {
     process.exit(1);
   }
 
-  var vault    = new Vault({phrase: phrase, length: length}),
+  var vault    = new Vault(params),
       password = vault.generate(service);
   
   process.stdout.write(password);
