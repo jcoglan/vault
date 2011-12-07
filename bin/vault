@@ -3,6 +3,7 @@
 var nopt   = require('nopt'),
     fs     = require('fs'),
     path   = require('path'),
+    tty    = require('tty'),
     Vault  = require('../lib/vault'),
     CONFIG = process.env.HOME + '/.vault',
     
@@ -59,8 +60,11 @@ if (params.config) {
     process.exit(1);
   }
 
-  var vault = new Vault({phrase: phrase, length: length});
-  console.log(vault.generate(service));
+  var vault    = new Vault({phrase: phrase, length: length}),
+      password = vault.generate(service);
+  
+  process.stdout.write(password);
+  if (tty.isatty(1)) process.stdout.write('\n');
   process.exit(0);
 }
 
