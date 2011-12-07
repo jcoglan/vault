@@ -12,11 +12,7 @@
         file('http://crypto-js.googlecode.com/files/2.3.0-crypto-sha256.js')
           .provides('Crypto')
         
-        loader(function(callback) {
-          load('../lib/vault.js', function() {
-            load('../lib/vault/browser.js', callback)
-          })
-        })
+        file('../lib/vault.js')
           .provides('Vault')
           .requires('Crypto')
         
