@@ -52,9 +52,9 @@ file called `.vault` in your home directory:
 ## How does it work?
 
 `vault` concatenates your passphrase, a fixed UUID value, and the service name,
-and calculates the SHA-256 hash of that string. It then encodes the bits if that
-hash using a 92-character set including letters, numbers and symbols up to the
-desired length.
+and calculates the SHA-256 hash of that string. It then encodes the bits of that
+hash using a 92-character set including letters, numbers, spaces and symbols up
+to the desired length.
 
 This scheme means that the generated passwords have a very high degree of
 entropy and an attacker will find it extremely expensive either to brute-force
