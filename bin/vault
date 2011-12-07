@@ -24,11 +24,19 @@ var nopt   = require('nopt'),
                 'l': '--length'
               },
     
-    params  = nopt(options, shorts);
+    params  = nopt(options, shorts),
+    service = params.argv.remain[0];
+
+var extend = function(target, source) {
+  for (var key in source) {
+    if (target[key] === undefined) target[key] = source[key];
+  }
+  return target;
+};
 
 var editConfig = function(transform) {
   fs.readFile(CONFIG, function(error, data) {
-    var config = error ? {} : JSON.parse(data.toString());
+    var config = error ? {services: {}} : JSON.parse(data.toString());
     transform(config);
     fs.writeFile(CONFIG, JSON.stringify(config, true, 2), function(error) {
       if (error) console.error('Error writing file: ' + CONFIG);
@@ -37,27 +45,35 @@ var editConfig = function(transform) {
   });
 };
 
-var readConfig = function() {
+var readConfig = function(service) {
+  var config = {};
   try {
-    var data = fs.readFileSync(CONFIG);
-    return JSON.parse(data.toString());
-  } catch (e) {
-    return {};
-  }
+    var data = JSON.parse(fs.readFileSync(CONFIG).toString());
+    config.phrase = data.phrase;
+    if (data.services[service]) extend(config, data.services[service]);
+  } catch (e) {}
+  return config;
 };
 
 if (params.config) {
+  delete params.config;
+  
   editConfig(function(settings) {
-    if (typeof params.phrase === 'string')
-      settings.phrase = params.phrase;
+    if (params.phrase) settings.phrase = params.phrase;
+    
+    if (!service) return;
+    settings.services[service] = settings.services[service] || {};
+    
+    for (var key in params) {
+      if (typeof params[key] === 'boolean')
+        settings.services[service][key] = params[key];
+    }
   });
 
 } else {
-  var phrase  = params.phrase || readConfig().phrase,
-      service = params.argv.remain[0],
-      length  = params.length;
+  extend(params, readConfig(service));
   
-  if (phrase === undefined) {
+  if (params.phrase === undefined) {
     console.error('Passphrase is not defined; pass `-p PHRASE` or run `vault -cp PHRASE`');
     process.exit(1);
   }
