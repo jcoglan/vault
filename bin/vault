@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 
 var nopt   = require('nopt'),
-    crypto = require('crypto'),
-    fs     = require('fs'),
-    path   = require('path'),
     tty    = require('tty'),
     Vault  = require('../lib/vault'),
-    CONFIG = process.env.HOME + '/.vault',
+    Config = require('../lib/vault/config'),
     
     options = { 'config': Boolean,
                 'phrase': String,
@@ -29,56 +26,6 @@ var nopt   = require('nopt'),
     service = params.argv.remain[0];
 
 
-var AES = {
-  KEY: Vault.UUID,
-  
-  encrypt: function(data) {
-    var cipher    = crypto.createCipher('aes256', this.KEY),
-        encrypted = cipher.update(data, 'utf8', 'binary');
-    
-    encrypted += cipher.final('binary');
-    return encrypted;
-  },
-  
-  decrypt: function(encrypted) {
-    var cipher = crypto.createDecipher('aes256', this.KEY),
-        data   = cipher.update(encrypted, 'binary', 'utf8');
-    
-    data += cipher.final('utf8');
-    return data;
-  }
-};
-
-
-var Config = {
-  edit: function(transform) {
-    fs.readFile(CONFIG, function(error, data) {
-      
-      var config = error ? {services: {}} : JSON.parse(AES.decrypt(data.toString()));
-      transform(config);
-      
-      fs.writeFile(CONFIG, AES.encrypt(JSON.stringify(config, true, 2)), function(error) {
-        if (error) console.error('Error writing file: ' + CONFIG);
-        process.exit(error ? 1 : 0);
-      });
-    });
-  },
-  
-  read: function(service) {
-    var config = {};
-    try {
-      var content = fs.readFileSync(CONFIG).toString(),
-          data    = JSON.parse(AES.decrypt(content));
-      
-      Vault.extend(config, data.services[service] || {});
-      Vault.extend(config, data, function(value) { return typeof value !== 'object' });
-    } catch (e) {}
-    
-    return config;
-  }
-};
-
-
 if (params.config) {
   delete params.config;
   
@@ -92,6 +39,9 @@ if (params.config) {
       if (typeof params[key] !== 'object')
         settings[key] = params[key];
     }
+  }, function(error) {
+    if (error) console.error('Error writing file: ' + configPath);
+    process.exit(error ? 1 : 0);
   });
 
 } else {
