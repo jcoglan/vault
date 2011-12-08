@@ -34,18 +34,24 @@ This program is written in JavaScript and is available as a Node program:
 The most basic usage involves passing your passphrase and the service name:
 
     $ vault -p 'Your phrase' google
-    qhJ36N^.0.Z27a|Jyi8{
+    bp64TR9>"Zq)QA3Lz+VY
 
 You can set the desired length using `-l`:
 
     $ vault -p 'Your phrase' google -l 6
-    qhJ36N
+    a:U0Es
 
-Various character types can be excluded, for example to get a password with no
-symbols in it:
+You can control the character types present in the output, either to disable
+certain types or make sure they are present. For example, to get a password with
+no symbols in it:
 
-    $ vault -p 'Your phrase' google --no-symbol
-    ib0E7PpeRAvS9UWfngye
+    $ vault -p 'Your phrase' google --symbol 0
+    aJ3pkPSTWtze5ImrFkm5
+
+To get a password containing at least one dash and uppercase letter:
+
+    $ vault -p 'Your phrase' google --dash 1 --upper 1
+    bp64TR9>_0WpyMJ O]WV
 
 Available character classes include:
 
@@ -74,24 +80,24 @@ To save your passphrase, pass the `--config` or `-c` flag:
 
     $ vault -c -p 'Your phrase'
     $ vault google
-    qhJ36N^.0.Z27a|Jyi8{
+    bp64TR9>"Zq)QA3Lz+VY
 
 You can also configure character class settings this way:
 
-    $ vault -c --no-alpha
+    $ vault -c --alpha 0
     $ vault -p 'Your phrase' google
-    81}%'}({~;*+]'[{2->@
+    0.}*&]}}[(.0$!(@::(!
 
 Both the passphrase and the character class settings can be overridden on a
 per-service basis:
 
-    $ vault -c twitter --alpha --no-symbol
+    $ vault -c twitter --alpha 1 --symbol 0
     
     $ vault -p 'Your phrase' twitter
-    cclmjWB5yzHnFL4K8lJA
+    bZoVyy3Le4XRJmE9a yh
     
     $ vault -p 'Your phrase' google
-    81}%'}({~;*+]'[{2->@
+    0.}*&]}}[(.0$!(@::(!
 
 
 ## How does it work?
