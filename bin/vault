@@ -26,6 +26,12 @@ var nopt   = require('nopt'),
     service = params.argv.remain[0];
 
 
+var die = function(message) {
+  console.error(message);
+  process.exit(1);
+};
+
+
 if (params.config) {
   delete params.config;
   
@@ -43,19 +49,19 @@ if (params.config) {
     if (error) console.error('Error writing file: ' + configPath);
     process.exit(error ? 1 : 0);
   });
-
-} else {
-  Vault.extend(params, Config.read(service));
+}
+else {
+  var serviceConfig = Config.read(service);
+  if (!serviceConfig)
+    die('Your .vault file is unreadable; please set VAULT_KEY correctly');
   
-  if (params.phrase === undefined) {
-    console.error('Passphrase is not defined; pass `-p PHRASE` or run `vault -cp PHRASE`');
-    process.exit(1);
-  }
+  Vault.extend(params, serviceConfig);
+  
+  if (params.phrase === undefined)
+    die('Passphrase is not defined; pass `-p PHRASE` or run `vault -cp PHRASE`');
 
-  if (service === undefined) {
-    console.error('Service is undefined');
-    process.exit(1);
-  }
+  if (service === undefined)
+    die('Service is not defined');
 
   var vault    = new Vault(params),
       password = vault.generate(service);

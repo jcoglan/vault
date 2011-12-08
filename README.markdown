@@ -61,7 +61,16 @@ Available character classes include:
 ## Saving your settings
 
 If you like, you can store your passphrase on disk; `vault` will save it in a
-file called `.vault` in your home directory:
+file called `.vault` in your home directory.
+
+The `.vault` file is encrypted with AES-256, using your username as the key by
+default. You can set your own key using the `VAULT_KEY` environment variable.
+You can also change the location of the file using the `VAULT_PATH` variable,
+for example you might set `VAULT_PATH=Dropbox/.vault` to sync it using Dropbox.
+If you do this, make sure any files containing the key are NOT also exposed to
+third-party services.
+
+To save your passphrase, pass the `--config` or `-c` flag:
 
     $ vault -c -p 'Your phrase'
     $ vault google
