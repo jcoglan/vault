@@ -42,7 +42,7 @@ You can set the desired length using `-l`:
     qhJ36N
 
 Various character types can be excluded, for example to get a password with no
-letters in it:
+symbols in it:
 
     $ vault -p 'Your phrase' google --no-symbol
     ib0E7PpeRAvS9UWfngye
@@ -55,7 +55,7 @@ Available character classes include:
 * `number`: the digits `0`-`9`
 * `space`: the space character ` `
 * `dash`: dashes (`-`) and underscores (`_`)
-* `symbol`: other 'special characters
+* `symbol`: other 'special' characters
 
 
 ## Saving your settings
