@@ -29,52 +29,60 @@ var nopt   = require('nopt'),
     service = params.argv.remain[0];
 
 
-var encrypt = function(data) {
-  var cipher    = crypto.createCipher('aes256', Vault.UUID),
-      encrypted = cipher.update(data, 'utf8', 'binary');
+var AES = {
+  KEY: Vault.UUID,
   
-  encrypted += cipher.final('binary');
-  return encrypted;
+  encrypt: function(data) {
+    var cipher    = crypto.createCipher('aes256', this.KEY),
+        encrypted = cipher.update(data, 'utf8', 'binary');
+    
+    encrypted += cipher.final('binary');
+    return encrypted;
+  },
+  
+  decrypt: function(encrypted) {
+    var cipher = crypto.createDecipher('aes256', this.KEY),
+        data   = cipher.update(encrypted, 'binary', 'utf8');
+    
+    data += cipher.final('utf8');
+    return data;
+  }
 };
 
-var decrypt = function(encrypted) {
-  var cipher = crypto.createDecipher('aes256', Vault.UUID),
-      data   = cipher.update(encrypted, 'binary', 'utf8');
-  
-  data += cipher.final('utf8');
-  return data;
-};
 
-var editConfig = function(transform) {
-  fs.readFile(CONFIG, function(error, data) {
-    
-    var config = error ? {services: {}} : JSON.parse(decrypt(data.toString()));
-    transform(config);
-    
-    fs.writeFile(CONFIG, encrypt(JSON.stringify(config, true, 2)), function(error) {
-      if (error) console.error('Error writing file: ' + CONFIG);
-      process.exit(error ? 1 : 0);
+var Config = {
+  edit: function(transform) {
+    fs.readFile(CONFIG, function(error, data) {
+      
+      var config = error ? {services: {}} : JSON.parse(AES.decrypt(data.toString()));
+      transform(config);
+      
+      fs.writeFile(CONFIG, AES.encrypt(JSON.stringify(config, true, 2)), function(error) {
+        if (error) console.error('Error writing file: ' + CONFIG);
+        process.exit(error ? 1 : 0);
+      });
     });
-  });
+  },
+  
+  read: function(service) {
+    var config = {};
+    try {
+      var content = fs.readFileSync(CONFIG).toString(),
+          data    = JSON.parse(AES.decrypt(content));
+      
+      Vault.extend(config, data.services[service] || {});
+      Vault.extend(config, data, function(value) { return typeof value !== 'object' });
+    } catch (e) {}
+    
+    return config;
+  }
 };
 
-var readConfig = function(service) {
-  var config = {};
-  try {
-    var content = fs.readFileSync(CONFIG).toString(),
-        data    = JSON.parse(decrypt(content));
-    
-    Vault.extend(config, data.services[service] || {});
-    Vault.extend(config, data, function(value) { return typeof value !== 'object' });
-  } catch (e) {}
-  
-  return config;
-};
 
 if (params.config) {
   delete params.config;
   
-  editConfig(function(settings) {
+  Config.edit(function(settings) {
     if (service) {
       settings.services[service] = settings.services[service] || {};
       settings = settings.services[service];
@@ -87,7 +95,7 @@ if (params.config) {
   });
 
 } else {
-  Vault.extend(params, readConfig(service));
+  Vault.extend(params, Config.read(service));
   
   if (params.phrase === undefined) {
     console.error('Passphrase is not defined; pass `-p PHRASE` or run `vault -cp PHRASE`');
