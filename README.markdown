@@ -41,12 +41,48 @@ You can set the desired length using `-l`:
     $ vault -p 'Your phrase' google -l 6
     qhJ36N
 
+Various character types can be excluded, for example to get a password with no
+letters in it:
+
+    $ vault -p 'Your phrase' google --no-symbol
+    ib0E7PpeRAvS9UWfngye
+
+Available character classes include:
+
+* `lower`: lowercase letters, `a`-`z`
+* `upper`: uppercase letters, `A`-`Z`
+* `alpha`: all letters, `a`-`Z`
+* `number`: the digits `0`-`9`
+* `space`: the space character ` `
+* `dash`: dashes (`-`) and underscores (`_`)
+* `symbol`: other 'special characters
+
+
+## Saving your settings
+
 If you like, you can store your passphrase on disk; `vault` will save it in a
 file called `.vault` in your home directory:
 
-    $ vault -cp 'Your phrase'
+    $ vault -c -p 'Your phrase'
     $ vault google
     qhJ36N^.0.Z27a|Jyi8{
+
+You can also configure character class settings this way:
+
+    $ vault -c --no-alpha
+    $ vault -p 'Your phrase' google
+    81}%'}({~;*+]'[{2->@
+
+Both the passphrase and the character class settings can be overridden on a
+per-service basis:
+
+    $ vault -c twitter --alpha --no-symbol
+    
+    $ vault -p 'Your phrase' twitter
+    cclmjWB5yzHnFL4K8lJA
+    
+    $ vault -p 'Your phrase' google
+    81}%'}({~;*+]'[{2->@
 
 
 ## How does it work?
