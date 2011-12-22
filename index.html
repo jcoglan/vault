@@ -5,6 +5,61 @@
     <title>vault</title>
     <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.3.0-crypto-sha256.js"></script>
     <script type="text/javascript" src="./lib/vault.js"></script>
+    <style type="text/css">
+      body, input {
+        background: #ddd;
+        color: #222;
+        font: 16px FreeSans, Helvetica, Arial, sans-serif;
+      }
+      
+      h1, .form {
+        margin: 0 auto;
+        width: 400px;
+      }
+      
+      label, input {
+        display: block;
+        width: 100%;
+      }
+      label {
+        color: #555;
+        margin-top: 1em;
+      }
+      input {
+        border: none;
+        border-bottom: 1px solid #666;
+      }
+      
+      table {
+        margin-top: 1em;
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table th, table td {
+        padding: 4px 0;
+      }
+      table th {
+        color: #555;
+        font-size: 0.6em;
+        font-weight: bold;
+        text-align: left;
+        text-transform: uppercase;
+        width: 50px;
+      }
+      table thead th {
+        text-align: center;
+        text-transform: none;
+      }
+      table thead tr {
+        border-bottom: 1px solid #ccc;
+      }
+      table th, table td {
+        border-left: 1px solid #ccc;
+      }
+      table th:first-child, table td:first-child {
+        border: none;
+      }
+    </style>
   </head>
   <body>
     
@@ -31,7 +86,7 @@
               <th scope="col">0&ndash;9</th>
               <th scope="col">- / _</th>
               <th scope="col">SPACE</th>
-              <th scope="col">!@£$%^&hellip;</th>
+              <th scope="col">!@£$%</th>
             </tr>
           </thead>
           <tbody>
@@ -66,6 +121,7 @@
         </table>
       </div>
       
+      <label for="word">Generated password</label>
       <input type="text" id="word"></div>
     </div>
     
