@@ -199,6 +199,7 @@
       
       var inputs = document.getElementsByTagName('input');
       for (var i = 0, n = inputs.length; i < n; i++) {
+        if (inputs[i].id === 'word') continue;
         on(inputs[i], 'keyup', update);
         on(inputs[i], 'change', update);
       }
