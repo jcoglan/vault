@@ -98,15 +98,11 @@
     
     <section>
       <div class="sub form">
-        <div class="field">
-          <label for="passphrase">Passphrase <span>e.g. &ldquo;I&rsquo;m the best 17-year old ever.&rdquo;</span></label>
-          <input type="password" name="passphrase" id="passphrase">
-        </div>
-        
-        <div class="field">
-          <label for="service">Service name <span>e.g. &ldquo;twitter&rdquo;</span></label>
-          <input type="text" name="service" id="service">
-        </div>
+        <label for="passphrase">Passphrase <span>e.g. &ldquo;I&rsquo;m the best 17-year old ever.&rdquo;</span></label>
+        <input type="password" name="passphrase" id="passphrase">
+      
+        <label for="service">Service name <span>e.g. &ldquo;twitter&rdquo;</span></label>
+        <input type="text" name="service" id="service">
         
         <div class="field">
           <table>
@@ -153,8 +149,11 @@
           </table>
         </div>
         
+        <label for="length">Password length <span>e.g. 12</span></label>
+        <input type="text" name="length" id="length" value="20">
+        
         <label for="word">Generated password</label>
-        <input type="text" id="word"></div>
+        <input type="text" id="word">
       </div>
     </section>
     
@@ -179,11 +178,13 @@
       
       var phrase  = $('passphrase'),
           service = $('service'),
+          length  = $('length'),
           word    = $('word'),
           TYPES   = 'lower upper number dash space symbol'.split(' ');
       
       var update = function() {
-        var settings = {phrase: phrase.value}, value;
+        var settings = {phrase: phrase.value, length: parseInt(length.value, 10)},
+            value;
         
         for (var i = 0, n = TYPES.length; i < n; i++) {
           value = radio(TYPES[i]);
