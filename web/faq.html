@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>vault</title>
+    <style type="text/css">
+      body, input {
+        background: #fff;
+        color: #666;
+        font: 16px/1.5 FreeSans, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      h1 {
+        color: #333;
+        font-size: 1.4em;
+      }
+      h2, p {
+        font-size: 1em;
+        margin: 1em 0;
+      }
+      
+      .sub {
+        margin: 0 auto;
+        width: 600px;
+      }
+      .info {
+        background: #fff;
+        border-bottom: 1px solid #999;
+        color: #666;
+        font-size: 0.9em;
+        padding: 1em 0;
+      }
+      a {
+        color: #39f;
+        font-weight: bold;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <section>
+      <div class="sub">
+        <h1>I understand you have questions.</h1>
+        
+        <h2>Who are you?</h2>
+        
+        <p>This site was made by <a href="http://jcoglan.com">James Coglan</a>.
+          I write open-source software for the Web.</p>
+        
+        <h2>Why should I trust you?</h2>
+        
+        <p>This site does not store or transmit any data you enter into it. The
+          passwords it generates are extremely expensive to crack by brute force
+          (compared to passwords most people use) and using them means that if
+          an attacker steals one site&rsquo;s database, your other accounts are
+          safe.</p>
+        
+        <h2>Fine, but I still don&rsquo;t trust you.</h2>
+        
+        <p>And why should you, after all I am just some guy from the Internet.
+          However, this software is open-source (released under the
+          <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a>)
+          and you can <a href="http://github.com/jcoglan/vault">take a look at
+          its source code</a>.</p>
+        
+        <h2>How does it work?</h2>
+        
+        <p>It concatenates your passphrase, a fixed UUID value and the service
+          name you type in, and calculates the
+          <a href="http://en.wikipedia.org/wiki/SHA-2">SHA-256</a> hash of that
+          string. It then encodes the bits of this hash using a 92-character
+          alphabet, subject to the given character constraints. This scheme
+          makes sure that a small change to the input makes a big change to the
+          output, and it means the generated password has a very high degree of
+          entropy.</p>
+        
+        <h2>Is there a command line version?</h2>
+        
+        <p>Of course there is. If you have <a href="http://nodejs.org">Node</a>
+          installed, run <tt>npm install -g vault</tt>. You&rsquo;ll also want
+          to take a look at the <a href="http://github.com/jcoglan/vault">readme</a>.</p>
+      </div>
+    </section>
+    
+  </body>
+</html>
+

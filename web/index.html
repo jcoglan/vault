@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>vault</title>
+    <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.3.0-crypto-sha256.js"></script>
+    <script type="text/javascript" src="./lib/vault.js"></script>
+    <style type="text/css">
+      body, input {
+        background: #e5e5e5;
+        color: #666;
+        font: 20px/1.5 FreeSans, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      h1 {
+        font-size: 2em;
+        margin: 0;
+      }
+      
+      .sub {
+        margin: 0 auto;
+        width: 600px;
+      }
+      .info {
+        background: #fff;
+        border-bottom: 1px solid #999;
+        font-size: 0.9em;
+        padding: 1em 0;
+      }
+      a {
+        color: #39f;
+        font-weight: bold;
+        text-decoration: none;
+      }
+      
+      label, input {
+        display: block;
+        width: 100%;
+      }
+      label {
+        color: #555;
+        margin-top: 1em;
+      }
+      label span {
+        color: #999;
+      }
+      input {
+        border: none;
+        border-bottom: 1px solid #666;
+      }
+      
+      table {
+        margin-top: 1em;
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table th, table td {
+        padding: 4px 0;
+      }
+      table th {
+        color: #555;
+        font-size: 0.6em;
+        font-weight: bold;
+        text-align: left;
+        text-transform: uppercase;
+        width: 50px;
+      }
+      table thead th {
+        text-align: center;
+        text-transform: none;
+      }
+      table thead tr {
+        border-bottom: 1px solid #ccc;
+      }
+      table th, table td {
+        border-left: 1px solid #ccc;
+      }
+      table th:first-child, table td:first-child {
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <section class="info">
+      <div class="sub">
+        <p>Still using the same weak password for every site? Well, you
+          shouldn&rsquo;t. Type your passphrase and the service you&rsquo;re
+          logging into below, and Vault will generate a strong password for that
+          service. Just pop back here next time you need to look up your
+          passwords.</p>
+        
+        <p>Still have <a href="./faq.html">questions</a>?</p>
+      </div>
+    </section>
+    
+    <section>
+      <div class="sub form">
+        <div class="field">
+          <label for="passphrase">Passphrase <span>e.g. &ldquo;Eats, shoots and leaves.&rdquo;</span></label>
+          <input type="password" name="passphrase" id="passphrase">
+        </div>
+        
+        <div class="field">
+          <label for="service">Service name <span>e.g. &ldquo;twitter&rdquo;</span></label>
+          <input type="text" name="service" id="service">
+        </div>
+        
+        <div class="field">
+          <table>
+            <thead>
+              <tr>
+                <td></td>
+                <th scope="col">a&ndash;z</th>
+                <th scope="col">A&ndash;Z</th>
+                <th scope="col">0&ndash;9</th>
+                <th scope="col">- / _</th>
+                <th scope="col">SPACE</th>
+                <th scope="col">!@£$%</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Required</th>
+                <td><input type="radio" name="lower" value="required"></td>
+                <td><input type="radio" name="upper" value="required"></td>
+                <td><input type="radio" name="number" value="required"></td>
+                <td><input type="radio" name="dash" value="required"></td>
+                <td><input type="radio" name="space" value="required"></td>
+                <td><input type="radio" name="symbol" value="required"></td>
+              </tr>
+              <tr>
+                <th scope="row">Allowed</th>
+                <td><input type="radio" name="lower" value="allowed" checked="checked"></td>
+                <td><input type="radio" name="upper" value="allowed" checked="checked"></td>
+                <td><input type="radio" name="number" value="allowed" checked="checked"></td>
+                <td><input type="radio" name="dash" value="allowed" checked="checked"></td>
+                <td><input type="radio" name="space" value="allowed" checked="checked"></td>
+                <td><input type="radio" name="symbol" value="allowed" checked="checked"></td>
+              </tr>
+              <tr>
+                <th scope="row">Forbidden</th>
+                <td><input type="radio" name="lower" value="forbidden"></td>
+                <td><input type="radio" name="upper" value="forbidden"></td>
+                <td><input type="radio" name="number" value="forbidden"></td>
+                <td><input type="radio" name="dash" value="forbidden"></td>
+                <td><input type="radio" name="space" value="forbidden"></td>
+                <td><input type="radio" name="symbol" value="forbidden"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <label for="word">Generated password</label>
+        <input type="text" id="word"></div>
+      </div>
+    </section>
+    
+    <script type="text/javascript">
+      var $ = function(id) { return document.getElementById(id) };
+      
+      var on = function(element, event, listener) {
+        if (element.addEventListener)
+          element.addEventListener(event, listener, false);
+        else
+          element.attachEvent('on' + event, listener);
+      };
+      
+      var radio = function(name) {
+        var inputs = document.getElementsByTagName('input'), input;
+        for (var i = 0, n = inputs.length; i < n; i++) {
+          input = inputs[i];
+          if (input.type === 'radio' && input.name === name && input.checked)
+            return input.value;
+        }
+      };
+      
+      var phrase  = $('passphrase'),
+          service = $('service'),
+          word    = $('word'),
+          TYPES   = 'lower upper number dash space symbol'.split(' ');
+      
+      var update = function() {
+        var settings = {phrase: phrase.value}, value;
+        
+        for (var i = 0, n = TYPES.length; i < n; i++) {
+          value = radio(TYPES[i]);
+          if (value === 'forbidden') settings[TYPES[i]] = 0;
+          else if (value === 'required') settings[TYPES[i]] = 2;
+        }
+        
+        var vault    = new Vault(settings),
+            password = vault.generate(service.value);
+        
+        word.value = password;
+      };
+      
+      var inputs = document.getElementsByTagName('input');
+      for (var i = 0, n = inputs.length; i < n; i++) {
+        on(inputs[i], 'keyup', update);
+        on(inputs[i], 'change', update);
+      }
+    </script>
+    
+  </body>
+</html>
+
