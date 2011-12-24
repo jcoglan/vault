@@ -31,26 +31,31 @@ This program is written in JavaScript and is available as a Node program:
 
 ## Usage
 
-The most basic usage involves passing your passphrase and the service name:
+The most basic usage involves passing your passphrase and the service name; when
+you pass the `-p` flag you will be prompted for your passphrase:
 
-    $ vault -p 'Your phrase' google
+    $ vault -p google
+    Passphrase: ************
     bp64TR9>"Zq)QA3Lz+VY
 
 You can set the desired length using `-l`:
 
-    $ vault -p 'Your phrase' google -l 6
+    $ vault -p google -l 6
+    Passphrase: ************
     a:U0Es
 
 You can control the character types present in the output, either to disable
 certain types or make sure they are present. For example, to get a password with
 no symbols in it:
 
-    $ vault -p 'Your phrase' google --symbol 0
+    $ vault -p google --symbol 0
+    Passphrase: ************
     aJ3pkPSTWtze5ImrFkm5
 
 To get a password containing at least one dash and uppercase letter:
 
-    $ vault -p 'Your phrase' google --dash 1 --upper 1
+    $ vault -p google --dash 1 --upper 1
+    Passphrase: ************
     bp64TR9>_0WpyMJ O]WV
 
 Available character classes include:
@@ -78,14 +83,16 @@ third-party services.
 
 To save your passphrase, pass the `--config` or `-c` flag:
 
-    $ vault -c -p 'Your phrase'
+    $ vault -c -p
+    Passphrase: ************
     $ vault google
     bp64TR9>"Zq)QA3Lz+VY
 
 You can also configure character class settings this way:
 
     $ vault -c --alpha 0
-    $ vault -p 'Your phrase' google
+    $ vault -p google
+    Passphrase: ************
     0.}*&]}}[(.0$!(@::(!
 
 Both the passphrase and the character class settings can be overridden on a
@@ -93,10 +100,12 @@ per-service basis:
 
     $ vault -c twitter --alpha 1 --symbol 0
     
-    $ vault -p 'Your phrase' twitter
+    $ vault -p twitter
+    Passphrase: ************
     bZoVyy3Le4XRJmE9a yh
     
-    $ vault -p 'Your phrase' google
+    $ vault -p google
+    Passphrase: ************
     0.}*&]}}[(.0$!(@::(!
 
 

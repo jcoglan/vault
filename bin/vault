@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 var nopt   = require('nopt'),
+    pw     = require('pw'),
     tty    = require('tty'),
     Vault  = require('../lib/vault'),
     Config = require('../lib/vault/config'),
     
     options = { 'config': Boolean,
-                'phrase': String,
+                'phrase': Boolean,
                 'length': Number,
                 'lower':  Number,
                 'upper':  Number,
@@ -26,13 +27,13 @@ var nopt   = require('nopt'),
     service = params.argv.remain[0];
 
 
-var die = function(message) {
+function die(message) {
   console.error(message);
   process.exit(1);
-};
+}
 
 
-if (params.config) {
+function configure() {
   delete params.config;
   
   Config.edit(function(settings) {
@@ -50,7 +51,9 @@ if (params.config) {
     process.exit(error ? 1 : 0);
   });
 }
-else {
+
+
+function generate() {
   var serviceConfig = Config.read(service);
   if (!serviceConfig)
     die('Your .vault file is unreadable; please set VAULT_KEY correctly');
@@ -71,3 +74,19 @@ else {
   process.exit(0);
 }
 
+
+function run() {
+  if (params.config) configure();
+  else generate();
+}
+
+
+if (params.phrase) {
+  process.stderr.write('Passphrase: ');
+  pw('*', process.stdin, process.stderr, function(password) {
+    params.phrase = password;
+    run();
+  });
+} else {
+  run();
+}

@@ -8,7 +8,7 @@
 , "engines"         : {"node": ">=0.4.0"}
 , "main"            : "./index.js"
 , "bin"             : {"vault": "./bin/vault"}
-, "dependencies"    : {"nopt": ""}
+, "dependencies"    : {"nopt": "", "pw": ""}
 , "devDependencies" : {"jsclass": ""}
 
 , "bugs"            : "http://github.com/jcoglan/vault/issues"
