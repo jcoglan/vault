@@ -53,6 +53,15 @@
         font-size: 1em;
       }
       
+      table label {
+        display: inline;
+      }
+      table input[type=text] {
+        display: inline;
+        text-align: right;
+        width: 1em;
+      }
+      
       table {
         margin-top: 1em;
         width: 100%;
@@ -125,7 +134,10 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">Required</th>
+                <th scope="row">
+                  <label for="required">Required</label>
+                  (<input type="text" name="required" id="required" value="2">)
+                </th>
                 <td><input type="radio" name="lower" value="required"></td>
                 <td><input type="radio" name="upper" value="required"></td>
                 <td><input type="radio" name="number" value="required"></td>
@@ -186,21 +198,31 @@
         }
       };
       
-      var phrase  = $('passphrase'),
-          service = $('service'),
-          length  = $('length'),
-          word    = $('word'),
-          TYPES   = 'lower upper number dash space symbol'.split(' ');
+      var phrase   = $('passphrase'),
+          service  = $('service'),
+          required = $('required'),
+          length   = $('length'),
+          word     = $('word'),
+          TYPES    = 'lower upper number dash space symbol'.split(' ');
       
       var update = function() {
-        var settings = {phrase: phrase.value, length: parseInt(length.value, 10)},
+        var plength   = parseInt(length.value, 10),
+            rlength   = parseInt(required.value, 10),
+            settings  = {phrase: phrase.value, length: plength},
+            nrequired = 0,
             value;
         
         for (var i = 0, n = TYPES.length; i < n; i++) {
           value = radio(TYPES[i]);
-          if (value === 'forbidden') settings[TYPES[i]] = 0;
-          else if (value === 'required') settings[TYPES[i]] = 2;
+          if (value === 'forbidden') {
+            settings[TYPES[i]] = 0;
+          } else if (value === 'required') {
+            settings[TYPES[i]] = rlength;
+            nrequired += rlength;
+          }
         }
+        if (nrequired > plength)
+          return word.value = 'Too many required characters';
         
         var vault    = new Vault(settings),
             password = vault.generate(service.value);
