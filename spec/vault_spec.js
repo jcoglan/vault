@@ -9,11 +9,11 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE} })
     
     it("generates a password", function() { with(this) {
-      assertEqual( 'ZoNE1gr1Z}J2U_Uh8"uy', vault.generate("google") )
+      assertEqual( "~h|(-W5*}8)X-U.1", vault.generate("google") )
     }})
     
     it("generates a different password for each service", function() { with(this) {
-      assertEqual( "9E>!Z)(*@$w3Zd6h8WX=", vault.generate("twitter") )
+      assertEqual( "9;1(JK,mQfGW3ZG2", vault.generate("twitter") )
     }})
   }})
   
@@ -29,7 +29,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, symbol: 0} })
     
     it("generates a password containing no symbols", function() { with(this) {
-      assertEqual( "zduX7SCXZ iXA52Udpvi", vault.generate("google") )
+      assertEqual( "SHk4UTBJ155imBTY", vault.generate("google") )
     }})
   }})
   
@@ -37,7 +37,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, number: 0} })
     
     it("generates a password containing no digits", function() { with(this) {
-      assertEqual( "ZoNE!gr!Z?J@UTUh*Pkm", vault.generate("google") )
+      assertEqual( 'S]PX&S%:?*"XTUR!', vault.generate("google") )
     }})
   }})
   
@@ -45,7 +45,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, alpha: 0} })
     
     it("generates a password containing no letters", function() { with(this) {
-      assertEqual( "]3){';;6+%:>++~}'7% ", vault.generate("google") )
+      assertEqual( "+^*|'}{:{+__.{;+", vault.generate("google") )
     }})
   }})
   
@@ -58,10 +58,10 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
   
   describe("with lots of spaces", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, space: 18} })
+    define("options", function() { return {phrase: PHRASE, space: 14} })
     
     it("generates a password that's almost all spaces", function() { with(this) {
-      assertEqual( "e             1     ", vault.generate("songkick") )
+      assertEqual( "            c0  ", vault.generate("songkick") )
     }})
   }})
 }})
