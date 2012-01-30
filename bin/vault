@@ -61,10 +61,10 @@ function generate() {
   Vault.extend(params, serviceConfig);
   
   if (params.phrase === undefined)
-    die('Passphrase is not defined; pass `-p` or run `vault -cp`');
+    die('No passphrase given; pass `-p` or run `vault -cp`');
 
   if (service === undefined)
-    die('Service is not defined');
+    die('No service name given');
 
   var vault    = new Vault(params),
       password = vault.generate(service);
