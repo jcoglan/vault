@@ -119,25 +119,19 @@
         var plength   = parseInt(length.value, 10),
             rlength   = parseInt(required.value, 10),
             settings  = {phrase: phrase.value, length: plength},
-            nrequired = 0,
-            value, vault, password;
+            value, vault;
         
         for (var i = 0, n = TYPES.length; i < n; i++) {
           value = radio(TYPES[i]);
-          if (value === 'forbidden') {
+          if (value === 'forbidden')
             settings[TYPES[i]] = 0;
-          } else if (value === 'required') {
+          else if (value === 'required')
             settings[TYPES[i]] = rlength;
-            nrequired += rlength;
-          }
         }
-        if (nrequired > plength)
-          return word.value = 'Too many required characters';
         
         try {
-          vault    = new Vault(settings);
-          password = vault.generate(service.value);
-          word.value = password;
+          vault      = new Vault(settings);
+          word.value = vault.generate(service.value);;
         } catch (e) {
           word.value = '!! ' + e.message;
         }

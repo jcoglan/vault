@@ -41,6 +41,14 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     }})
   }})
   
+  describe("with more symbols than will fit", function() { with(this) {
+    define("options", function() { return {phrase: PHRASE, symbol: 100} })
+    
+    it("throws an error", function() { with(this) {
+      assertThrows(Error, function() { vault.generate("google") })
+    }})
+  }})
+  
   describe("with no numbers", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, number: 0} })
     
