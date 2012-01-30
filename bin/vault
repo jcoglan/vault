@@ -54,7 +54,9 @@ function configure() {
 
 
 function generate() {
-  var serviceConfig = Config.read(service);
+  var serviceConfig = Config.read(service),
+      vault, password;
+  
   if (!serviceConfig)
     die('Your .vault file is unreadable; please set VAULT_KEY correctly');
   
@@ -66,8 +68,12 @@ function generate() {
   if (service === undefined)
     die('No service name given');
 
-  var vault    = new Vault(params),
-      password = vault.generate(service);
+  try {
+    vault    = new Vault(params);
+    password = vault.generate(service);
+  } catch (e) {
+    die(e.message);
+  }
   
   process.stdout.write(password);
   if (tty.isatty(1)) process.stdout.write('\n');
