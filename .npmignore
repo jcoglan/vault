@@ -1,3 +1,5 @@
 .git
+.gitignore
+.redcar
 node_modules
 spec
