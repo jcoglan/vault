@@ -1,5 +1,7 @@
 .git
 .gitignore
+.npmignore
 .redcar
+*.html
 node_modules
 spec
