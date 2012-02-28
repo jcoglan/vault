@@ -1,6 +1,6 @@
 { "name"            : "vault"
 , "description"     : "Generates safe passwords for the web"
-, "homepage"        : "http://github.com/jcoglan/vault"
+, "homepage"        : "https://vault.jcoglan.com"
 , "author"          : "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)"
 , "keywords"        : ["security", "passwords"]
 
