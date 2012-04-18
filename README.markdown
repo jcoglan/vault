@@ -36,13 +36,13 @@ you pass the `-p` flag you will be prompted for your passphrase:
 
     $ vault -p google
     Passphrase: *********
-    ^A99Ii^9&}0r."&Y
+    Zl51S48;v69x£*4<
 
 You can set the desired length using `-l`:
 
     $ vault -p google -l 6
     Passphrase: *********
-    rZX39Y
+    zcF;'S
 
 You can control the character types present in the output, either to disable
 certain types or make sure they are present. For example, to get a password with
@@ -50,13 +50,13 @@ no symbols in it:
 
     $ vault -p google --symbol 0
     Passphrase: *********
-    IMhFYibiVxDPivAw
+    Zf86R FZY FcKCXX
 
 To get a password containing at least one dash and uppercase letter:
 
     $ vault -p google --dash 1 --upper 1
     Passphrase: *********
-    ^A99IiREX|6iR"&_
+    ZC 9R -Y9><0Udm4
 
 Available character classes include:
 
@@ -86,14 +86,14 @@ To save your passphrase, pass the `--config` or `-c` flag:
     $ vault -c -p
     Passphrase: *********
     $ vault google
-    ^A99Ii^9&}0r."&Y
+    Zl51S48;v69x£*4<
 
 You can also configure character class settings this way:
 
     $ vault -c --alpha 0
     $ vault -p google
     Passphrase: *********
-    .-7|]40?;.)[?.=+
+    ]2|" %1~"='|1]3>
 
 Both the passphrase and the character class settings can be overridden on a
 per-service basis:
@@ -102,24 +102,22 @@ per-service basis:
     
     $ vault -p twitter
     Passphrase: *********
-    7G6dqSN74Ah5WlT0
+    c14EBzG8vF2uiXd2
     
     $ vault -p google
     Passphrase: *********
-    .-7|]40?;.)[?.=+
+    ]2|" %1~"='|1]3>
 
 
 ## How does it work?
 
-`vault` concatenates your passphrase, a fixed UUID value, and the service name,
-and calculates the SHA-256 hash of that string. It then encodes the bits of that
-hash using a 92-character set including letters, numbers, spaces and symbols up
-to the desired length.
-
-This scheme means that the generated passwords have a very high degree of
-entropy and an attacker will find it extremely expensive either to brute-force
-one of your passwords or to guess any of your passwords even if they steal one
-service's database.
+`vault` takes your passphrase and a service name and signs the service name with
+the passphrase using HMAC-SHA256. It then encodes the bits of this hash using a
+92-character alphabet, subject to the given character constraints. This design
+makes sure that each password is very hard to break by brute force, and ensures
+that the discovery of one service's password does not lead to other accounts
+being compromised. It also means you can tailor the output to the character set
+accepted by each service.
 
 
 ## License
