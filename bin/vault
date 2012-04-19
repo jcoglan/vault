@@ -9,18 +9,24 @@ var nopt   = require('nopt'),
     options = { 'config': Boolean,
                 'phrase': Boolean,
                 'length': Number,
+                
                 'lower':  Number,
                 'upper':  Number,
                 'alpha':  Number,
                 'number': Number,
                 'space':  Number,
                 'dash':   Number,
-                'symbol': Number
+                'symbol': Number,
+                
+                'export': String,
+                'import': String
               },
     
     shorts  = { 'c': '--config',
                 'p': '--phrase',
-                'l': '--length'
+                'l': '--length',
+                'e': '--export',
+                'i': '--import'
               },
     
     params  = nopt(options, shorts),
@@ -46,9 +52,6 @@ function configure() {
       if (typeof params[key] !== 'object')
         settings[key] = params[key];
     }
-  }, function(error) {
-    if (error) console.error('Error writing file: ' + configPath);
-    process.exit(error ? 1 : 0);
   });
 }
 
@@ -56,9 +59,6 @@ function configure() {
 function generate() {
   var serviceConfig = Config.read(service),
       vault, password;
-  
-  if (!serviceConfig)
-    die('Your .vault file is unreadable; please set VAULT_KEY correctly');
   
   Vault.extend(params, serviceConfig);
   
@@ -68,12 +68,8 @@ function generate() {
   if (service === undefined)
     die('No service name given');
 
-  try {
-    vault    = new Vault(params);
-    password = vault.generate(service);
-  } catch (e) {
-    die(e.message);
-  }
+  vault    = new Vault(params);
+  password = vault.generate(service);
   
   process.stdout.write(password);
   if (tty.isatty(1)) process.stdout.write('\n');
@@ -82,8 +78,14 @@ function generate() {
 
 
 function run() {
-  if (params.config) configure();
-  else generate();
+  try {
+    if      (params.export) Config.export(params.export);
+    else if (params.import) Config.import(params.import);
+    else if (params.config) configure();
+    else                    generate();
+  } catch (e) {
+    die(e.message);
+  }
 }
 
 
@@ -96,3 +98,4 @@ if (params.phrase) {
 } else {
   run();
 }
+
