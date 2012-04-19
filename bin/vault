@@ -33,6 +33,12 @@ var nopt   = require('nopt'),
     service = params.argv.remain[0];
 
 
+Config = new Config({
+  path: process.env.HOME + '/' + (process.env.VAULT_PATH || '.vault'),
+  key:  process.env.VAULT_KEY || process.env.LOGNAME || process.env.USER
+});
+
+
 function die(message) {
   console.error(message);
   process.exit(1);
