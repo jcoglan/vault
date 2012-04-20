@@ -1,4 +1,4 @@
-# vault
+# vault [<img src="https://secure.travis-ci.org/jcoglan/vault.png" />](http://travis-ci.org/jcoglan/vault)
 
 NOT YET RELEASED, AND NOT NECESSARILY STABLE. DON'T STORE YOUR PASSWORDS WITH
 THIS JUST YET.
