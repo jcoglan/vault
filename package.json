@@ -11,6 +11,8 @@
 , "dependencies"    : {"nopt": "", "pw": ""}
 , "devDependencies" : {"jsclass": ""}
 
+, "scripts"         : {"test": "node spec/node.js"}
+
 , "bugs"            : "http://github.com/jcoglan/vault/issues"
 
 , "licenses"        : [ { "type"    : "MIT"
