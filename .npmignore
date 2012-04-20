@@ -2,6 +2,7 @@
 .gitignore
 .npmignore
 .redcar
+.travis.yml
 *.html
 node_modules
 spec
