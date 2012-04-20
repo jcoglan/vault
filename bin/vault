@@ -4,12 +4,13 @@ var CLI  = require('../lib/vault/cli'),
     pw   = require('pw'),
     tty  = require('tty'),
     
-    path = process.env.HOME + '/' +
-           (process.env.VAULT_PATH || '.vault'),
+    path = process.env.VAULT_PATH || '.vault',
     
     key  = process.env.VAULT_KEY ||
            process.env.LOGNAME ||
            process.env.USER;
+
+if (!/^\//.test(path)) path = process.env.HOME + '/' + path;
 
 var cli = new CLI({
   config: {path: path, key: key},
