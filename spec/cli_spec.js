@@ -6,7 +6,7 @@ var fs     = require('fs'),
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   before(function() { with(this) {
     this.configPath = path.resolve(__dirname + "/.vault")
-    this.exportPath = path.resolve(__dirname + "export.json")
+    this.exportPath = path.resolve(__dirname + "/export.json")
     this.stdout     = {}
     
     this.cli = new CLI({

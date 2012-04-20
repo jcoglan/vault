@@ -5,7 +5,7 @@ var fs     = require('fs'),
 JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
   before(function() { with(this) {
     this.configPath = path.resolve(__dirname + "/.vault")
-    this.exportPath = path.resolve(__dirname + "export.json")
+    this.exportPath = path.resolve(__dirname + "/export.json")
     this.config = new Config({path: configPath, key: "the key"})
   }})
   
