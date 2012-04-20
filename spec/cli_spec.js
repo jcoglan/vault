@@ -100,6 +100,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       })
     }})
     
+    it("reports an error if the key is wrong", function() { with(this) {
+      cli._config = new Config({path: configPath, key: "the wrong key"})
+      expect(cli, "die").given("Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings")
+      cli.run(["node", "bin/vault", "google"])
+    }})
+    
     it("outputs a password using the stored passphrase", function() { with(this) {
       expect(stdout, "write").given(")$)4\":1-}-^|\"\"&{")
       cli.run(["node", "bin/vault", "google"])
