@@ -116,6 +116,11 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "twitter"])
     }})
     
+    it("outputs a password using service-specific settings with overrides", function() { with(this) {
+      expect(stdout, "write").given("3Z$£=54\"0&}:0:<m")
+      cli.run(["node", "bin/vault", "twitter", "--symbol", "4"])
+    }})
+    
     it("reports an error if no service given", function() { with(this) {
       expect(cli, "die").given("No service name given")
       cli.run(["node", "bin/vault"])
