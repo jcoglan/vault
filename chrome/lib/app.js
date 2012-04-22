@@ -97,15 +97,20 @@ on(clearSettings, 'click', function(e) {
 });
 
 if (typeof Config === 'object') {
-  var settings = Config.read('');
+  var settings = Config.read(''), value;
   phrase.value = settings.phrase || '';
   
   on(service, 'keyup', function() {
-    settings = Config.read(service.value);
-    if (settings.length) length.value = settings.length;
-    for (var i = 0, n = TYPES.length; i < n; i++)
-      setRadio(TYPES[i], settings[TYPES[i]]);
+    var settings = Config.read(service.value),
+        reqValue = 2;
     
+    if (settings.length) length.value = settings.length;
+    for (var i = 0, n = TYPES.length; i < n; i++) {
+      value = settings[TYPES[i]];
+      setRadio(TYPES[i], value);
+      if (value && value > 0) reqValue = value;
+    }
+    required.value = reqValue;
     update();
   });
 }
