@@ -1,6 +1,6 @@
 {
   "name": "Vault",
-  "version": "0.2",
+  "version": "0.2.0",
   "manifest_version": 2,
   "description": "Generates safe passwords for the web",
   "browser_action": {
