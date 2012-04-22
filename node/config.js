@@ -1,6 +1,6 @@
 var fs    = require('fs'),
     AES   = require('./aes'),
-    Vault = require('../vault');
+    Vault = require('../lib/vault');
 
 var Config = function(options) {
   this._path = options.path;

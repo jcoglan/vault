@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var CLI  = require('../lib/vault/cli'),
+var CLI  = require('../node/cli'),
     pw   = require('pw'),
     tty  = require('tty'),
     

@@ -1,5 +1,5 @@
 var nopt   = require('nopt'),
-    Vault  = require('../vault'),
+    Vault  = require('../lib/vault'),
     Config = require('./config'),
     
     options = { 'config': Boolean,

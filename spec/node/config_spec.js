@@ -1,6 +1,6 @@
 var fs     = require('fs'),
     path   = require('path'),
-    Config = require('../lib/vault/config')
+    Config = require('../../node/config')
 
 JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
   before(function() { with(this) {

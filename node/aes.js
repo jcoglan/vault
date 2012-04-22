@@ -1,6 +1,6 @@
 var crypto = require('crypto'),
-    Crypto = require('../crypto-js-2.5.3'),
-    Vault  = require('../vault');
+    Crypto = require('../lib/crypto-js-2.5.3'),
+    Vault  = require('../lib/vault');
 
 if (!crypto.randomBytes) // Node < 0.6
   crypto.randomBytes = function(size) {

@@ -1,7 +1,7 @@
 var fs     = require('fs'),
     path   = require('path'),
-    CLI    = require('../lib/vault/cli'),
-    Config = require('../lib/vault/config')
+    CLI    = require('../../node/cli'),
+    Config = require('../../node/config')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   before(function() { with(this) {
