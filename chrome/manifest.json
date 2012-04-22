@@ -1,0 +1,10 @@
+{
+  "name": "Vault",
+  "version": "0.2",
+  "manifest_version": 2,
+  "description": "Generates safe passwords for the web",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "vault.html"
+  }
+}

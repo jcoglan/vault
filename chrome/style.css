@@ -1,0 +1,100 @@
+body, input {
+  background: #fff;
+  color: #666;
+  font: 14px/1.5 FreeSans, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.sub {
+  padding: 0 1em 1.5em;
+  width: 400px;
+}
+.form {
+  background: #f4f4f4;
+  border-bottom: 1px solid #999;
+  padding-top: 0.5em;
+}
+.info .sub {
+  padding-bottom: 0;
+}
+
+h1 {
+  color: #333;
+  font-size: 1.4em;
+}
+h2, p {
+  font-size: 1em;
+  margin: 1em 0;
+}
+a {
+  color: #39f;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+label, input[type=text], input[type=password] {
+  display: block;
+  width: 100%;
+}
+label {
+  color: #555;
+  margin-top: 1em;
+}
+label span {
+  color: #999;
+}
+.form input {
+  background: #f4f4f4;
+}
+input {
+  border: none;
+  border-bottom: 1px solid #666;
+  font-size: 1em;
+}
+#word {
+  display: inline;
+  width: 70%;
+}
+button {
+  float: right;
+  margin-left: 12px;
+}
+
+table label {
+  display: inline;
+}
+table input[type=text] {
+  display: inline;
+  width: 1em;
+}
+
+table {
+  margin-top: 1em;
+  width: 100%;
+  border-collapse: collapse;
+}
+table th, table td {
+  padding: 4px 0;
+  border-left: 1px solid #ccc;
+  text-align: center;
+}
+table th {
+  color: #555;
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: uppercase;
+  width: 30px;
+}
+table thead th {
+  text-transform: none;
+}
+table thead tr {
+  border-bottom: 1px solid #ccc;
+}
+table tbody th {
+  text-align: left;
+}
+table th:first-child, table td:first-child {
+  border: none;
+}

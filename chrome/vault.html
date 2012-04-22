@@ -2,26 +2,13 @@
 <html>
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
     <title>vault</title>
     <script type="text/javascript" src="./lib/crypto-js-2.5.3.js"></script>
     <script type="text/javascript" src="./lib/vault.js"></script>
+    <script type="text/javascript" src="./config.js"></script>
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
-    
-    <section class="info">
-      <div class="sub">
-        <p><strong>NOT STABLE &ndash; BETA TESTERS ONLY PLEASE</strong></p>
-
-        <p><strong>Using the same password for every site?</strong> Well, you
-          shouldn&rsquo;t. Enter your passphrase and the service you&rsquo;re
-          logging into, and get a unique password for that service. Come back
-          here next time you need to look up your passwords.</p>
-        
-        <p>Still have <a href="./faq.html">questions</a>?</p>
-      </div>
-    </section>
     
     <section class="form">
       <div class="sub">
@@ -88,6 +75,8 @@
       <div class="sub">
         <label for="word">Generated password</label>
         <input type="text" id="word">
+        <button id="clear-settings">Clear</button>
+        <button id="save-settings">Save</button>
       </div>
     </section>
     

@@ -3,7 +3,7 @@
 .npmignore
 .redcar
 .travis.yml
-*.html
+chrome
 node_modules
 spec
 web
