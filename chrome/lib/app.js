@@ -78,6 +78,24 @@ for (var i = 0, n = inputs.length; i < n; i++) {
   on(inputs[i], 'change', update);
 }
 
+var insert = function() {
+  var password = word.value.replace(/'/g, '\\\'');
+  chrome.tabs.executeScript(null, {
+    code: "(document.activeElement||{}).value = '" + password + "';"
+  });
+};
+var insertPassword = $('insert-password');
+on(insertPassword, 'click', function(e) {
+  e.preventDefault();
+  insert();
+});
+on(service, 'keydown', function(e) {
+  if (e.keyCode === 13) {
+    insert();
+    window.close();
+  }
+});
+
 var saveSettings = $('save-settings');
 on(saveSettings, 'click', function(e) {
   e.preventDefault();

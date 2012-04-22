@@ -6,5 +6,8 @@
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "vault.html"
-  }
+  },
+  "permissions": [
+    "tabs", "*://*/*"
+  ]
 }
