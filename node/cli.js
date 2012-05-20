@@ -61,6 +61,7 @@ CLI.prototype.withPhrase = function(params, callback) {
 CLI.prototype.export = function(path, callback, context) {
   this._storage.export(function(error, json) {
     if (error) return callback.call(context, error);
+    json = json || JSON.stringify({global: {}, services: {}}, true, 2);
     fs.writeFile(path, json, function() {
       callback.apply(context, arguments);
     });

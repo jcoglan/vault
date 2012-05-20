@@ -9,7 +9,7 @@ LocalStore = {
     if (json) {
       callback.call(context, null, JSON.parse(json));
     } else {
-      callback.call(context, null, {global: {}, services: {}});
+      callback.call(context, null, null);
     }
   },
   

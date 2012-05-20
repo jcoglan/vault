@@ -16,7 +16,7 @@ LocalStore.prototype.clear = function(callback, context) {
 LocalStore.prototype.load = function(callback, context) {
   var self = this;
   fs.readFile(this._path, function(error, content) {
-    if (error) return callback.call(context, null, {global: {}, services: {}});
+    if (error) return callback.call(context, null, null);
     
     var config;
     try { config = JSON.parse(self._aes.decrypt(content.toString())); }
@@ -41,7 +41,7 @@ LocalStore.prototype.import = function(string, callback, context) {
 LocalStore.prototype.export = function(callback, context) {
   this.load(function(error, config) {
     if (error) callback.call(context, error);
-    else callback.call(context, null, JSON.stringify(config, true, 2));
+    else callback.call(context, null, config && JSON.stringify(config, true, 2));
   });
 };
 
