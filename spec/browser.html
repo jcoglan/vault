@@ -16,14 +16,22 @@
           .provides('Vault')
           .requires('Crypto.SHA256')
         
+        file('../lib/config.js')
+          .provides('Vault.Config')
+          .requires('Vault')
+        
         file('./vault_spec.js')
           .provides('VaultSpec')
           .requires('JS.Test', 'Vault')
+        
+        file('./config_spec.js')
+          .provides('ConfigSpec')
+          .requires('JS.Test', 'Vault.Config')
       }})
     </script>
     
     <script type="text/javascript">
-      JS.require('VaultSpec', function() { JS.Test.autorun() })
+      JS.require('VaultSpec', 'ConfigSpec', function() { JS.Test.autorun() })
     </script>
     
   </body>

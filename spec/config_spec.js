@@ -1,23 +1,14 @@
-var fs         = require('fs'),
-    path       = require('path'),
-    LocalStore = require('../node/local_store'),
-    Config     = require('../lib/config')
-
 JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
   before(function() { with(this) {
-    this.configPath = path.resolve(__dirname + "/.vault")
-    this.exportPath = path.resolve(__dirname + "/export.json")
-    this.storage    = new LocalStore({path: configPath, key: "the key"})
-    this.config     = new Config(storage)
-  }})
-  
-  after(function() { with(this) {
-    [configPath, exportPath].forEach(function(path) {
-      try { fs.unlinkSync(path) } catch (e) {}
-    })
+    this.storage = {}
+    this.config  = new Vault.Config(storage)
   }})
   
   describe("with no config file", function(resume) { with(this) {
+    before(function() { with(this) {
+      stub(storage, "load").yields([null, {global: {}, services: {}}])
+    }})
+    
     it("returns empty settings for a service", function(resume) { with(this) {
       config.read("internet", function(e, internet) {
         resume(function() { assertEqual( {}, internet ) })
@@ -25,38 +16,27 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
     }})
     
     it("does not create a config file on read", function(resume) { with(this) {
-      config.read("internet", function() {
-        fs.stat(configPath, function(error, stat) {
-          resume(function() { assert(error) })
-        })
-      })
+      expect(storage, "dump").exactly(0)
+      config.read("internet", resume)
     }})
     
     it("creates a file on edit", function(resume) { with(this) {
-      config.edit(function() {}, function() {
-        fs.stat(configPath, function(error, stat) {
-          resume(function() { assert(!error) })
-        })
-      })
-    }})
-    
-    it("retrieves service settings after edit", function(resume) { with(this) {
-      config.edit(function(c) { c.services.internet = {n:42} }, function() {
-        config.read("internet", function(e, internet) {
-          resume(function() { assertEqual( {n:42}, internet ) })
-        })
-      })
+      expect(storage, "dump").given({global: {}, services: {}}).yields([null])
+      config.edit(function() {}, resume)
     }})
   }})
   
   describe("with a config file", function() { with(this) {
-    before(function(resume) { with(this) {
-      config.edit(function(c) {
-        c.services.internet = {symbol: 0, alpha: 4}
-        c.services.work = {phrase: "something"}
-        c.global.symbol = 2
-        c.global.phrase = "the phrase"
-      }, resume)
+    before(function() { with(this) {
+      stub(storage, "load").yields([null,
+        {
+          global: {symbol: 2, phrase: "the phrase"},
+          services: {
+            internet: {symbol: 0, alpha: 4},
+            work: {phrase: "something"}
+          }
+        }
+      ])
     }})
     
     it("returns global settings for an unknown service", function(resume) { with(this) {

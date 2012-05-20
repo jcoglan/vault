@@ -1,11 +1,11 @@
 if (typeof require === 'function')
   var Vault = require('../lib/vault');
 
-var Config = function(storage) {
+Vault.Config = function(storage) {
   this._storage = storage;
 };
 
-Config.prototype.edit = function(transform, callback, context) {
+Vault.Config.prototype.edit = function(transform, callback, context) {
   this._storage.load(function(error, config) {
     if (error) return callback.call(context, error);
     transform(config);
@@ -13,7 +13,7 @@ Config.prototype.edit = function(transform, callback, context) {
   }, this);
 };
 
-Config.prototype.read = function(service, callback, context) {
+Vault.Config.prototype.read = function(service, callback, context) {
   this._storage.load(function(error, config) {
     if (error) return callback.call(context, error);
     var settings = {};
@@ -24,7 +24,5 @@ Config.prototype.read = function(service, callback, context) {
 };
 
 if (typeof module === 'object')
-  module.exports = Config;
-else
-  Vault.Config = Config;
+  module.exports = Vault.Config;
 
