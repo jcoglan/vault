@@ -7,6 +7,12 @@ var LocalStore = function(options) {
   this._aes  = new AES(options.key);
 };
 
+LocalStore.prototype.clear = function(callback, context) {
+  fs.unlink(this._path, function() {
+    callback.apply(context, arguments);
+  });
+};
+
 LocalStore.prototype.load = function(callback, context) {
   var self = this;
   fs.readFile(this._path, function(error, content) {

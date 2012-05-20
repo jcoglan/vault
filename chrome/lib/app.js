@@ -83,6 +83,7 @@ var insert = function() {
   chrome.tabs.executeScript(null, {
     code: "(document.activeElement||{}).value = '" + password + "';"
   });
+  window.close();
 };
 var insertPassword = $('insert-password');
 on(insertPassword, 'click', function(e) {
@@ -90,10 +91,10 @@ on(insertPassword, 'click', function(e) {
   insert();
 });
 on(service, 'keydown', function(e) {
-  if (e.keyCode === 13) {
-    insert();
-    window.close();
-  }
+  if (e.keyCode === 13) insert();
+});
+on(phrase, 'keydown', function(e) {
+  if (e.keyCode === 13) insert();
 });
 
 var saveSettings = $('save-settings');
@@ -102,10 +103,10 @@ on(saveSettings, 'click', function(e) {
   var settings = getSettings();
   
   Config.edit(function(config) {
-    config.phrase = settings.phrase;
+    config.global.phrase = settings.phrase;
     delete settings.phrase;
     config.services[service.value] = settings;
-  });
+  }, function() {});
 });
 
 var clearSettings = $('clear-settings');
@@ -114,21 +115,27 @@ on(clearSettings, 'click', function(e) {
   Config.clear();
 });
 
-if (typeof Config === 'object') {
-  var settings = Config.read(''), value;
-  phrase.value = settings.phrase || '';
+if (typeof LocalStore === 'object') {
+  Config = new Vault.Config(LocalStore);
   
-  on(service, 'keyup', function() {
-    var settings = Config.read(service.value),
-        reqValue = 2;
+  Config.read('', function(error, settings) {
+    var value;
+    phrase.value = settings.phrase || '';
     
-    if (settings.length) length.value = settings.length;
-    for (var i = 0, n = TYPES.length; i < n; i++) {
-      value = settings[TYPES[i]];
-      setRadio(TYPES[i], value);
-      if (value && value > 0) reqValue = value;
-    }
-    required.value = reqValue;
-    update();
+    on(service, 'keyup', function() {
+      Config.read(service.value, function(error, settings) {
+        var reqValue = 2;
+        
+        if (settings.length) length.value = settings.length;
+        for (var i = 0, n = TYPES.length; i < n; i++) {
+          value = settings[TYPES[i]];
+          setRadio(TYPES[i], value);
+          if (value && value > 0) reqValue = value;
+        }
+        required.value = reqValue;
+        update();
+      });
+    });
   });
 }
+
