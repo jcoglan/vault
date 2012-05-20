@@ -38,16 +38,10 @@ CLI.prototype.run = function(argv, callback, context) {
       service = params.argv.remain[0];
   
   this.withPhrase(params, function() {
-    try {
-      if      (params.export) this._config.export(params.export);
-      else if (params.import) this._config.import(params.import);
-      else if (params.config) this.configure(service, params);
-      else                    this.generate(service, params, function() {});
-    } catch (e) {
-      this.die(e.message);
-    } finally {
-      callback.call(context, null);
-    }
+    if      (params.export) this._config.export(params.export, callback, context);
+    else if (params.import) this._config.import(params.import, callback, context);
+    else if (params.config) this.configure(service, params, callback, context);
+    else                    this.generate(service, params, callback, context);
   });
 };
 
@@ -61,7 +55,7 @@ CLI.prototype.withPhrase = function(params, callback) {
   });
 };
 
-CLI.prototype.configure = function(service, params) {
+CLI.prototype.configure = function(service, params, callback, context) {
   delete params.config;
   
   this._config.edit(function(settings) {
@@ -74,19 +68,20 @@ CLI.prototype.configure = function(service, params) {
       if (typeof params[key] !== 'object')
         settings[key] = params[key];
     }
-  }, function() {});
+  }, callback, context);
 };
 
 CLI.prototype.generate = function(service, params, callback, context) {
-  this._config.read(service, function(e, serviceConfig) {
+  this._config.read(service, function(error, serviceConfig) {
+    if (error) return callback.call(context, error);
     Vault.extend(params, serviceConfig);
     
-    if (params.phrase === undefined)
-      this.die('No passphrase given; pass `-p` or run `vault -cp`');
-
     if (service === undefined)
-      this.die('No service name given');
-
+      return callback.call(context, new Error('No service name given'));
+    
+    if (params.phrase === undefined)
+      return callback.call(context, new Error('No passphrase given; pass `-p` or run `vault -cp`'));
+    
     var vault    = new Vault(params),
         password = vault.generate(service);
     

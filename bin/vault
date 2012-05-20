@@ -23,4 +23,10 @@ var cli = new CLI({
   }
 });
 
-cli.run(process.argv);
+cli.run(process.argv, function(error) {
+  if (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+});
+

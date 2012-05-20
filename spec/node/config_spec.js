@@ -106,8 +106,10 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
       })
     }})
     
-    it("throws an error when importing a missing file", function() { with(this) {
-      assertThrows(Error, function() { config.import(__dirname + "/nosuch") })
+    it("throws an error when importing a missing file", function(resume) { with(this) {
+      config.import(__dirname + "/nosuch", function(error) {
+        resume(function() { assert(error) })
+      })
     }})
   }})
 }})

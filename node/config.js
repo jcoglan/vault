@@ -8,45 +8,59 @@ var Config = function(options) {
 };
 
 Config.prototype.edit = function(transform, callback, context) {
-  var config = this._readFile();
-  transform(config);
-  var json = JSON.stringify(config);
-  fs.writeFileSync(this._path, this._aes.encrypt(json));
-  callback.call(context, null);
+  this._readFile(function(error, config) {
+    if (error) return callback.call(context, error);
+    transform(config);
+    var json = JSON.stringify(config);
+    fs.writeFile(this._path, this._aes.encrypt(json), function() {
+      callback.apply(context, arguments);
+    });
+  }, this);
 };
 
-Config.prototype.read = function(service, callback, scope) {
-  var config   = this._readFile(),
-      settings = {};
-  
-  Vault.extend(settings, config.services[service] || {});
-  Vault.extend(settings, config, function(value) { return typeof value !== 'object' });
-  
-  callback.call(scope, null, settings);
+Config.prototype.read = function(service, callback, context) {
+  this._readFile(function(error, config) {
+    if (error) return callback.call(context, error);
+    var settings = {};
+    Vault.extend(settings, config.services[service] || {});
+    Vault.extend(settings, config, function(value) { return typeof value !== 'object' });
+    callback.call(context, null, settings);
+  }, this);
 };
 
 Config.prototype.export = function(path, callback, context) {
-  var config = this._readFile();
-  fs.writeFileSync(path, JSON.stringify(config, true, 2));
-  callback.call(context, null);
+  this._readFile(function(error, config) {
+    if (error) return callback.call(context, error);
+    fs.writeFile(path, JSON.stringify(config, true, 2), function() {
+      callback.apply(context, arguments);
+    });
+  }, this);
 };
 
 Config.prototype.import = function(path, callback, context) {
-  var content = fs.readFileSync(path).toString();
-  fs.writeFileSync(this._path, this._aes.encrypt(content));
-  callback.call(context, null);
+  var self = this;
+  fs.readFile(path, function(error, content) {
+    if (error) return callback.call(context, error);
+    fs.writeFile(self._path, self._aes.encrypt(content.toString()), function() {
+      callback.apply(context, arguments);
+    });
+  });
 };
 
-Config.prototype._readFile = function() {
-  try {
-    var content = fs.readFileSync(this._path).toString();
-    return JSON.parse(this._aes.decrypt(content));
-  } catch (e) {
-    if (e instanceof SyntaxError || /^Decipher/.test(e.message))
-      throw new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
-    else
-      return {services: {}};
-  }
+Config.prototype._readFile = function(callback, context) {
+  var self = this;
+  fs.readFile(this._path, function(error, content) {
+    if (error)
+      return callback.call(context, null, {services: {}});
+    
+    var config;
+    try { config = JSON.parse(self._aes.decrypt(content.toString())) }
+    catch (e) {
+      error = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
+      return callback.call(context, error);
+    }
+    callback.call(context, null, config);
+  });
 };
 
 module.exports = Config;

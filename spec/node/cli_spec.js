@@ -18,7 +18,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         callback("something")
       }
     })
-    stub(this.cli, "die")
     
     this.config = new Config({path: configPath, key: "the key"})
   }})
@@ -51,13 +50,19 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("reports an error if no passphrase given", function(resume) { with(this) {
-      expect(cli, "die").given("No passphrase given; pass `-p` or run `vault -cp`")
-      cli.run(["node", "bin/vault", "google"], resume)
+      cli.run(["node", "bin/vault", "google"], function(e) {
+        resume(function() {
+          assertEqual( "No passphrase given; pass `-p` or run `vault -cp`", e.message )
+        })
+      })
     }})
     
     it("reports an error if no service given", function(resume) { with(this) {
-      expect(cli, "die").given("No service name given")
-      cli.run(["node", "bin/vault"], resume)
+      cli.run(["node", "bin/vault"], function(e) {
+        resume(function() {
+          assertEqual( "No service name given", e.message )
+        })
+      })
     }})
     
     it("saves a global passphrase", function(resume) { with(this) {
@@ -121,8 +126,11 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     
     it("reports an error if the key is wrong", function(resume) { with(this) {
       cli._config = new Config({path: configPath, key: "the wrong key"})
-      expect(cli, "die").given("Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings")
-      cli.run(["node", "bin/vault", "google"], resume)
+      cli.run(["node", "bin/vault", "google"], function(e) {
+        resume(function() {
+          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+        })
+      })
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
@@ -141,8 +149,11 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("reports an error if no service given", function(resume) { with(this) {
-      expect(cli, "die").given("No service name given")
-      cli.run(["node", "bin/vault"], resume)
+      cli.run(["node", "bin/vault"], function(e) {
+        resume(function() {
+          assertEqual( "No service name given", e.message )
+        })
+      })
     }})
     
     it("changes a saved service setting", function(resume) { with(this) {
