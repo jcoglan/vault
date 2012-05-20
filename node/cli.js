@@ -33,7 +33,7 @@ var CLI = function(options) {
   this._requestPassword = options.password;
 };
 
-CLI.prototype.run = function(argv) {
+CLI.prototype.run = function(argv, callback, context) {
   var params  = nopt(options, shorts, argv),
       service = params.argv.remain[0];
   
@@ -42,9 +42,11 @@ CLI.prototype.run = function(argv) {
       if      (params.export) this._config.export(params.export);
       else if (params.import) this._config.import(params.import);
       else if (params.config) this.configure(service, params);
-      else                    this.generate(service, params);
+      else                    this.generate(service, params, function() {});
     } catch (e) {
       this.die(e.message);
+    } finally {
+      callback.call(context, null);
     }
   });
 };
@@ -57,11 +59,6 @@ CLI.prototype.withPhrase = function(params, callback) {
     params.phrase = password;
     callback.call(self);
   });
-};
-
-CLI.prototype.die = function(message) {
-  console.error(message);
-  process.exit(1);
 };
 
 CLI.prototype.configure = function(service, params) {
@@ -77,26 +74,27 @@ CLI.prototype.configure = function(service, params) {
       if (typeof params[key] !== 'object')
         settings[key] = params[key];
     }
-  });
+  }, function() {});
 };
 
-CLI.prototype.generate = function(service, params) {
-  var serviceConfig = this._config.read(service),
-      vault, password;
-  
-  Vault.extend(params, serviceConfig);
-  
-  if (params.phrase === undefined)
-    this.die('No passphrase given; pass `-p` or run `vault -cp`');
+CLI.prototype.generate = function(service, params, callback, context) {
+  this._config.read(service, function(e, serviceConfig) {
+    Vault.extend(params, serviceConfig);
+    
+    if (params.phrase === undefined)
+      this.die('No passphrase given; pass `-p` or run `vault -cp`');
 
-  if (service === undefined)
-    this.die('No service name given');
+    if (service === undefined)
+      this.die('No service name given');
 
-  vault    = new Vault(params);
-  password = vault.generate(service);
-  
-  this._out.write(password);
-  if (this._tty) this._out.write('\n');
+    var vault    = new Vault(params),
+        password = vault.generate(service);
+    
+    this._out.write(password);
+    if (this._tty) this._out.write('\n');
+    
+    callback.call(context, null);
+  }, this);
 };
 
 module.exports = CLI;
