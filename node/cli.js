@@ -2,7 +2,7 @@ var fs         = require('fs'),
     nopt       = require('nopt'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
-    Config     = require('./config'),
+    Config     = require('../lib/config'),
     
     options = { 'config': Boolean,
                 'phrase': Boolean,

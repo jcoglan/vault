@@ -1,7 +1,7 @@
 var fs         = require('fs'),
     path       = require('path'),
-    LocalStore = require('../../node/local_store'),
-    Config     = require('../../node/config')
+    LocalStore = require('../node/local_store'),
+    Config     = require('../lib/config')
 
 JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
   before(function() { with(this) {
