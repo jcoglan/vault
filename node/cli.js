@@ -1,6 +1,8 @@
-var nopt   = require('nopt'),
-    Vault  = require('../lib/vault'),
-    Config = require('./config'),
+var fs         = require('fs'),
+    nopt       = require('nopt'),
+    Vault      = require('../lib/vault'),
+    LocalStore = require('./local_store'),
+    Config     = require('./config'),
     
     options = { 'config': Boolean,
                 'phrase': Boolean,
@@ -26,7 +28,8 @@ var nopt   = require('nopt'),
               };
 
 var CLI = function(options) {
-  this._config  = new Config(options.config);
+  this._storage = new LocalStore(options.config);
+  this._config  = new Config(this._storage);
   this._out     = options.output;
   this._tty     = options.tty;
   
@@ -38,8 +41,8 @@ CLI.prototype.run = function(argv, callback, context) {
       service = params.argv.remain[0];
   
   this.withPhrase(params, function() {
-    if      (params.export) this._config.export(params.export, callback, context);
-    else if (params.import) this._config.import(params.import, callback, context);
+    if      (params.export) this.export(params.export, callback, context);
+    else if (params.import) this.import(params.import, callback, context);
     else if (params.config) this.configure(service, params, callback, context);
     else                    this.generate(service, params, callback, context);
   });
@@ -52,6 +55,23 @@ CLI.prototype.withPhrase = function(params, callback) {
   this._requestPassword(function(password) {
     params.phrase = password;
     callback.call(self);
+  });
+};
+
+CLI.prototype.export = function(path, callback, context) {
+  this._storage.export(function(error, json) {
+    if (error) return callback.call(context, error);
+    fs.writeFile(path, json, function() {
+      callback.apply(context, arguments);
+    });
+  });
+};
+
+CLI.prototype.import = function(path, callback, context) {
+  var self = this;
+  fs.readFile(path, function(error, content) {
+    if (error) return callback.call(context, error);
+    self._storage.import(content.toString(), callback, context);
   });
 };
 

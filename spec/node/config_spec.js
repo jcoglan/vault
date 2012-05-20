@@ -1,12 +1,14 @@
-var fs     = require('fs'),
-    path   = require('path'),
-    Config = require('../../node/config')
+var fs         = require('fs'),
+    path       = require('path'),
+    LocalStore = require('../../node/local_store'),
+    Config     = require('../../node/config')
 
 JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
   before(function() { with(this) {
     this.configPath = path.resolve(__dirname + "/.vault")
     this.exportPath = path.resolve(__dirname + "/export.json")
-    this.config = new Config({path: configPath, key: "the key"})
+    this.storage    = new LocalStore({path: configPath, key: "the key"})
+    this.config     = new Config(storage)
   }})
   
   after(function() { with(this) {
@@ -45,24 +47,6 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
         })
       })
     }})
-    
-    it("exports the default settings", function(resume) { with(this) {
-      config.export(exportPath, function() {
-        resume(function() {
-          var json = JSON.parse(fs.readFileSync(exportPath))
-          assertEqual( {global: {}, services: {}}, json )
-        })
-      })
-    }})
-    
-    it("creates a file on import", function(resume) { with(this) {
-      fs.writeFileSync(exportPath, '{"services":{"saved":{"phrase":"stored"}}}')
-      config.import(exportPath, function() {
-        config.read("saved", function(e, saved) {
-          resume(function() { assertEqual( {phrase: "stored"}, saved ) })
-        })
-      })
-    }})
   }})
   
   describe("with a config file", function() { with(this) {
@@ -88,27 +72,6 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
             assertEqual( {phrase: "the phrase", symbol: 0, alpha: 4}, internet )
             assertEqual( {phrase: "something", symbol: 2}, work )
       })})})
-    }})
-    
-    it("exports the saved settings", function(resume) { with(this) {
-      config.export(exportPath, function() {
-        resume(function() {
-          var json = JSON.parse(fs.readFileSync(exportPath))
-          assertEqual( {
-            global: {symbol: 2, phrase: "the phrase"},
-            services: {
-              internet: {symbol: 0, alpha: 4},
-              work:     {phrase: "something"}
-            }
-          }, json )
-        })
-      })
-    }})
-    
-    it("throws an error when importing a missing file", function(resume) { with(this) {
-      config.import(__dirname + "/nosuch", function(error) {
-        resume(function() { assert(error) })
-      })
     }})
   }})
 }})

@@ -1,7 +1,8 @@
-var fs     = require('fs'),
-    path   = require('path'),
-    CLI    = require('../../node/cli'),
-    Config = require('../../node/config')
+var fs         = require('fs'),
+    path       = require('path'),
+    LocalStore = require('../../node/local_store'),
+    Config     = require('../../node/config'),
+    CLI        = require('../../node/cli')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   before(function() { with(this) {
@@ -19,7 +20,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       }
     })
     
-    this.config = new Config({path: configPath, key: "the key"})
+    this.storage = new LocalStore({path: configPath, key: "the key"})
+    this.config  = new Config(storage)
   }})
   
   after(function() { with(this) {
@@ -105,6 +107,15 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       })})})})
     }})
     
+    it("exports the default settings", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-e", exportPath], function() {
+        resume(function() {
+          var json = JSON.parse(fs.readFileSync(exportPath))
+          assertEqual( {global: {}, services: {}}, json )
+        })
+      })
+    }})
+    
     it("imports a saved settings file", function(resume) { with(this) {
       fs.writeFileSync(exportPath, '{"services":{"google":{"length":8}}}')
       cli.run(["node", "bin/vault", "-i", exportPath], function() {
@@ -125,7 +136,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("reports an error if the key is wrong", function(resume) { with(this) {
-      cli._config = new Config({path: configPath, key: "the wrong key"})
+      cli._config = new Config(new LocalStore({path: configPath, key: "the wrong key"}))
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
@@ -145,7 +156,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
       expect(stdout, "write").given("3Z$£=54\"0&}:0:<m")
-      console.log('---------------------------------------------')
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], resume)
     }})
     
@@ -186,6 +196,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
             }
           }, json)
         })
+      })
+    }})
+    
+    it("throws an error when importing a missing file", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-i", __dirname + "/nosuch"], function(error) {
+        resume(function() { assert(error) })
       })
     }})
   }})
