@@ -50,7 +50,7 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
       config.export(exportPath, function() {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
-          assertEqual( {services: {}}, json )
+          assertEqual( {global: {}, services: {}}, json )
         })
       })
     }})
@@ -70,8 +70,8 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
       config.edit(function(c) {
         c.services.internet = {symbol: 0, alpha: 4}
         c.services.work = {phrase: "something"}
-        c.symbol = 2
-        c.phrase = "the phrase"
+        c.global.symbol = 2
+        c.global.phrase = "the phrase"
       }, resume)
     }})
     
@@ -95,12 +95,11 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
           assertEqual( {
+            global: {symbol: 2, phrase: "the phrase"},
             services: {
               internet: {symbol: 0, alpha: 4},
               work:     {phrase: "something"}
-            },
-            symbol: 2,
-            phrase: "the phrase"
+            }
           }, json )
         })
       })

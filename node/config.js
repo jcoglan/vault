@@ -23,7 +23,7 @@ Config.prototype.read = function(service, callback, context) {
     if (error) return callback.call(context, error);
     var settings = {};
     Vault.extend(settings, config.services[service] || {});
-    Vault.extend(settings, config, function(value) { return typeof value !== 'object' });
+    Vault.extend(settings, config.global);
     callback.call(context, null, settings);
   }, this);
 };
@@ -51,7 +51,7 @@ Config.prototype._readFile = function(callback, context) {
   var self = this;
   fs.readFile(this._path, function(error, content) {
     if (error)
-      return callback.call(context, null, {services: {}});
+      return callback.call(context, null, {global: {}, services: {}});
     
     var config;
     try { config = JSON.parse(self._aes.decrypt(content.toString())) }

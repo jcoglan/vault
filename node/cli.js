@@ -62,6 +62,8 @@ CLI.prototype.configure = function(service, params, callback, context) {
     if (service) {
       settings.services[service] = settings.services[service] || {};
       settings = settings.services[service];
+    } else {
+      settings = settings.global;
     }
     
     for (var key in params) {

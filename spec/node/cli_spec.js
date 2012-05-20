@@ -119,8 +119,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     before(function(resume) { with(this) {
       config.edit(function(c) {
         c.services.twitter = {alpha: 1, symbol: 0}
-        c.alpha = 0
-        c.phrase = "saved passphrase"
+        c.global.alpha = 0
+        c.global.phrase = "saved passphrase"
       }, resume)
     }})
     
@@ -145,6 +145,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
       expect(stdout, "write").given("3Z$£=54\"0&}:0:<m")
+      console.log('---------------------------------------------')
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], resume)
     }})
     
@@ -179,11 +180,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
           assertEqual( {
+            global: {alpha: 0, phrase: "saved passphrase" },
             services: {
               twitter: {alpha: 1, symbol: 0}
-            },
-            alpha: 0,
-            phrase: "saved passphrase"
+            }
           }, json)
         })
       })
