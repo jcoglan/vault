@@ -7,6 +7,7 @@ var fs         = require('fs'),
     options = { 'config': Boolean,
                 'phrase': Boolean,
                 'length': Number,
+                'repeat': Number,
                 
                 'lower':  Number,
                 'upper':  Number,
@@ -23,6 +24,7 @@ var fs         = require('fs'),
     shorts  = { 'c': '--config',
                 'p': '--phrase',
                 'l': '--length',
+                'r': '--repeat',
                 'e': '--export',
                 'i': '--import'
               };

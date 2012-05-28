@@ -73,6 +73,15 @@ Available character classes include:
 * `dash`: dashes (`-`) and underscores (`_`)
 * `symbol`: other 'special' characters
 
+Finally, some sites do not allow passwords containing strings of repeated
+characters beyond a certain length. For example, a site requiring passwords not
+to contain more than two of the same character in a row would reject the
+password `ZOMG!!!` because of the 3 `!` characters. Vault lets you express this
+requirement using `-r` or `--repeat`; this option sets the maximum number of
+times the same character can appear in a row.
+
+    $ vault google -p -r 2
+
 
 ## Saving your settings
 

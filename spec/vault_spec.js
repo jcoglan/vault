@@ -38,6 +38,14 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     }})
   }})
   
+  describe("with a repetition limit", function() { with(this) {
+    define("options", function() { return {phrase: "", length: 24, symbol: 0, number: 0, repeat: 2} })
+
+    it("generates a password with no repeated characters", function() { with(this) {
+      assertEqual( "tCAr CwGmAnDnnoTLTbBnMxB", vault.generate("333") )
+    }})
+  }})
+  
   describe("with no symbols", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, symbol: 0} })
     
