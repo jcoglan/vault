@@ -107,8 +107,12 @@ CLI.prototype.generate = function(service, params, callback, context) {
     if (params.phrase === undefined)
       return callback.call(context, new Error('No passphrase given; pass `-p` or run `vault -cp`'));
     
-    var vault    = new Vault(params),
-        password = vault.generate(service);
+    var vault = new Vault(params), password;
+    try {
+      password = vault.generate(service);
+    } catch (e) {
+      return callback.call(context, e);
+    }
     
     this._out.write(password);
     if (this._tty) this._out.write('\n');
