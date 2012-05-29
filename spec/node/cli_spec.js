@@ -9,6 +9,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     this.configPath = path.resolve(__dirname + "/.vault")
     this.exportPath = path.resolve(__dirname + "/export.json")
     this.stdout     = {}
+    this.passphrase = "something"
     
     this.cli = new CLI({
       config: {path: configPath, key: "the key"},
@@ -16,7 +17,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       tty:    false,
       
       password: function(callback) {
-        callback("something")
+        callback(passphrase)
       }
     })
     
@@ -51,6 +52,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], function() { resume() })
     }})
     
+    it("outputs a password with a repetition limit", function(resume) { with(this) {
+      passphrase = ""
+      expect(stdout, "write").given("tCAr CwGmAnDnnoTLTbBnMxB")
+      cli.run(["node", "bin/vault", "333", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "2"], function() { resume() })
+    }})
+    
     it("reports an error if no passphrase given", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
@@ -63,6 +70,14 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault"], function(e) {
         resume(function() {
           assertEqual( "No service name given", e.message )
+        })
+      })
+    }})
+    
+    it("reports an error if the length is too large", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "google", "-p", "-l", "100"], function(e) {
+        resume(function() {
+          assertEqual( "Cannot generate a 100-character password", e.message )
         })
       })
     }})
