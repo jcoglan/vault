@@ -18,13 +18,16 @@ LocalStore.prototype.load = function(callback, context) {
   fs.readFile(this._path, function(error, content) {
     if (error) return callback.call(context, null, null);
     
-    var config;
-    try { config = JSON.parse(self._aes.decrypt(content.toString())); }
-    catch (e) {
-      error = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
-      return callback.call(context, error);
-    }
-    callback.call(context, null, config);
+    self._aes.decrypt(content.toString(), function(error, plaintext) {
+      var err = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
+      if (error) return callback.call(context, err);
+      var config;
+      try { config = JSON.parse(plaintext); }
+      catch (e) {
+        return callback.call(context, err);
+      }
+      callback.call(context, null, config);
+    });
   });
 };
 
@@ -33,9 +36,11 @@ LocalStore.prototype.dump = function(config, callback, context) {
 };
 
 LocalStore.prototype.import = function(string, callback, context) {
-  fs.writeFile(this._path, this._aes.encrypt(string), function() {
-    callback.apply(context, arguments);
-  });
+  this._aes.encrypt(string, function(error, ciphertext) {
+    fs.writeFile(this._path, ciphertext, function() {
+      callback.apply(context, arguments);
+    });
+  }, this);
 };
 
 LocalStore.prototype.export = function(callback, context) {
