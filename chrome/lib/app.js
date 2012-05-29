@@ -37,17 +37,19 @@ var setRadio = function(name, value) {
   }
 };
 
-var phrase   = $('passphrase'),
-    service  = $('service'),
+var service  = $('service'),
+    phrase   = $('passphrase'),
     required = $('required'),
     length   = $('length'),
+    repeat   = $('repeat'),
     word     = $('word'),
     TYPES    = 'lower upper number dash space symbol'.split(' ');
 
 var getSettings = function() {
   var plength   = parseInt(length.value, 10),
+      prepeat   = parseInt(repeat.value, 10),
       rlength   = parseInt(required.value, 10),
-      settings  = {phrase: phrase.value, length: plength},
+      settings  = {phrase: phrase.value, length: plength, repeat: prepeat},
       value;
   
   for (var i = 0, n = TYPES.length; i < n; i++) {
@@ -133,6 +135,8 @@ if (typeof LocalStore === 'object') {
           if (value && value > 0) reqValue = value;
         }
         required.value = reqValue;
+        length.value = settings.length || Vault.DEFAULT_LENGTH;
+        repeat.value = settings.repeat || Vault.DEFAULT_REPEAT;
         update();
       });
     });

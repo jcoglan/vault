@@ -17,6 +17,13 @@ body, input {
 .info .sub {
   padding-bottom: 0;
 }
+.form .sub:after {
+  content: '*';
+  display: block;
+  clear: both;
+  height: 0;
+  overflow: hidden;
+}
 
 h1 {
   color: #333;
@@ -38,6 +45,7 @@ label, input[type=text], input[type=password] {
 }
 label {
   color: #555;
+  font-size: 90%;
   margin-top: 1em;
 }
 label span {
@@ -50,6 +58,14 @@ input {
   border: none;
   border-bottom: 1px solid #666;
   font-size: 1em;
+}
+
+.length, .repeat {
+  float: left;
+  width: 47%;
+}
+.length {
+  margin-right: 6%;
 }
 
 table label {
@@ -94,3 +110,4 @@ table th:first-child, table td:first-child {
   body { font-size: 18px; }
   .sub { margin: 0 auto; width: 400px; }
 }
+
