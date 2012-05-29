@@ -8,13 +8,15 @@
     
     <script type="text/javascript" src="../node_modules/jsclass/min/loader.js"></script>
     <script type="text/javascript">
+      JS.cacheBust = true
+      
       JS.Packages(function() { with(this) {
-        file('../lib/crypto-js-2.5.3.js')
-          .provides('Crypto.SHA256')
+        file('../lib/crypto-js-3.0.2.js')
+          .provides('CryptoJS.SHA256')
         
         file('../lib/vault.js')
           .provides('Vault')
-          .requires('Crypto.SHA256')
+          .requires('CryptoJS.SHA256')
         
         file('../lib/config.js')
           .provides('Vault.Config')

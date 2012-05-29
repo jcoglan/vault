@@ -1,12 +1,23 @@
-var crypto = require('crypto'),
-    Vault  = require('../lib/vault');
+var crypto   = require('crypto'),
+    CryptoJS = require('../lib/crypto-js-3.0.2'),
+    Vault    = require('../lib/vault');
 
-if (!crypto.randomBytes) // Node < 0.6
-  crypto.randomBytes = function(size) {
-    var buffer = new Buffer(size);
-    while (size--) buffer[size] = Math.floor(Math.random() * 256);
-    return buffer;
-  };
+var randomBytes = function(size) {
+  if (crypto.randomBytes) return crypto.randomBytes(size);
+  var buffer = new Buffer(size);
+  while (size--) buffer[size] = Math.floor(Math.random() * 256);
+  return buffer;
+};
+
+var pbkdf2 = function(password, salt, keylen, iterations, callback) {
+  if (crypto.pbkdf2)
+    return crypto.pbkdf2(password, salt, iterations, 4 * keylen, function(error, key) {
+      callback(error, new Buffer(key, 'binary').toString('hex'));
+    });
+  
+  var key = CryptoJS.PBKDF2(password, salt, {keySize: keylen, iterations: iterations});
+  callback(null, key.toString());
+};
 
 var AES = function(key) {
   this._key = key;
@@ -17,8 +28,8 @@ AES.prototype.MAC_SIZE = 64;
 
 AES.prototype.deriveKeys = function(callback, context) {
   var self = this;
-  crypto.pbkdf2(self._key, Vault.UUID, 1, 16, function(error, key1) {
-    crypto.pbkdf2(self._key, Vault.UUID, 2, 16, function(error, key2) {
+  pbkdf2(self._key, Vault.UUID, 1, 16, function(error, key1) {
+    pbkdf2(self._key, Vault.UUID, 2, 16, function(error, key2) {
       callback.call(context, key1, key2);
     });
   });
@@ -27,7 +38,7 @@ AES.prototype.deriveKeys = function(callback, context) {
 AES.prototype.encrypt = function(plaintext, callback, context) {
   this.deriveKeys(function(key1, key2) {
     var key    = new Buffer(key1, 'utf8'),
-        iv     = crypto.randomBytes(this.IV_SIZE),
+        iv     = randomBytes(this.IV_SIZE),
         target = new Buffer(iv.length + key.length);
     
     iv.copy(target);
