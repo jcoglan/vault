@@ -32,17 +32,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   
   describe("with no config file", function() { with(this) {
     it("outputs a generated password", function(resume) { with(this) {
-      expect(stdout, "write").given("Zl51S48;v69x£*4<")
+      expect(stdout, "write").given("Zw='(dw~  xhXvZ34TsR")
       cli.run(["node", "bin/vault", "google", "-p"], function() { resume() })
     }})
     
     it("outputs a password with no symbols", function(resume) { with(this) {
-      expect(stdout, "write").given("Zf86R FZY FcKCXX")
+      expect(stdout, "write").given("ZlYuy48pv10ChXf8l7aT")
       cli.run(["node", "bin/vault", "google", "-p", "--symbol", "0"], function() { resume() })
     }})
     
     it("outputs a password with required dashes and uppercase", function(resume) { with(this) {
-      expect(stdout, "write").given("ZC 9R -Y9><0Udm4")
+      expect(stdout, "write").given("ZF86.8_[2! xdXk8w7b0")
       cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], function() { resume() })
     }})
     
@@ -145,17 +145,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
-      expect(stdout, "write").given(")$)4\":1-}-^|\"\"&{")
+      expect(stdout, "write").given(")'(_£{ ;])|;4<;4>*_=")
       cli.run(["node", "bin/vault", "google"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings", function(resume) { with(this) {
-      expect(stdout, "write").given("3zJfsY4P6gNOny1t")
+      expect(stdout, "write").given("3ZmTtxetIkDMyQXBmFwX")
       cli.run(["node", "bin/vault", "twitter"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
-      expect(stdout, "write").given("3Z$£=54\"0&}:0:<m")
+      expect(stdout, "write").given("3Z&T)[^NrNHJD{_[ 2}W")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
     }})
     

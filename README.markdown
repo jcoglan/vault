@@ -39,29 +39,29 @@ This program is written in JavaScript and is available as a Node program:
 The most basic usage involves passing your passphrase and the service name; when
 you pass the `-p` flag you will be prompted for your passphrase:
 
-    $ vault google -p
+    $ vault acme -p
     Passphrase: *********
-    Zl51S48;v69x£*4<
+    )£hn_V2X'nUWi}=Y,37&
 
 You can set the desired length using `-l`:
 
-    $ vault google -p -l 6
+    $ vault acme -p -l 6
     Passphrase: *********
-    zcF;'S
+    5IrobU
 
 You can control the character types present in the output, either to disable
 certain types or make sure they are present. For example, to get a password with
 no symbols in it:
 
-    $ vault google -p --symbol 0
+    $ vault acme -p --symbol 0
     Passphrase: *********
-    Zf86R FZY FcKCXX
+    KqGa5W 1jIg3ycPCqLQg
 
 To get a password containing at least one dash and uppercase letter:
 
-    $ vault google -p --dash 1 --upper 1
+    $ vault acme -p --dash 1 --upper 1
     Passphrase: *********
-    ZC 9R -Y9><0Udm4
+    )£hDwx_X'nUW-n3qvH53
 
 Available character classes include:
 
@@ -80,7 +80,7 @@ password `ZOMG!!!` because of the 3 `!` characters. Vault lets you express this
 requirement using `-r` or `--repeat`; this option sets the maximum number of
 times the same character can appear in a row.
 
-    $ vault google -p -r 2
+    $ vault acme -p -r 2
 
 
 ## Saving your settings
@@ -99,15 +99,15 @@ To save your passphrase, pass the `--config` or `-c` flag:
 
     $ vault -c -p
     Passphrase: *********
-    $ vault google
-    Zl51S48;v69x£*4<
+    $ vault acme
+    )£hn_V2X'nUWi}=Y,37&
 
 You can also configure character class settings this way:
 
     $ vault -c --alpha 0
-    $ vault google -p
+    $ vault acme -p
     Passphrase: *********
-    ]2|" %1~"='|1]3>
+    ?^,0:{|}4&6;+0}[?]=^
 
 Both the passphrase and the character class settings can be overridden on a
 per-service basis:
@@ -116,11 +116,11 @@ per-service basis:
     
     $ vault twitter -p
     Passphrase: *********
-    c14EBzG8vF2uiXd2
+    eQG6SLbXS5KiCdyB83zb
     
-    $ vault google -p
+    $ vault acme -p
     Passphrase: *********
-    ]2|" %1~"='|1]3>
+    ?^,0:{|}4&6;+0}[?]=^
 
 
 ## How does it work?

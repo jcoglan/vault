@@ -20,7 +20,7 @@ var Vault = function(settings) {
 };
 
 Vault.UUID = 'e87eb0f4-34cb-46b9-93ad-766c5ab063e7';
-Vault.DEFAULT_LENGTH = 16;
+Vault.DEFAULT_LENGTH = 20;
 Vault.DEFAULT_REPEAT = 0;
 
 Vault.LOWER     = 'abcdefghijklmnopqrstuvwxyz'.split('');
