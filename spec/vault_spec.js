@@ -5,6 +5,16 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   
   define("options", function() { return {} })
   
+  describe("pbkdf2", function() { with(this) {
+    it("works the same on every platform", function(resume) { with(this) {
+      Vault.pbkdf2("foo", "salt", 4, 1, function(error, key) {
+        resume(function() {
+          assertEqual( "ed3b239acbd18e722fc6559832840547", key )
+        })
+      })
+    }})
+  }})
+  
   describe("with a passphrase", function() { with(this) {
     define("options", function() { return {phrase: PHRASE} })
     

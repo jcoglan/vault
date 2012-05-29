@@ -1,22 +1,11 @@
-var crypto   = require('crypto'),
-    CryptoJS = require('../lib/crypto-js-3.0.2'),
-    Vault    = require('../lib/vault');
+var crypto = require('crypto'),
+    Vault  = require('../lib/vault');
 
 var randomBytes = function(size) {
   if (crypto.randomBytes) return crypto.randomBytes(size);
   var buffer = new Buffer(size);
   while (size--) buffer[size] = Math.floor(Math.random() * 256);
   return buffer;
-};
-
-var pbkdf2 = function(password, salt, keylen, iterations, callback) {
-  if (crypto.pbkdf2)
-    return crypto.pbkdf2(password, salt, iterations, 4 * keylen, function(error, key) {
-      callback(error, new Buffer(key, 'binary').toString('hex'));
-    });
-  
-  var key = CryptoJS.PBKDF2(password, salt, {keySize: keylen, iterations: iterations});
-  callback(null, key.toString());
 };
 
 var AES = function(key) {
@@ -28,8 +17,8 @@ AES.prototype.MAC_SIZE = 64;
 
 AES.prototype.deriveKeys = function(callback, context) {
   var self = this;
-  pbkdf2(self._key, Vault.UUID, 1, 16, function(error, key1) {
-    pbkdf2(self._key, Vault.UUID, 2, 16, function(error, key2) {
+  Vault.pbkdf2(self._key, Vault.UUID, 1, 16, function(error, key1) {
+    Vault.pbkdf2(self._key, Vault.UUID, 2, 16, function(error, key2) {
       callback.call(context, key1, key2);
     });
   });
