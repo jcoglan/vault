@@ -33,30 +33,30 @@ AES.prototype.encrypt = function(plaintext, callback, context) {
     iv.copy(target);
     key.copy(target, iv.length);
     
-    var cipher     = crypto.createCipher('aes256', target.toString('binary')),
-        ciphertext = cipher.update(plaintext, 'utf8', 'binary');
+    var cipher     = crypto.createCipher('aes256', target.toString('base64')),
+        ciphertext = cipher.update(plaintext, 'utf8', 'base64');
     
-    ciphertext += cipher.final('binary');
-    ciphertext = new Buffer(ciphertext, 'binary');
+    ciphertext += cipher.final('base64');
+    ciphertext = new Buffer(ciphertext, 'utf8');
     
     var result = new Buffer(iv.length + ciphertext.length);
     iv.copy(result);
     ciphertext.copy(result, iv.length);
     
-    var mac = new Buffer(Vault.createHash(key2, result.toString('binary')), 'utf8'),
+    var mac = new Buffer(Vault.createHash(key2, result.toString('base64')), 'utf8'),
         out = new Buffer(result.length + mac.length);
     
     result.copy(out);
     mac.copy(out, result.length);
     
-    callback.call(context, null, out.toString('binary'));
+    callback.call(context, null, out.toString('base64'));
   }, this);
 };
 
 AES.prototype.decrypt = function(ciphertext, callback, context) {
   this.deriveKeys(function(key1, key2) {
     var key     = new Buffer(key1, 'utf8'),
-        buffer  = new Buffer(ciphertext, 'binary'),
+        buffer  = new Buffer(ciphertext, 'base64'),
         message = buffer.slice(0, buffer.length - this.MAC_SIZE),
         iv      = message.slice(0, this.IV_SIZE),
         payload = message.slice(this.IV_SIZE),
@@ -66,14 +66,14 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
     iv.copy(target);
     key.copy(target, iv.length);
     
-    var cipher    = crypto.createDecipher('aes256', target.toString('binary')),
-        plaintext = cipher.update(payload, 'binary', 'utf8');
+    var cipher    = crypto.createDecipher('aes256', target.toString('base64')),
+        plaintext = cipher.update(payload, 'base64', 'utf8');
     
     plaintext += cipher.final('utf8');
     
     var h        = Vault.createHash,
         expected = mac.toString('utf8'),
-        actual   = h(key2, message.toString('binary'));
+        actual   = h(key2, message.toString('base64'));
     
     if (h(Vault.UUID, expected) !== h(Vault.UUID, actual))
       callback.call(context, Error('DecipherError: Your .vault file has been tampered with'));
