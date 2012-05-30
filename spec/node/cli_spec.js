@@ -159,6 +159,15 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       })
     }})
     
+    it("reports an error if the file has been tampered", function(resume) { with(this) {
+      fs.writeFileSync(configPath, fs.readFileSync(configPath).toString().replace(/.$/, 'X'))
+      cli.run(["node", "bin/vault", "google"], function(e) {
+        resume(function() {
+          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+        })
+      })
+    }})
+    
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
       expect(stdout, "write").given(")'(_£{ ;])|;4<;4>*_=")
       cli.run(["node", "bin/vault", "google"], function() { resume() })

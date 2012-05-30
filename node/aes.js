@@ -79,7 +79,7 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
         actual   = h(key2, message.toString('base64'));
     
     if (h(Vault.UUID, expected) !== h(Vault.UUID, actual))
-      callback.call(context, Error('Your .vault file has been tampered with'));
+      callback.call(context, Error('DecipherError'));
     else
       callback.call(context, null, plaintext);
   }, this);
