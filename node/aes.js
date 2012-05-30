@@ -34,9 +34,8 @@ AES.prototype.encrypt = function(plaintext, callback, context) {
     key.copy(target, iv.length);
     
     var cipher     = crypto.createCipher('aes256', target.toString('base64')),
-        ciphertext = cipher.update(plaintext, 'utf8', 'base64');
+        ciphertext = cipher.update(plaintext, 'utf8', 'base64') + cipher.final('base64');
     
-    ciphertext += cipher.final('base64');
     ciphertext = new Buffer(ciphertext, 'utf8');
     
     var result = new Buffer(iv.length + ciphertext.length);
