@@ -13,12 +13,13 @@ var AES = function(key) {
 };
 
 AES.prototype.IV_SIZE  = 16;
+AES.prototype.KEY_SIZE = 16;
 AES.prototype.MAC_SIZE = 64;
 
 AES.prototype.deriveKeys = function(callback, context) {
   var self = this;
-  Vault.pbkdf2(self._key, Vault.UUID, 1, 16, function(error, key1) {
-    Vault.pbkdf2(self._key, Vault.UUID, 2, 16, function(error, key2) {
+  Vault.pbkdf2(self._key, Vault.UUID, 1, self.KEY_SIZE, function(error, key1) {
+    Vault.pbkdf2(self._key, Vault.UUID, 2, self.KEY_SIZE, function(error, key2) {
       callback.call(context, key1, key2);
     });
   });
