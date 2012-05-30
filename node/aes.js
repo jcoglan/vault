@@ -61,22 +61,25 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
         iv      = message.slice(0, this.IV_SIZE),
         payload = message.slice(this.IV_SIZE),
         mac     = buffer.slice(buffer.length - this.MAC_SIZE),
-        target  = new Buffer(iv.length + key.length);
+        target  = new Buffer(iv.length + key.length),
+        cipher, plaintext;
     
     iv.copy(target);
     key.copy(target, iv.length);
     
-    var cipher    = crypto.createDecipher('aes256', target.toString('base64')),
-        plaintext = cipher.update(payload, 'base64', 'utf8');
-    
-    plaintext += cipher.final('utf8');
+    try {
+      cipher    = crypto.createDecipher('aes256', target.toString('base64'));
+      plaintext = cipher.update(payload, 'base64', 'utf8') + cipher.final('utf8');
+    } catch (e) {
+      return callback.call(context, e);
+    }
     
     var h        = Vault.createHash,
         expected = mac.toString('utf8'),
         actual   = h(key2, message.toString('base64'));
     
     if (h(Vault.UUID, expected) !== h(Vault.UUID, actual))
-      callback.call(context, Error('DecipherError: Your .vault file has been tampered with'));
+      callback.call(context, Error('Your .vault file has been tampered with'));
     else
       callback.call(context, null, plaintext);
   }, this);
