@@ -15,13 +15,13 @@
 
 , "bugs"            : "http://github.com/jcoglan/vault/issues"
 
-, "licenses"        : [ { "type"    : "MIT"
-                        , "url"     : "http://www.opensource.org/licenses/mit-license.php"
+, "licenses"        : [ { "type"  : "MIT"
+                        , "url"   : "http://www.opensource.org/licenses/mit-license.php"
                         }
                       ]
 
-, "repositories"    : [ { "type"    : "git"
-                        , "url"     : "git://github.com/jcoglan/vault.git"
+, "repositories"    : [ { "type"  : "git"
+                        , "url"   : "git://github.com/jcoglan/vault.git"
                         }
                       ]
 }
