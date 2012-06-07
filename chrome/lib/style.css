@@ -17,13 +17,6 @@ body, input {
 .info .sub {
   padding-bottom: 0;
 }
-.form .sub:after {
-  content: '*';
-  display: block;
-  clear: both;
-  height: 0;
-  overflow: hidden;
-}
 
 h1 {
   color: #333;
@@ -45,7 +38,7 @@ label, input[type=text], input[type=password] {
 }
 label {
   color: #555;
-  font-size: 90%;
+  font-size: 0.9em;
   margin-top: 1em;
 }
 label span {
@@ -59,12 +52,31 @@ input {
   border-bottom: 1px solid #666;
   font-size: 1em;
 }
+.password {
+}
+.password input[type=text], .password input[type=password] {
+  display: inline;
+  margin-right: 1em;
+  width: 80%;
+}
+.password .show {
+  float: right;
+  font-size: 0.6em;
+  font-weight: bold;
+  padding-top: 0.5em;
+  text-transform: uppercase;
+}
+.password .show label {
+  display: inline;
+}
 
 .length, .repeat {
   float: left;
+  margin-bottom: 1em;
   width: 47%;
 }
 .length {
+  clear: both;
   margin-right: 6%;
 }
 
@@ -77,13 +89,17 @@ table input[type=text] {
 }
 
 table {
+  border-collapse: collapse;
+  clear: both;
   margin-top: 1em;
   width: 100%;
-  border-collapse: collapse;
+}
+table label {
+  font-size: 1em;
 }
 table th, table td {
-  padding: 4px 0;
   border-left: 1px solid #ccc;
+  padding: 4px 0;
   text-align: center;
 }
 table th {

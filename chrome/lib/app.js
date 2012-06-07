@@ -37,6 +37,14 @@ var setRadio = function(name, value) {
   }
 };
 
+var togglePassword = function(field, checkbox) {
+  on(checkbox, 'click', function() {
+    field.type = checkbox.checked ? 'text' : 'password';
+  });
+};
+togglePassword($('passphrase'), $('show-passphrase'));
+togglePassword($('word'), $('show-word'));
+
 var service  = $('service'),
     phrase   = $('passphrase'),
     required = $('required'),

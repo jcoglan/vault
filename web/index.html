@@ -13,7 +13,7 @@
     <section class="info">
       <div class="sub">
         <p><strong>NOT STABLE &ndash; BETA TESTERS ONLY PLEASE</strong></p>
-
+        
         <p><strong>Using the same password for every site?</strong> Well, you
           shouldn&rsquo;t. Enter your passphrase and the service you&rsquo;re
           logging into, and get a unique password for that service. Come back
@@ -28,8 +28,24 @@
         <label for="service">Service name <span>e.g. &ldquo;twitter&rdquo;</span></label>
         <input type="text" name="service" id="service" autocomplete="off">
         
-        <label for="passphrase">Passphrase <span>e.g. &ldquo;I&rsquo;m the best 17-year old ever.&rdquo;</span></label>
-        <input type="password" name="passphrase" id="passphrase" autocomplete="off">
+        <div class="password">
+          <label for="passphrase">Passphrase <span>e.g. &ldquo;I&rsquo;m the best 17-year old ever.&rdquo;</span></label>
+          <input type="password" name="passphrase" id="passphrase" autocomplete="off">
+          <span class="show">
+            <label for="show-passphrase">Show</label>
+            <input type="checkbox" name="show-passphrase" id="show-passphrase">
+          </span>
+        </div>
+        
+        <div class="length">
+          <label for="length">Password length <span>e.g. 12</span></label>
+          <input type="text" name="length" id="length" value="20" autocomplete="off">
+        </div>
+        
+        <div class="repeat">
+          <label for="repeat">Max repetition <span>e.g. 2</span></label>
+          <input type="text" name="repeat" id="repeat" value="" autocomplete="off">
+        </div>
         
         <div class="field">
           <table>
@@ -78,23 +94,19 @@
             </tbody>
           </table>
         </div>
-        
-        <div class="length">
-          <label for="length">Password length <span>e.g. 12</span></label>
-          <input type="text" name="length" id="length" value="20" autocomplete="off">
-        </div>
-        
-        <div class="repeat">
-          <label for="repeat">Max repetition <span>e.g. 2</span></label>
-          <input type="text" name="repeat" id="repeat" value="0" autocomplete="off">
-        </div>
       </div>
     </section>
     
     <section class="generator">
       <div class="sub">
-        <label for="word">Generated password</label>
-        <input type="text" id="word" autocomplete="off">
+        <div class="password">
+          <label for="word">Generated password</label>
+          <input type="password" id="word" autocomplete="off">
+          <span class="show">
+            <label for="show-word">Show</label>
+            <input type="checkbox" name="show-word" id="show-word">
+          </span>
+        </div>
       </div>
     </section>
     
