@@ -42,14 +42,14 @@
         
         <h2>How does it work?</h2>
         
-        <p>It takes your passphrase and a service name and signs the service
-          name with the passphrase using HMAC-SHA256. It then encodes the bits
-          of this hash using a 92-character alphabet, subject to the given
-          character constraints. This design makes sure that each password is
-          very hard to break by brute force, and ensures that the discovery of
-          one service&rsquo;s password does not lead to other accounts being
-          compromised. It also means you can tailor the output to the character
-          set accepted by each service.</p>
+        <p>It takes your passphrase and a service name and generates a hash from
+          them using <a href="http://en.wikipedia.org/wiki/PBKDF2">PBKDF2</a>.
+          It then encodes the bits of this hash using a 92-character alphabet,
+          subject to the given character constraints. This design makes sure
+          that each password is very hard to break by brute force, and ensures
+          that the discovery of one service&rsquo;s password does not lead to
+          other accounts being compromised. It also means you can tailor the
+          output to the character set accepted by each service.</p>
         
         <h2>What can I use as my passphrase?</h2>
         

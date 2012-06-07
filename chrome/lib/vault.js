@@ -43,13 +43,11 @@ Vault.extend = function(target, source) {
   return target;
 };
 
-Vault.createHash = function(key, message) {
-  if (typeof CryptoJS !== 'undefined')
-    return CryptoJS.HmacSHA256(message, key).toString();
+Vault.createHash = function(key, message, entropy) {
+  var CJS    = (typeof CryptoJS !== 'undefined') ? CryptoJS : require('./crypto-js-3.0.2'),
+      digits = (entropy || 256) / 4;
   
-  var hmac = require('crypto').createHmac('sha256', key);
-  hmac.update(message);
-  return hmac.digest('hex');
+  return CJS.PBKDF2(key, message, {keySize: Math.ceil(digits / 8), iterations: 16}).toString();
 };
 
 Vault.pbkdf2 = function(password, salt, keylen, iterations, callback) {
@@ -85,27 +83,33 @@ Vault.prototype.require = function(charset, n) {
   while (n--) this._required.push(charset);
 };
 
+Vault.prototype.entropy = function() {
+  var entropy = 0;
+  for (var i = 0, n = this._required.length; i < n; i++) {
+    entropy += Math.ceil(Math.log(i+1) / Math.log(2));
+    entropy += Math.ceil(Math.log(this._required[i].length) / Math.log(2));
+  }
+  return entropy;
+};
+
 Vault.prototype.generate = function(service) {
   if (this._required.length > this._length)
     throw new Error('Length too small to fit all required characters');
   
-  var hex    = Vault.createHash(this._phrase, service + Vault.UUID),
+  var hex    = Vault.createHash(this._phrase, service + Vault.UUID, this.entropy()),
       bits   = hex.split('').map(Vault.toBits).join(''),
       result = '',
       offset = 0,
       index, charset, previous, i, same, charbits, code;
   
   while (result.length < this._length) {
-    index   = this.generateCharBits(this._required.length, bits, offset);
-    offset += index.length;
-    
-    if (offset >= bits.length)
-      throw new Error('Cannot generate a ' + this._length + '-character password');
-    
+    index    = this.generateCharBits(this._required.length, bits, offset);
+    offset  += index.length;
     charset  = this._required.splice(parseInt(index, 2), 1)[0];
     previous = result.charAt(result.length - 1);
     i        = this._repeat - 1;
     same     = previous && (i >= 0);
+    
     while (same && i--)
       same = same && result.charAt(result.length + i - this._repeat) === previous;
     if (same)

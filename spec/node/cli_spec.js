@@ -33,29 +33,29 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   
   describe("with no config file", function() { with(this) {
     it("outputs a generated password", function(resume) { with(this) {
-      expect(stdout, "write").given("Zw='(dw~  xhXvZ34TsR")
+      expect(stdout, "write").given("U!E;Z[~(_fYf8YgwB'£1")
       cli.run(["node", "bin/vault", "google", "-p"], function() { resume() })
     }})
     
     it("outputs a password with no symbols", function(resume) { with(this) {
-      expect(stdout, "write").given("ZlYuy48pv10ChXf8l7aT")
+      expect(stdout, "write").given("xFNzRgTF3Tlkk8zbzGVr")
       cli.run(["node", "bin/vault", "google", "-p", "--symbol", "0"], function() { resume() })
     }})
     
     it("outputs a password with required dashes and uppercase", function(resume) { with(this) {
-      expect(stdout, "write").given("ZF86.8_[2! xdXk8w7b0")
+      expect(stdout, "write").given("U!E;Z_2F3-TQU4Yg[n04")
       cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], function() { resume() })
     }})
     
     it("outputs a password with a length", function(resume) { with(this) {
-      expect(stdout, "write").given("zcF;'S")
+      expect(stdout, "write").given("[%99Z1")
       cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], function() { resume() })
     }})
     
     it("outputs a password with a repetition limit", function(resume) { with(this) {
       passphrase = ""
-      expect(stdout, "write").given("tCAr CwGmAnDnnoTLTbBnMxB")
-      cli.run(["node", "bin/vault", "333", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "2"], function() { resume() })
+      expect(stdout, "write").given("uXcNnQGHMHMBQFRsjSlNKCfP")
+      cli.run(["node", "bin/vault", "asd", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "1"], function() { resume() })
     }})
     
     it("reports an error if no passphrase given", function(resume) { with(this) {
@@ -70,14 +70,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault"], function(e) {
         resume(function() {
           assertEqual( "No service name given", e.message )
-        })
-      })
-    }})
-    
-    it("reports an error if the length is too large", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "google", "-p", "-l", "100"], function(e) {
-        resume(function() {
-          assertEqual( "Cannot generate a 100-character password", e.message )
         })
       })
     }})
@@ -169,17 +161,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
-      expect(stdout, "write").given(")'(_£{ ;])|;4<;4>*_=")
+      expect(stdout, "write").given("0?}!])@]4=?61;\"(;$9'")
       cli.run(["node", "bin/vault", "google"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings", function(resume) { with(this) {
-      expect(stdout, "write").given("3ZmTtxetIkDMyQXBmFwX")
+      expect(stdout, "write").given("nqCkqIc619wCJ6iOLjfS")
       cli.run(["node", "bin/vault", "twitter"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
-      expect(stdout, "write").given("3Z&T)[^NrNHJD{_[ 2}W")
+      expect(stdout, "write").given('B$Z"h,&V31Z49%u+M<*}')
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
     }})
     

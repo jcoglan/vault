@@ -39,29 +39,29 @@ This program is written in JavaScript and is available as a Node program:
 The most basic usage involves passing your passphrase and the service name; when
 you pass the `-p` flag you will be prompted for your passphrase:
 
-    $ vault acme -p
+    $ vault google -p
     Passphrase: *********
-    )£hn_V2X'nUWi}=Y,37&
+    U!E;Z[~(_fYf8YgwB'£1
 
 You can set the desired length using `-l`:
 
-    $ vault acme -p -l 6
+    $ vault google -p -l 6
     Passphrase: *********
-    5IrobU
+    [%99Z1
 
 You can control the character types present in the output, either to disable
 certain types or make sure they are present. For example, to get a password with
 no symbols in it:
 
-    $ vault acme -p --symbol 0
+    $ vault google -p --symbol 0
     Passphrase: *********
-    KqGa5W 1jIg3ycPCqLQg
+    xFNzRgTF3Tlkk8zbzGVr
 
 To get a password containing at least one dash and uppercase letter:
 
-    $ vault acme -p --dash 1 --upper 1
+    $ vault google -p --dash 1 --upper 1
     Passphrase: *********
-    )£hDwx_X'nUW-n3qvH53
+    U!E;Z_2F3-TQU4Yg[n04
 
 Available character classes include:
 
@@ -80,7 +80,7 @@ password `ZOMG!!!` because of the 3 `!` characters. Vault lets you express this
 requirement using `-r` or `--repeat`; this option sets the maximum number of
 times the same character can appear in a row.
 
-    $ vault acme -p -r 2
+    $ vault google -p -r 2
 
 
 ## Saving your settings
@@ -99,15 +99,15 @@ To save your passphrase, pass the `--config` or `-c` flag:
 
     $ vault -c -p
     Passphrase: *********
-    $ vault acme
-    )£hn_V2X'nUWi}=Y,37&
+    $ vault google
+    U!E;Z[~(_fYf8YgwB'£1
 
 You can also configure character class settings this way:
 
     $ vault -c --alpha 0
-    $ vault acme -p
+    $ vault google -p
     Passphrase: *********
-    ?^,0:{|}4&6;+0}[?]=^
+    [|_]=>;_$+);=):]0-+3
 
 Both the passphrase and the character class settings can be overridden on a
 per-service basis:
@@ -116,22 +116,22 @@ per-service basis:
     
     $ vault twitter -p
     Passphrase: *********
-    eQG6SLbXS5KiCdyB83zb
+    KFJ0xiFkHlC08Qd7sFNi
     
-    $ vault acme -p
+    $ vault google -p
     Passphrase: *********
-    ?^,0:{|}4&6;+0}[?]=^
+    [|_]=>;_$+);=):]0-+3
 
 
 ## How does it work?
 
-`vault` takes your passphrase and a service name and signs the service name with
-the passphrase using HMAC-SHA256. It then encodes the bits of this hash using a
-92-character alphabet, subject to the given character constraints. This design
-makes sure that each password is very hard to break by brute force, and ensures
-that the discovery of one service's password does not lead to other accounts
-being compromised. It also means you can tailor the output to the character set
-accepted by each service.
+`vault` takes your passphrase and a service name and generates a hash from them
+using [PBKDF2](http://en.wikipedia.org/wiki/PBKDF2). It then encodes the bits of
+this hash using a 92-character alphabet, subject to the given character
+constraints. This design makes sure that each password is very hard to break by
+brute force, and ensures that the discovery of one service's password does not
+lead to other accounts being compromised. It also means you can tailor the
+output to the character set accepted by each service.
 
 
 ## License

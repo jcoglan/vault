@@ -12,11 +12,11 @@
       
       JS.Packages(function() { with(this) {
         file('../lib/crypto-js-3.0.2.js')
-          .provides('CryptoJS.SHA256')
+          .provides('CryptoJS.PBKDF2')
         
         file('../lib/vault.js')
           .provides('Vault')
-          .requires('CryptoJS.SHA256')
+          .requires('CryptoJS.PBKDF2')
         
         file('../lib/config.js')
           .provides('Vault.Config')
