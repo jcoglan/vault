@@ -12,14 +12,15 @@
   </head>
   <body>
     
-    <section class="form">
+    <div class="form">
       <div class="sub">
         <label for="service">Service name <span>e.g. &ldquo;twitter&rdquo;</span></label>
-        <input type="text" name="service" id="service" autocomplete="off">
+        <input type="text" class="text" name="service" id="service" autocomplete="off">
         
         <div class="password">
           <label for="passphrase">Passphrase <span>e.g. &ldquo;I&rsquo;m the best 17-year old ever.&rdquo;</span></label>
-          <input type="password" name="passphrase" id="passphrase" autocomplete="off">
+          <input type="password" class="password" name="passphrase" id="passphrase" autocomplete="off">
+          <input type="text" class="text" name="passphrase-text" id="passphrase-text" autocomplete="off">
           <span class="show">
             <label for="show-passphrase">Show</label>
             <input type="checkbox" name="show-passphrase" id="show-passphrase">
@@ -27,13 +28,13 @@
         </div>
         
         <div class="length">
-          <label for="length">Password length <span>e.g. 12</span></label>
-          <input type="text" name="length" id="length" value="20" autocomplete="off">
+          <label for="vlength">Password length <span>e.g. 12</span></label>
+          <input type="text" class="text" name="vlength" id="vlength" value="20" autocomplete="off">
         </div>
         
         <div class="repeat">
           <label for="repeat">Max repetition <span>e.g. 2</span></label>
-          <input type="text" name="repeat" id="repeat" value="" autocomplete="off">
+          <input type="text" class="text" name="repeat" id="repeat" value="" autocomplete="off">
         </div>
         
         <div class="field">
@@ -53,7 +54,7 @@
               <tr>
                 <th scope="row">
                   <label for="required">Required</label>
-                  (<input type="text" name="required" id="required" value="2" autocomplete="off">)
+                  (<input type="text" class="text" name="required" id="required" value="2" autocomplete="off">)
                 </th>
                 <td><input type="radio" name="lower" value="required"></td>
                 <td><input type="radio" name="upper" value="required"></td>
@@ -84,12 +85,12 @@
           </table>
         </div>
       </div>
-    </section>
+    </div>
     
     <section class="generator">
       <div class="sub">
         <label for="word">Generated password</label>
-        <input type="password" id="word" autocomplete="off">
+        <input type="text" class="text" id="word" autocomplete="off">
         <button id="clear-settings">Clear</button>
         <button id="save-settings">Save</button>
         <button id="insert-password">Insert</button>

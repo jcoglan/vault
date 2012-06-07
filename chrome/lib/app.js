@@ -37,20 +37,35 @@ var setRadio = function(name, value) {
   }
 };
 
-var togglePassword = function(field, checkbox) {
+var togglePassword = function(id) {
+  var field    = $(id),
+      text     = $(id + '-text'),
+      checkbox = $('show-' + id);
+  
+  text.style.display = 'none';
+  
   on(checkbox, 'click', function() {
-    field.type = checkbox.checked ? 'text' : 'password';
+    if (checkbox.checked) {
+      field.style.display = 'none';
+      text.style.display  = '';
+    } else {
+      field.style.display = '';
+      text.style.display  = 'none';
+    }
   });
+  
+  on(field, 'keyup', function() { text.value = field.value });
+  on(text, 'keyup', function() { field.value = text.value });
 };
-togglePassword($('passphrase'), $('show-passphrase'));
-togglePassword($('word'), $('show-word'));
+togglePassword('passphrase');
 
 var service  = $('service'),
     phrase   = $('passphrase'),
     required = $('required'),
-    length   = $('length'),
+    length   = $('vlength'),
     repeat   = $('repeat'),
     word     = $('word'),
+    wordText = $('word-text'),
     TYPES    = 'lower upper number dash space symbol'.split(' ');
 
 var getSettings = function() {
