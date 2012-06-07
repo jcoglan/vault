@@ -81,6 +81,9 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
+table label {
+  font-size: 100%;
+}
 table th, table td {
   padding: 4px 0;
   border-left: 1px solid #ccc;
