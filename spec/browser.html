@@ -7,21 +7,13 @@
   <body>
     
     <script type="text/javascript" src="../node_modules/jsclass/min/loader.js"></script>
+    <script type="text/javascript" src="../lib/crypto-js-3.0.2.js"></script>
+    <script type="text/javascript" src="../lib/vault.js"></script>
+    <script type="text/javascript" src="../lib/config.js"></script>
     <script type="text/javascript">
       JS.cacheBust = true
       
       JS.Packages(function() { with(this) {
-        file('../lib/crypto-js-3.0.2.js')
-          .provides('CryptoJS.PBKDF2')
-        
-        file('../lib/vault.js')
-          .provides('Vault')
-          .requires('CryptoJS.PBKDF2')
-        
-        file('../lib/config.js')
-          .provides('Vault.Config')
-          .requires('Vault')
-        
         file('./vault_spec.js')
           .provides('VaultSpec')
           .requires('JS.Test', 'Vault')
