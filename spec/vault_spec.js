@@ -95,5 +95,20 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
       assertEqual( "s    +8  p -{      R", vault.generate("songkick") )
     }})
   }})
+  
+  describe("with no viable characters", function() { with(this) {
+    define("options", function() {
+      return {phrase: PHRASE,
+              alpha:  0,
+              number: 0,
+              space:  0,
+              dash:   0,
+              symbol: 0}
+    })
+    
+    it("throws an error", function() { with(this) {
+      assertThrows(Error, function() { vault.generate("google") })
+    }})
+  }})
 }})
 

@@ -112,6 +112,9 @@ Vault.prototype.generate = function(service) {
   if (this._required.length > this._length)
     throw new Error('Length too small to fit all required characters');
   
+  if (this._allowed.length === 0)
+    throw new Error('No characters available to create a password');
+  
   var hex    = Vault.createHash(this._phrase, service + Vault.UUID, this.entropy()),
       bits   = Vault.map(hex.split(''), Vault.toBits).join(''),
       result = '',
