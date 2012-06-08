@@ -74,7 +74,7 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
       cipher    = crypto.createDecipher('aes256', target.toString('base64'));
       plaintext = cipher.update(payload, 'base64', 'utf8') + cipher.final('utf8');
     } catch (e) {
-      return callback.call(context, new Error('DecryptError'));
+      plaintext = null;
     }
     
     var hmac = crypto.createHmac('sha256', key2);
@@ -85,6 +85,8 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
         h        = Vault.createHash;
     
     if (h(Vault.UUID, expected) !== h(Vault.UUID, actual))
+      callback.call(context, new Error('DecryptError'));
+    else if (plaintext === null)
       callback.call(context, new Error('DecryptError'));
     else
       callback.call(context, null, plaintext);
