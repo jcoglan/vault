@@ -43,7 +43,10 @@ AES.prototype.encrypt = function(plaintext, callback, context) {
     iv.copy(result);
     ciphertext.copy(result, iv.length);
     
-    var mac = new Buffer(Vault.createHash(key2, result.toString('base64')), 'utf8'),
+    var hmac = crypto.createHmac('sha256', key2);
+    hmac.update(result.toString('base64'));
+
+    var mac = new Buffer(hmac.digest('hex'), 'utf8'),
         out = new Buffer(result.length + mac.length);
     
     result.copy(out);
@@ -74,9 +77,12 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
       return callback.call(context, new Error('DecryptError'));
     }
     
-    var h        = Vault.createHash,
-        expected = mac.toString('utf8'),
-        actual   = h(key2, message.toString('base64'));
+    var hmac = crypto.createHmac('sha256', key2);
+    hmac.update(message.toString('base64'));
+
+    var expected = hmac.digest('hex'),
+        actual   = mac.toString('utf8'),
+        h        = Vault.createHash;
     
     if (h(Vault.UUID, expected) !== h(Vault.UUID, actual))
       callback.call(context, new Error('DecryptError'));
