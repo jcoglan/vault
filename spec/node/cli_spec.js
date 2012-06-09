@@ -152,7 +152,25 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("reports an error if the file has been tampered", function(resume) { with(this) {
-      fs.writeFileSync(configPath, fs.readFileSync(configPath).toString().replace(/.$/, 'X'))
+      fs.writeFileSync(configPath, fs.readFileSync(configPath).toString().replace(/.$/, "X"))
+      cli.run(["node", "bin/vault", "google"], function(e) {
+        resume(function() {
+          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+        })
+      })
+    }})
+    
+    it("reports an error if the file has a zero-length payload", function(resume) { with(this) {
+      fs.writeFileSync(configPath, "DqOnhLAQ98oZtClj0lYjT2Y4YjU2NzRhZGVmMjRlN2E1ZWViYjJhYzRjODZlZjlkYThjNGRhYTVmOTEyZmIyNjdiNmJhNGExMWRiMTEwNWU=")
+      cli.run(["node", "bin/vault", "google"], function(e) {
+        resume(function() {
+          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+        })
+      })
+    }})
+    
+    it("reports an error if the file is too short", function(resume) { with(this) {
+      fs.writeFileSync(configPath, "42")
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )

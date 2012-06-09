@@ -60,10 +60,10 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
   this.deriveKeys(function(key1, key2) {
     var key     = new Buffer(key1, 'utf8'),
         buffer  = new Buffer(ciphertext, 'base64'),
-        message = buffer.slice(0, buffer.length - this.MAC_SIZE),
-        iv      = message.slice(0, this.IV_SIZE),
-        payload = message.slice(this.IV_SIZE),
-        mac     = buffer.slice(buffer.length - this.MAC_SIZE),
+        message = buffer.slice(0, Math.max(buffer.length - this.MAC_SIZE, 0)),
+        iv      = message.slice(0, Math.min(this.IV_SIZE, message.length)),
+        payload = message.slice(Math.min(this.IV_SIZE, message.length)),
+        mac     = buffer.slice(Math.max(buffer.length - this.MAC_SIZE, 0)),
         target  = new Buffer(iv.length + key.length),
         cipher, plaintext;
     
