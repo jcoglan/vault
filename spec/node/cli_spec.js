@@ -33,7 +33,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   
   describe("with no config file", function() { with(this) {
     it("outputs a generated password", function(resume) { with(this) {
-      expect(stdout, "write").given("U!E;Z[~(_fYf8YgwB'£1")
+      expect(stdout, "write").given("U!E<Z.|)~fYf8YgwB>#1")
       cli.run(["node", "bin/vault", "google", "-p"], function() { resume() })
     }})
     
@@ -43,12 +43,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password with required dashes and uppercase", function(resume) { with(this) {
-      expect(stdout, "write").given("U!E;Z_2F3-TQU4Yg[n04")
+      expect(stdout, "write").given("U!E<Z_2F3}TQU4Yg.n04")
       cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], function() { resume() })
     }})
     
     it("outputs a password with a length", function(resume) { with(this) {
-      expect(stdout, "write").given("[%99Z1")
+      expect(stdout, "write").given(".%99Z1")
       cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], function() { resume() })
     }})
     
@@ -179,7 +179,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
-      expect(stdout, "write").given("0?}!])@]4=?61;\"(;$9'")
+      expect(stdout, "write").given("0{;!:-/:4+{61<?)<$9>")
       cli.run(["node", "bin/vault", "google"], function() { resume() })
     }})
     
@@ -189,7 +189,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
-      expect(stdout, "write").given('B$Z"h,&V31Z49%u+M<*}')
+      expect(stdout, "write").given("B$Z?h['V31Z49%u,M\\(;")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
     }})
     
