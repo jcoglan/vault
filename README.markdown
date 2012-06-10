@@ -127,7 +127,7 @@ per-service basis:
 
 `vault` takes your passphrase and a service name and generates a hash from them
 using [PBKDF2](http://en.wikipedia.org/wiki/PBKDF2). It then encodes the bits of
-this hash using a 92-character alphabet, subject to the given character
+this hash using a 94-character alphabet, subject to the given character
 constraints. This design makes sure that each password is very hard to break by
 brute force, and ensures that the discovery of one service's password does not
 lead to other accounts being compromised. It also means you can tailor the
