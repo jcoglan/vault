@@ -30,6 +30,11 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
       vault = new Vault({phrase: PHRASE + "X"})
       assertEqual( ",u7 ZW4T |.]4Gvw>23e", vault.generate("google") )
     }})
+
+    it("generates the same password with the same input", function() { with(this) {
+      vault = new Vault({phrase: PHRASE + "X"})
+      assertEqual( vault.generate("google"), vault.generate("google") )
+    }})
   }})
   
   describe("with a length", function() { with(this) {
