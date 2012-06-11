@@ -47,7 +47,7 @@ Vault.createHash = function(key, message, entropy) {
   var CJS    = (typeof CryptoJS !== 'undefined') ? CryptoJS : require('./crypto-js-3.0.2'),
       digits = (entropy || 256) / 4;
   
-  return CJS.PBKDF2(key, message, {keySize: Math.ceil(digits / 8), iterations: 16}).toString();
+  return CJS.PBKDF2(key, message, {keySize: Math.ceil(digits / 8), iterations: 8}).toString();
 };
 
 Vault.indexOf = function(list, item) {
@@ -115,16 +115,14 @@ Vault.prototype.generate = function(service) {
   if (this._allowed.length === 0)
     throw new Error('No characters available to create a password');
   
-  var hex    = Vault.createHash(this._phrase, service + Vault.UUID, this.entropy()),
-      bits   = Vault.map(hex.split(''), Vault.toBits).join(''),
-      result = '',
-      offset = 0,
-      index, charset, previous, i, same, charbits, code;
+  var required = this._required.slice(),
+      stream   = new Vault.Stream(this._phrase, service, this.entropy()),
+      result   = '',
+      index, charset, previous, i, same;
   
   while (result.length < this._length) {
-    index    = this.generateCharBits(this._required.length, bits, offset);
-    offset  += index.length;
-    charset  = this._required.splice(parseInt(index, 2), 1)[0];
+    index    = stream.generate(required.length);
+    charset  = required.splice(index, 1)[0];
     previous = result.charAt(result.length - 1);
     i        = this._repeat - 1;
     same     = previous && (i >= 0);
@@ -134,26 +132,62 @@ Vault.prototype.generate = function(service) {
     if (same)
       charset = this.subtract([previous], charset.slice());
     
-    charbits  = this.generateCharBits(charset.length, bits, offset);
-    offset   += charbits.length;
-    code      = parseInt(charbits, 2) || 0;
-    result   += charset[code];
+    index   = stream.generate(charset.length);
+    result += charset[index];
   }
   
   return result;
 };
 
-Vault.prototype.generateCharBits = function(base, bits, offset) {
-  if (base === 1) return '';
+Vault.Stream = function(phrase, service, entropy) {
+  this._phrase  = phrase;
+  this._service = service;
   
-  var size  = Math.ceil(Math.log(base) / Math.log(2)),
-      chunk = bits.substr(offset, size);
+  var hash = Vault.createHash(phrase, service + Vault.UUID, 2 * entropy),
+      bits = Vault.map(hash.split(''), Vault.toBits).join('').split('');
   
-  if (chunk.charAt(0) === '0') return chunk;
+  this._bases = {'2': bits};
+};
+
+Vault.Stream.prototype.generate = function(n, base, prev) {
+  if (n === 1) return 0;
+  base = base || 2;
   
-  var value = parseInt(chunk, 2);
-  if (value >= base) size -= 1;
-  return bits.substr(offset, size);
+  var value = n,
+      k = Math.ceil(Math.log(n) / Math.log(base)),
+      r = Math.pow(2,k) % n,
+      chunk;
+  
+  while (value >= n) {
+    chunk = this._shift(base, k);
+    if (!chunk) return n;
+    
+    value = this._evaluate(chunk, base);
+    if (value >= n) {
+      this._push(r, value % n);
+      value = this.generate(n, r, base);
+    }
+  }
+  return value;
+};
+
+Vault.Stream.prototype._evaluate = function(chunk, base) {
+  var sum = 0,
+      n   = chunk.length;
+  
+  while (n--) sum += chunk[n] * Math.pow(base, chunk.length - (n+1));
+  return sum;
+};
+
+Vault.Stream.prototype._push = function(base, value) {
+  this._bases[base] = this._bases[base] || [];
+  this._bases[base].push(value);
+};
+
+Vault.Stream.prototype._shift = function(base, k) {
+  var list = this._bases[base];
+  if (!list || list.length < k) return null;
+  else return list.splice(0,k);
 };
 
 if (typeof module === 'object')

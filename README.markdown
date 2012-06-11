@@ -41,13 +41,13 @@ you pass the `-p` flag you will be prompted for your passphrase:
 
     $ vault google -p
     Passphrase: *********
-    U!E;Z[~(_fYf8YgwB'£1
+    2hk!W[-32r{I=~=kJ&{l
 
 You can set the desired length using `-l`:
 
     $ vault google -p -l 6
     Passphrase: *********
-    [%99Z1
+    Tc8k~y
 
 You can control the character types present in the output, either to disable
 certain types or make sure they are present. For example, to get a password with
@@ -55,13 +55,13 @@ no symbols in it:
 
     $ vault google -p --symbol 0
     Passphrase: *********
-    xFNzRgTF3Tlkk8zbzGVr
+    Bb4uFmAEUnTPJh23ecdQ
 
 To get a password containing at least one dash and uppercase letter:
 
     $ vault google -p --dash 1 --upper 1
     Passphrase: *********
-    U!E;Z_2F3-TQU4Yg[n04
+    2-[wA85]?EWiu >OMPBI
 
 Available character classes include:
 
@@ -100,14 +100,14 @@ To save your passphrase, pass the `--config` or `-c` flag:
     $ vault -c -p
     Passphrase: *********
     $ vault google
-    U!E;Z[~(_fYf8YgwB'£1
+    2hk!W[-32r{I=~=kJ&{l
 
 You can also configure character class settings this way:
 
     $ vault -c --alpha 0
     $ vault google -p
     Passphrase: *********
-    [|_]=>;_$+);=):]0-+3
+    <1\<')3><*^/@]-7@-(^
 
 Both the passphrase and the character class settings can be overridden on a
 per-service basis:
@@ -116,11 +116,11 @@ per-service basis:
     
     $ vault twitter -p
     Passphrase: *********
-    KFJ0xiFkHlC08Qd7sFNi
+    Z2juOG1Z31BX1A9jA54B
     
     $ vault google -p
     Passphrase: *********
-    [|_]=>;_$+);=):]0-+3
+    <1\<')3><*^/@]-7@-(^
 
 
 ## How does it work?
