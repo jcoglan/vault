@@ -21,3 +21,19 @@ while (N--) {
 
 console.log(res);
 
+var sum    = 0,
+    square = 0,
+    n      = Vault.ALL.length;
+
+while (n--) {
+  sum    += res[n];
+  square += Math.pow(res[n], 2);
+}
+
+var mean   = sum / Vault.ALL.length,
+    stddev = Math.sqrt(square / Vault.ALL.length - Math.pow(mean, 2));
+
+console.log('Mean:     ' + mean);
+console.log('Expected: ' + (10000*20/94));
+console.log('Std.dev.: ' + stddev);
+
