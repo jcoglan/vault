@@ -139,6 +139,10 @@ Vault.prototype.generate = function(service) {
   return result;
 };
 
+
+// Generate uniformly distributed output in any base from a bit stream
+// http://checkmyworking.com/2012/06/converting-a-stream-of-binary-digits-to-a-stream-of-base-n-digits/
+
 Vault.Stream = function(phrase, service, entropy) {
   this._phrase  = phrase;
   this._service = service;
@@ -146,26 +150,28 @@ Vault.Stream = function(phrase, service, entropy) {
   var hash = Vault.createHash(phrase, service + Vault.UUID, 2 * entropy),
       bits = Vault.map(hash.split(''), Vault.toBits).join('').split('');
   
-  this._bases = {'2': bits};
+  this._bases = {
+    '2': Vault.map(bits, function(s) { return parseInt(s, 2) })
+  };
 };
 
-Vault.Stream.prototype.generate = function(n, base, prev) {
-  if (n === 1) return 0;
+Vault.Stream.prototype.generate = function(n, base, inner) {
   base = base || 2;
   
   var value = n,
       k = Math.ceil(Math.log(n) / Math.log(base)),
-      r = Math.pow(2,k) % n,
+      r = Math.pow(base, k) - n,
       chunk;
   
   while (value >= n) {
     chunk = this._shift(base, k);
-    if (!chunk) return n;
+    if (!chunk) return inner ? n : null;
     
     value = this._evaluate(chunk, base);
+    
     if (value >= n) {
-      this._push(r, value % n);
-      value = this.generate(n, r, base);
+      this._push(r, value - n);
+      value = this.generate(n, r, true);
     }
   }
   return value;
@@ -173,9 +179,9 @@ Vault.Stream.prototype.generate = function(n, base, prev) {
 
 Vault.Stream.prototype._evaluate = function(chunk, base) {
   var sum = 0,
-      n   = chunk.length;
+      i   = chunk.length;
   
-  while (n--) sum += chunk[n] * Math.pow(base, chunk.length - (n+1));
+  while (i--) sum += chunk[i] * Math.pow(base, chunk.length - (i+1));
   return sum;
 };
 
@@ -189,6 +195,7 @@ Vault.Stream.prototype._shift = function(base, k) {
   if (!list || list.length < k) return null;
   else return list.splice(0,k);
 };
+
 
 if (typeof module === 'object')
   module.exports = Vault;

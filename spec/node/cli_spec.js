@@ -33,7 +33,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   
   describe("with no config file", function() { with(this) {
     it("outputs a generated password", function(resume) { with(this) {
-      expect(stdout, "write").given("2hk!W[-32r{I=~=kJ&{l")
+      expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
       cli.run(["node", "bin/vault", "google", "-p"], function() { resume() })
     }})
     
@@ -43,18 +43,18 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password with required dashes and uppercase", function(resume) { with(this) {
-      expect(stdout, "write").given("2-[wA85]?EWiu >OMPBI")
+      expect(stdout, "write").given('2-[w]thuTK8unIUVH"Lp')
       cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], function() { resume() })
     }})
     
     it("outputs a password with a length", function(resume) { with(this) {
-      expect(stdout, "write").given("Tc8k~y")
+      expect(stdout, "write").given("Tc8k~8")
       cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], function() { resume() })
     }})
     
     it("outputs a password with a repetition limit", function(resume) { with(this) {
       passphrase = ""
-      expect(stdout, "write").given("IVTDzACftqopUXqDHkuXhJsa")
+      expect(stdout, "write").given("IVTDzACftqopUXqDHPkuCIhV")
       cli.run(["node", "bin/vault", "asd", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "1"], function() { resume() })
     }})
     
@@ -179,17 +179,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
-      expect(stdout, "write").given(">306'.=?\\,^=!+@]:#/)")
+      expect(stdout, "write").given('.=6;0;:%.!5\\@_",}.+)')
       cli.run(["node", "bin/vault", "google"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings", function(resume) { with(this) {
-      expect(stdout, "write").given("1tlcTpmcBM uSiirhAZr")
+      expect(stdout, "write").given("199pS3LWcTpmb2MUfx7g")
       cli.run(["node", "bin/vault", "twitter"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
-      expect(stdout, "write").given("^j.f1aq//!k}Y\"^M>.f3")
+      expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fV{=i)")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
     }})
     

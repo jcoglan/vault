@@ -1,6 +1,6 @@
-var PHRASE = "She cells C shells bye the sea shoars"
-
 JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
+  var PHRASE = "She cells C shells bye the sea shoars"
+  
   before(function() { this.vault = new Vault(this.options()) })
   
   define("options", function() { return {} })
@@ -19,16 +19,16 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE} })
     
     it("generates a password", function() { with(this) {
-      assertEqual( "54T&kh5Cawsb[T8X4A,U", vault.generate("google") )
+      assertEqual( ": 4TVH#5:aZl8LueOT\\{", vault.generate("google") )
     }})
     
     it("generates a different password for each service", function() { with(this) {
-      assertEqual( "h |HN_N:lI;A@l~{#9rh", vault.generate("twitter") )
+      assertEqual( "[ (HN_N:lI&<ro=)3'g9", vault.generate("twitter") )
     }})
 
     it("generates a different password for each passphrase", function() { with(this) {
       vault = new Vault({phrase: PHRASE + "X"})
-      assertEqual( "n+oIz6sw8\\+SlTE,o'i3", vault.generate("google") )
+      assertEqual( "n+oIz6sL>K*lTEWYRO%7", vault.generate("google") )
     }})
 
     it("generates the same password with the same input", function() { with(this) {
@@ -49,7 +49,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: "", length: 24, symbol: 0, number: 0, repeat: 1} })
 
     it("generates a password with no repeated characters", function() { with(this) {
-      assertEqual( "IVTDzACftqopUXqDHkuXhJsa", vault.generate("asd") )
+      assertEqual( "IVTDzACftqopUXqDHPkuCIhV", vault.generate("asd") )
     }})
   }})
   
@@ -57,7 +57,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, symbol: 0} })
     
     it("generates a password containing no symbols", function() { with(this) {
-      assertEqual( "XCGr6fc5M5aw8sGMHBv4", vault.generate("google") )
+      assertEqual( "XZ4wRe0bZCazbljCaMqR", vault.generate("google") )
     }})
   }})
   
@@ -73,7 +73,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, number: 0} })
     
     it("generates a password containing no digits", function() { with(this) {
-      assertEqual( "%$T;qt~,$YsbvSCAv?]P", vault.generate("google") )
+      assertEqual( "_*$TVH.%^aZl(LUeOT?>", vault.generate("google") )
     }})
   }})
   
@@ -81,7 +81,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     define("options", function() { return {phrase: PHRASE, alpha: 0} })
     
     it("generates a password containing no letters", function() { with(this) {
-      assertEqual( "%~/+];[-0\",{89&<''(+", vault.generate("google") )
+      assertEqual( "_)};'>&970}0|{89-,%?", vault.generate("google") )
     }})
   }})
   

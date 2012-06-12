@@ -18,6 +18,10 @@
           .provides('VaultSpec')
           .requires('JS.Test', 'Vault')
         
+        file('./stream_spec.js')
+          .provides('StreamSpec')
+          .requires('JS.Test', 'Vault.Stream')
+        
         file('./config_spec.js')
           .provides('ConfigSpec')
           .requires('JS.Test', 'Vault.Config')
@@ -25,7 +29,9 @@
     </script>
     
     <script type="text/javascript">
-      JS.require('VaultSpec', 'ConfigSpec', function() { JS.Test.autorun() })
+      JS.require('VaultSpec', 'StreamSpec', 'ConfigSpec', function() {
+        JS.Test.autorun()
+      })
     </script>
     
   </body>
