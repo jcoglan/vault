@@ -33,7 +33,7 @@ Vault.DASH      = ['-', '_'];
 Vault.SYMBOL    = '!"#$%&\'()*+,./:;<=>?@[\\]^{|}~'.split('').concat(Vault.DASH);
 Vault.ALL       = Vault.ALPHANUM.concat(Vault.SPACE).concat(Vault.SYMBOL);
 
-Vault.TYPES = 'LOWER UPPER ALPHA NUMBER ALPHANUM SPACE DASH SYMBOL'.split(' ');
+Vault.TYPES = 'LOWER UPPER NUMBER SPACE DASH SYMBOL'.split(' ');
 
 Vault.extend = function(target, source) {
   for (var key in source) {
@@ -163,13 +163,14 @@ Vault.Stream.prototype.generate = function(n, base, inner) {
       r = Math.pow(base, k) - n,
       chunk;
   
-  while (value >= n) {
+  loop: while (value >= n) {
     chunk = this._shift(base, k);
     if (!chunk) return inner ? n : null;
     
     value = this._evaluate(chunk, base);
     
     if (value >= n) {
+      if (r === 1) continue loop;
       this._push(r, value - n);
       value = this.generate(n, r, true);
     }

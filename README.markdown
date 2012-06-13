@@ -67,11 +67,10 @@ Available character classes include:
 
 * `lower`: lowercase letters, `a`-`z`
 * `upper`: uppercase letters, `A`-`Z`
-* `alpha`: all letters, `a`-`Z`
 * `number`: the digits `0`-`9`
 * `space`: the space character ` `
 * `dash`: dashes (`-`) and underscores (`_`)
-* `symbol`: other 'special' characters
+* `symbol`: all other printable ASCII characters
 
 Finally, some sites do not allow passwords containing strings of repeated
 characters beyond a certain length. For example, a site requiring passwords not

@@ -136,8 +136,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   describe("with a config file", function() { with(this) {
     before(function(resume) { with(this) {
       config.edit(function(c) {
-        c.services.twitter = {alpha: 1, symbol: 0}
-        c.global.alpha = 0
+        c.services.twitter = {lower: 1, symbol: 0}
+        c.global.lower = 0
         c.global.phrase = "saved passphrase"
       }, function() { resume() })
     }})
@@ -179,17 +179,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
-      expect(stdout, "write").given('.=6;0;:%.!5\\@_",}.+)')
+      expect(stdout, "write").given("(JA!4O'+&5I'/-V{N100")
       cli.run(["node", "bin/vault", "google"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings", function(resume) { with(this) {
-      expect(stdout, "write").given("199pS3LWcTpmb2MUfx7g")
+      expect(stdout, "write").given("199pS3LWcTpgGBMEDkx9")
       cli.run(["node", "bin/vault", "twitter"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
-      expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fV{=i)")
+      expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fxY<mO")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
     }})
     
@@ -202,20 +202,20 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("changes a saved service setting", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-c", "twitter", "--alpha", "8"], function() {
+      cli.run(["node", "bin/vault", "-c", "twitter", "--lower", "8"], function() {
         config.read("twitter", function(e, twitter) {
-          resume(function() { assertEqual( {alpha: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
+          resume(function() { assertEqual( {lower: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
         })
       })
     }})
     
     it("changes a saved global setting", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-c", "--alpha", "8"], function() {
+      cli.run(["node", "bin/vault", "-c", "--lower", "8"], function() {
         config.read("google", function(e, google) {
           config.read("twitter", function(e, twitter) {
             resume(function() {
-              assertEqual( {alpha: 8, phrase: "saved passphrase"}, google )
-              assertEqual( {alpha: 1, symbol: 0, phrase: "saved passphrase"}, twitter )
+              assertEqual( {lower: 8, phrase: "saved passphrase"}, google )
+              assertEqual( {lower: 1, symbol: 0, phrase: "saved passphrase"}, twitter )
       })})})})
     }})
     
@@ -224,9 +224,9 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
           assertEqual( {
-            global: {alpha: 0, phrase: "saved passphrase" },
+            global: {lower: 0, phrase: "saved passphrase" },
             services: {
-              twitter: {alpha: 1, symbol: 0}
+              twitter: {lower: 1, symbol: 0}
             }
           }, json)
         })

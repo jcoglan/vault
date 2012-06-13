@@ -32,7 +32,7 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
         {
           global: {symbol: 2, phrase: "the phrase"},
           services: {
-            internet: {symbol: 0, alpha: 4},
+            internet: {symbol: 0, lower: 4},
             work: {phrase: "something"}
           }
         }
@@ -49,7 +49,7 @@ JS.ENV.ConfigSpec = JS.Test.describe("Config", function() { with(this) {
       config.read("internet", function(e, internet) {
         config.read("work", function(e, work) {
           resume(function() {
-            assertEqual( {phrase: "the phrase", symbol: 0, alpha: 4}, internet )
+            assertEqual( {phrase: "the phrase", symbol: 0, lower: 4}, internet )
             assertEqual( {phrase: "something", symbol: 2}, work )
       })})})
     }})

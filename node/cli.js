@@ -11,7 +11,6 @@ var fs         = require('fs'),
                 
                 'lower':  Number,
                 'upper':  Number,
-                'alpha':  Number,
                 'number': Number,
                 'space':  Number,
                 'dash':   Number,

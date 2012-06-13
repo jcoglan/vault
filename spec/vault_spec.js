@@ -77,11 +77,11 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     }})
   }})
   
-  describe("with no letters", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, alpha: 0} })
+  describe("with no lowercase letters", function() { with(this) {
+    define("options", function() { return {phrase: PHRASE, lower: 0} })
     
-    it("generates a password containing no letters", function() { with(this) {
-      assertEqual( "_)};'>&970}0|{89-,%?", vault.generate("google") )
+    it("generates a password containing no lowercase letters", function() { with(this) {
+      assertEqual( ":{?)+7~@OA:L]!0E$)(+", vault.generate("google") )
     }})
   }})
   
@@ -104,7 +104,8 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   describe("with no viable characters", function() { with(this) {
     define("options", function() {
       return {phrase: PHRASE,
-              alpha:  0,
+              lower:  0,
+              upper:  0,
               number: 0,
               space:  0,
               dash:   0,
