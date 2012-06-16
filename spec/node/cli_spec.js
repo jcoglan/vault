@@ -47,6 +47,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], function() { resume() })
     }})
     
+    it("outputs a password with all character types", function(resume) { with(this) {
+      expect(stdout, "write").given(": : fv_wqt>a-4w1S  R")
+      passphrase = "She cells C shells bye the sea shoars"
+      cli.run(["node", "bin/vault", "google", "-p", "--dash", "2", "--lower", "2", "--space", "3", "--upper", "2", "--symbol", "1", "--number", "1"], function() { resume() })
+    }})
+    
     it("outputs a password with a length", function(resume) { with(this) {
       expect(stdout, "write").given("Tc8k~8")
       cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], function() { resume() })

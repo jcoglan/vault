@@ -103,17 +103,21 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   
   describe("with no viable characters", function() { with(this) {
     define("options", function() {
-      return {phrase: PHRASE,
-              lower:  0,
-              upper:  0,
-              number: 0,
-              space:  0,
-              dash:   0,
-              symbol: 0}
+      return {phrase: PHRASE, lower: 0, upper: 0, number: 0, space: 0, dash: 0, symbol: 0}
     })
     
     it("throws an error", function() { with(this) {
       assertThrows(Error, function() { vault.generate("google") })
+    }})
+  }})
+  
+  describe("with all character classes", function() { with(this) {
+    define("options", function() {
+      return {phrase: PHRASE, lower: 2, upper: 2, number: 1, space: 3, dash: 2, symbol: 1}
+    })
+    
+    it("generates a password with all character types", function() { with(this) {
+      assertEqual( ": : fv_wqt>a-4w1S  R", vault.generate("google") )
     }})
   }})
 }})
