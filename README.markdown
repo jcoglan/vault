@@ -121,6 +121,22 @@ per-service basis:
     Passphrase: *********
     =hk|,;,>=r'}k=p-u>1p
 
+If you'd like to get a plain-text copy of the encrypted settings file, or import
+a previously exported settings file, you can use the `--export` and `--import`
+flags. `--export` writes the contents of the `.vault` file to the given path,
+while `--import` reads the given file and stores it encrypted in your `.vault`
+file. This can be used, for example, to change the encryption key:
+
+    $ VAULT_KEY=oldkey vault --export settings.json
+    $ VAULT_KEY=newkey valut --import settings.json
+
+Or, you can use it if Vault changes its encryption algorithm in the future. Just
+use your current installation to export the settings, upgrade, then import.
+
+    $ vault --export settings.json
+    $ npm install -g vault
+    $ vault --import settings.json
+
 
 ## How does it work?
 
