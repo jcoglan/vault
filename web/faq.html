@@ -19,11 +19,12 @@
         
         <h2>Why should I trust you?</h2>
         
-        <p>This site does not store or transmit any data you enter into it. It
-          contains no analytics scripts, tracking cookies or other pieces of
-          spyware. The passwords it generates are much more secure than most
-          people use, against brute-force attacks, dictionary attacks and
-          password database theft.</p>
+        <p>This site does not store or transmit any data you enter into it; the
+          information you type in never leaves your computer. It contains no
+          analytics scripts, tracking cookies or other pieces of spyware. The
+          passwords it generates are much more secure than most people use,
+          against brute-force attacks, dictionary attacks and password database
+          theft.</p>
         
         <p>According to <a
           href="http://dl.dropbox.com/u/209/zxcvbn/test/index.html">Dropbox&rsquo;s
@@ -38,7 +39,8 @@
           However, this software is open-source (released under the
           <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a>)
           and you can <a href="http://github.com/jcoglan/vault">take a look at
-          its source code</a>.</p>
+          its source code</a>. The site is a few simple static files that anyone
+          is free to host themselves.</p>
         
         <h2>How does it work?</h2>
         
@@ -62,6 +64,28 @@
           But, many online services restrict the characters you can use, making
           you less safe. This tool lets you convert your passphrase into
           something each service will accept.</p>
+        
+        <h2>What should I use as a service name?</h2>
+        
+        <p>Again, this can be anything you like, it simply serves to modify your
+          password and make it unique for every site you visit. Personally, I
+          use the name of the site, as one word in lowercase, e.g.
+          <tt>gmail</tt>.</p>
+        
+        <p>If you want to make sure your password is completely unique, that is
+          make sure that even if you and someone else have the same master
+          passphrase and use the same service, you get different generated
+          passwords, you can prefix the service name with your username, e.g.
+          <tt>bob@gmail</tt>.</p>
+        
+        <p>I also use a scheme to organise facets of a single group of passwords,
+          for example at work I use <tt>songkick:ldap</tt> to log into our
+          internal network, and <tt>songkick:blog</tt> to log into our Wordpress
+          blog.</p>
+        
+        <p>The important thing is that it be something easy to remember based on
+          the name of the site. If you forget your passphrase or the service
+          name, Vault cannot recover your password for you.</p>
         
         <h2>Is there a command line version?</h2>
         
