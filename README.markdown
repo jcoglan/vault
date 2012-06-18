@@ -143,10 +143,12 @@ use your current installation to export the settings, upgrade, then import.
 `vault` takes your passphrase and a service name and generates a hash from them
 using [PBKDF2](http://en.wikipedia.org/wiki/PBKDF2). It then encodes the bits of
 this hash using a 94-character alphabet, subject to the given character
-constraints. This design makes sure that each password is very hard to break by
-brute force, and ensures that the discovery of one service's password does not
-lead to other accounts being compromised. It also means you can tailor the
-output to the character set accepted by each service.
+constraints. This design means that each password is very hard to break by brute
+force, and ensures that the discovery of one service's password does not lead to
+other accounts being compromised. It also means you can tailor the output to the
+character set accepted by each service. The use of a deterministic hash function
+means we don't need to store your passwords since they can easily be regenerated;
+this means there's no storage to sync or keep secure.
 
 
 ## License
