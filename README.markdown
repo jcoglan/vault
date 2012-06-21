@@ -1,8 +1,5 @@
 # vault [<img src="https://secure.travis-ci.org/jcoglan/vault.png" />](http://travis-ci.org/jcoglan/vault)
 
-NOT YET RELEASED, AND NOT NECESSARILY STABLE. DON'T STORE YOUR PASSWORDS WITH
-THIS JUST YET.
-
 Simple password generator. Given a passphrase and the name of a service, returns
 a strong password for that service. You only need to remember your passphrase,
 which you do not give to anyone, and this program will give a different password
