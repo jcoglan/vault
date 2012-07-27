@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var CLI  = require('../node/cli'),
+    SSH  = require('ssh-agent'),
     pw   = require('pw'),
     tty  = require('tty'),
     
@@ -20,6 +21,20 @@ var cli = new CLI({
   password: function(callback) {
     process.stderr.write('Passphrase: ');
     pw('*', process.stdin, process.stderr, callback);
+  },
+  
+  sshSign: function(string, callback) {
+    var client = new SSH(),
+        data   = new Buffer(string);
+    
+    client.requestIdentities(function(err, keys) {
+      var key = keys.filter(function(k) { return k.type === 'ssh-rsa' })[0];
+      if (!key) return callback(new Error('No usable key found'));
+      
+      client.sign(key, data, function(error, signature) {
+        callback(err, signature.signature);
+      });
+    });
   }
 });
 

@@ -18,6 +18,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       
       password: function(callback) {
         callback(passphrase)
+      },
+      
+      sshSign: function(string, callback) {
+        callback(null, string)
       }
     })
     
@@ -35,6 +39,11 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     it("outputs a generated password", function(resume) { with(this) {
       expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
       cli.run(["node", "bin/vault", "google", "-p"], function() { resume() })
+    }})
+    
+    it("generates a password using a private key", function(resume) { with(this) {
+      expect(stdout, "write").given("c8<BHXZMc*Gxks&%%=F4")
+      cli.run(["node", "bin/vault", "google", "-k"], function() { resume() })
     }})
     
     it("outputs a password with no symbols", function(resume) { with(this) {

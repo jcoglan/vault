@@ -6,6 +6,7 @@ var fs         = require('fs'),
     
     options = { 'config': Boolean,
                 'phrase': Boolean,
+                'key':    Boolean,
                 'length': Number,
                 'repeat': Number,
                 
@@ -22,6 +23,7 @@ var fs         = require('fs'),
     
     shorts  = { 'c': '--config',
                 'p': '--phrase',
+                'k': '--key',
                 'l': '--length',
                 'r': '--repeat',
                 'e': '--export',
@@ -35,6 +37,7 @@ var CLI = function(options) {
   this._tty     = options.tty;
   
   this._requestPassword = options.password;
+  this._signData = options.sshSign;
 };
 
 CLI.prototype.run = function(argv, callback, context) {
@@ -50,8 +53,15 @@ CLI.prototype.run = function(argv, callback, context) {
 };
 
 CLI.prototype.withPhrase = function(params, callback) {
-  if (!params.phrase) return callback.call(this);
   var self = this;
+  
+  if (params.key)
+    return this._signData(Vault.UUID, function(error, phrase) {
+      params.phrase = phrase;
+      callback.call(self);
+    });
+    
+  if (!params.phrase) return callback.call(this);
   
   this._requestPassword(function(password) {
     params.phrase = password;
