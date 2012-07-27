@@ -8,9 +8,12 @@ var CLI  = require('../node/cli'),
     
     key  = process.env.VAULT_KEY ||
            process.env.LOGNAME ||
-           process.env.USER;
+           process.env.USER ||
+           process.env.USERNAME;
 
-if (!/^\//.test(path)) path = process.env.HOME + '/' + path;
+if (!/^\//.test(path)) {
+  path = (process.env.HOME || process.env.USERPROFILE) + '/' + path;
+}
 
 var cli = new CLI({
   config: {path: path, key: key},
