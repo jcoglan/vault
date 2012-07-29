@@ -236,6 +236,11 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "facebook"], function() { resume() })
     }})
     
+    it("allows the --phrase flag to override stored keys", function(resume) { with(this) {
+      expect(stdout, "write").given("Q}T.}#S+SE#@+'|}5Q\\A")
+      cli.run(["node", "bin/vault", "facebook", "-p"], function() { resume() })
+    }})
+    
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
       expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fxY<mO")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })

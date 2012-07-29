@@ -60,6 +60,8 @@ CLI.prototype.withPhrase = function(params, callback) {
   var self    = this,
       message = params.config ? null : Vault.UUID;
   
+  params.input = {key: !!params.key, phrase: !!params.phrase};
+  
   if (params.key)
     return this._selectKey(function(error, key) {
       params.key = key;
@@ -138,7 +140,7 @@ CLI.prototype.generate = function(service, params, callback, context) {
     
     var self = this;
     
-    if (params.key && !params.signed)
+    if (params.key && !params.input.phrase)
       this._signData(params.key, Vault.UUID, function(error, signature) {
         params.phrase = signature;
         complete.call(self);
