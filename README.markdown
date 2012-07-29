@@ -98,7 +98,7 @@ If you only have one private key, that is used automatically. If you have
 several, a menu is displayed as above using snippets from the corresponding
 public keys. You will be prompted to unlock the selected key if necessary.
 
-Note that all the prompts show to you while using `vault` are printed to
+Note that all the prompts shown to you while using `vault` are printed to
 `stderr` and the generated password to `stdout`, so you can pipe `vault` to
 `pbcopy` and you'll just get the password in your clipboard, i.e.:
 
