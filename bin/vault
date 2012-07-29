@@ -15,11 +15,6 @@ if (!/^\//.test(path)) {
   path = (process.env.HOME || process.env.USERPROFILE) + '/' + path;
 }
 
-if (process.stdin.setRawMode)
-  tty.setRawMode = function(state) {
-    return process.stdin.setRawMode(state);
-  };
-
 var cli = new CLI({
   config: {path: path, key: key},
   output: process.stdout,
