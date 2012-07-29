@@ -13,9 +13,8 @@ var CLI  = require('../node/cli'),
            process.env.USER ||
            process.env.USERNAME;
 
-if (!/^\//.test(path)) {
+if (!/^\//.test(path))
   path = (process.env.HOME || process.env.USERPROFILE) + '/' + path;
-}
 
 var version = process.versions.node.match(/(\d+)\.(\d+)\.(\d+)/), rl;
 
@@ -24,7 +23,7 @@ var readline  = (parseInt(version[2], 10) <= 6)
                   return rl.createInterface(process.stdin, process.stderr);
                 }
               : function() {
-                  return rl.createInterface({input:  process.stdin, output: process.stderr});
+                  return rl.createInterface({input: process.stdin, output: process.stderr});
                 };
 
 if (process.stdin.setRawMode)
