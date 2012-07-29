@@ -11,9 +11,8 @@ var CLI  = require('../node/cli'),
            process.env.USER ||
            process.env.USERNAME;
 
-if (!/^\//.test(path)) {
+if (!/^\//.test(path))
   path = (process.env.HOME || process.env.USERPROFILE) + '/' + path;
-}
 
 var cli = new CLI({
   config: {path: path, key: key},
