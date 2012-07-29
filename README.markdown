@@ -85,12 +85,12 @@ Instead of a simple passphrase, `vault` can use a value signed using your
 private key as its input. Use the `--key` or `-k` option:
 
     $ vault twitter -k
-
+    
     Which key would you like to use?
-
-    1: james@tesla, AAAAB3NzaC1y...cCBRlZyekcrL
-    2: james@tesla, AAAAB3NzaC1y...+XRS6wsfyB7D
-
+    
+    1: james@tesla, AAAAB3NzaC1y...+XRS6wsfyB7D
+    2: james@tesla, AAAAB3NzaC1y...B4vwPOArAIKb
+    
     Enter a number (1-2): 1
     \vXY"xP}m7;,./eI{cz<
 
@@ -146,6 +146,23 @@ per-service basis:
     $ vault google -p
     Passphrase: *********
     =hk|,;,>=r'}k=p-u>1p
+
+If you're using your private key instead of a passphrase, you can save your
+`--key` setting. The config file ends up storing the public key, not the private
+key or any value derived from it. Next time you run `vault`, the public key is
+used to find the corresponding private key from `ssh-agent`.
+
+    $ vault -c -k
+    
+    Which key would you like to use?
+    
+    1: james@tesla, AAAAB3NzaC1y...+XRS6wsfyB7D
+    2: james@tesla, AAAAB3NzaC1y...B4vwPOArAIKb
+    
+    Enter a number (1-2): 1
+    
+    $ vault twitter
+    \vXY"xP}m7;,./eI{cz<
 
 If you'd like to get a plain-text copy of the encrypted settings file, or import
 a previously exported settings file, you can use the `--export` and `--import`
