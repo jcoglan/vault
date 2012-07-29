@@ -18,10 +18,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       
       password: function(callback) {
         callback(passphrase)
-      },
-      
-      sshSign: function(string, callback) {
-        callback(null, string)
       }
     })
     
@@ -43,6 +39,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     
     it("generates a password using a private key", function(resume) { with(this) {
       expect(stdout, "write").given("c8<BHXZMc*Gxks&%%=F4")
+      expect(cli, "_signData").given(true, Vault.UUID).yielding([null, {signature: Vault.UUID, key: "AAAAPUBLICKEY"}])
       cli.run(["node", "bin/vault", "google", "-k"], function() { resume() })
     }})
     
@@ -109,6 +106,28 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       })})})})
     }})
     
+    it("saves a global public key", function(resume) { with(this) {
+      expect(cli, "_signData").given(true, null).yielding([null, {key: "AAAAPUBLICKEY"}])
+      cli.run(["node", "bin/vault", "-ck"], function() {
+        config.read("internet", function(e, internet) {
+          config.read("google", function(e, google) {
+            resume(function() {
+              assertEqual( {key: "AAAAPUBLICKEY"}, internet )
+              assertEqual( {key: "AAAAPUBLICKEY"}, google )
+      })})})})
+    }})
+    
+    it("saves a service-specific public key", function(resume) { with(this) {
+      expect(cli, "_signData").given(true, null).yielding([null, {key: "AAAAPUBLICKEY"}])
+      cli.run(["node", "bin/vault", "-ck", "google"], function() {
+        config.read("internet", function(e, internet) {
+          config.read("google", function(e, google) {
+            resume(function() {
+              assertEqual( {}, internet )
+              assertEqual( {key: "AAAAPUBLICKEY"}, google )
+      })})})})
+    }})
+    
     it("saves a global character constraint", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "--length", "6", "--symbol", "0"], function() {
         config.read("internet", function(e, internet) {
@@ -152,6 +171,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     before(function(resume) { with(this) {
       config.edit(function(c) {
         c.services.twitter = {lower: 1, symbol: 0}
+        c.services.facebook = {key: "AAAAPUBLICKEY"}
         c.global.lower = 0
         c.global.phrase = "saved passphrase"
       }, function() { resume() })
@@ -198,9 +218,15 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google"], function() { resume() })
     }})
     
-    it("outputs a password using service-specific settings", function(resume) { with(this) {
+    it("outputs a password using a service-specific passphrase", function(resume) { with(this) {
       expect(stdout, "write").given("199pS3LWcTpgGBMEDkx9")
       cli.run(["node", "bin/vault", "twitter"], function() { resume() })
+    }})
+    
+    it("outputs a password using a service-specific private key", function(resume) { with(this) {
+      expect(stdout, "write").given("?.@=(J8_^OCXCHTJ(*JA")
+      expect(cli, "_signData").given("AAAAPUBLICKEY", Vault.UUID).yielding([null, {signature: "4576", key: "AAAAPUBLICKEY"}])
+      cli.run(["node", "bin/vault", "facebook"], function() { resume() })
     }})
     
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
@@ -241,6 +267,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           assertEqual( {
             global: {lower: 0, phrase: "saved passphrase" },
             services: {
+              facebook: {key: "AAAAPUBLICKEY"},
               twitter: {lower: 1, symbol: 0}
             }
           }, json)

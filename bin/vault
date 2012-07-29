@@ -36,15 +36,20 @@ var cli = new CLI({
     pw('*', process.stdin, process.stderr, callback);
   },
   
-  sshSign: function(string, callback) {
+  sshSign: function(key, message, callback) {
     var client = new SSH(),
-        data   = new Buffer(string),
         snip   = 12;
     
     var sign = function(key) {
-      client.sign(key, data, function(error, signature) {
+      if (typeof message !== 'string')
+        return callback(null, {key: key.ssh_key});
+      
+      client.sign(key, new Buffer(message), function(error, signature) {
         if (signature)
-          callback(null, signature.signature);
+          callback(null, {
+            key:        key.ssh_key,
+            signature:  signature.signature
+          });
         else
           callback(new Error('Private key signing failed'));
       });
@@ -52,6 +57,9 @@ var cli = new CLI({
     
     client.requestIdentities(function(error, keys) {
       keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
+      
+      if (typeof key === 'string')
+        keys = keys.filter(function(k) { return k.ssh_key === key });
       
       if (keys.length === 0)
         return callback(new Error('No usable RSA keys were found'));
