@@ -44,7 +44,9 @@ CLI.prototype.run = function(argv, callback, context) {
   var params  = nopt(options, shorts, argv),
       service = params.argv.remain[0];
   
-  this.withPhrase(params, function() {
+  this.withPhrase(params, function(error) {
+    if (error) return callback.call(context, error);
+    
     if      (params.export) this.export(params.export, callback, context);
     else if (params.import) this.import(params.import, callback, context);
     else if (params.config) this.configure(service, params, callback, context);
@@ -58,7 +60,7 @@ CLI.prototype.withPhrase = function(params, callback) {
   if (params.key)
     return this._signData(Vault.UUID, function(error, phrase) {
       params.phrase = phrase;
-      callback.call(self);
+      callback.call(self, error);
     });
     
   if (!params.phrase) return callback.call(this);

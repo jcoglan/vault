@@ -13,6 +13,15 @@ var CLI  = require('../node/cli'),
 
 if (!/^\//.test(path)) path = process.env.HOME + '/' + path;
 
+var version = process.versions.node.match(/(\d+)\.(\d+)\.(\d+)/), rl;
+if (parseInt(version[2], 10) <= 6)
+  rl = require('readline').createInterface(process.stdin, process.stderr);
+else
+  rl = require('readline').createInterface({
+    input:  process.stdin,
+    output: process.stderr
+  });
+
 var cli = new CLI({
   config: {path: path, key: key},
   output: process.stdout,
@@ -25,14 +34,38 @@ var cli = new CLI({
   
   sshSign: function(string, callback) {
     var client = new SSH(),
-        data   = new Buffer(string);
+        data   = new Buffer(string),
+        snip   = 12;
     
-    client.requestIdentities(function(err, keys) {
-      var key = keys.filter(function(k) { return k.type === 'ssh-rsa' })[0];
-      if (!key) return callback(new Error('No usable key found'));
-      
+    var sign = function(key) {
       client.sign(key, data, function(error, signature) {
-        callback(err, signature.signature);
+        if (signature)
+          callback(null, signature.signature);
+        else
+          callback(new Error('Private key signing failed'));
+      });
+    };
+    
+    client.requestIdentities(function(error, keys) {
+      keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
+      
+      if (keys.length === 0)
+        return callback(new Error('No usable RSA keys were found'));
+      
+      if (keys.length === 1) return sign(keys[0]);
+      
+      console.error('\nWhich key would you like to use?\n');
+      
+      keys.forEach(function(key, i) {
+        var abbrev = key.ssh_key.substr(0, snip) + '...' + key.ssh_key.substr(key.ssh_key.length - snip);
+        console.error((i+1) + ': ' + key.comment + ', ' + abbrev);
+      });
+      rl.question('\nEnter a number (1-' + keys.length + '): ', function(index) {
+        index = parseInt(index, 10);
+        if (index >= 1 && index <= keys.length)
+          sign(keys[index - 1]);
+        else
+          callback(new Error('Selected key must be between 1 and ' + keys.length));
       });
     });
   }
@@ -42,6 +75,8 @@ cli.run(process.argv, function(error) {
   if (error) {
     console.error(error.message);
     process.exit(1);
+  } else {
+    process.exit(0);
   }
 });
 
