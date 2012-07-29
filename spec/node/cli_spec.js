@@ -18,6 +18,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       
       password: function(callback) {
         callback(passphrase)
+      },
+      
+      selectKey: function(callback) {
+        callback(null, "AAAAPUBLICKEY")
+      },
+      
+      sign: function(key, message, callback) {
+        if (key === "AAAAPUBLICKEY")
+          callback(null, message);
+        else
+          callback(new Error("Could not sign the message"))
       }
     })
     
@@ -39,7 +50,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     
     it("generates a password using a private key", function(resume) { with(this) {
       expect(stdout, "write").given("c8<BHXZMc*Gxks&%%=F4")
-      expect(cli, "_signData").given(true, Vault.UUID).yielding([null, {signature: Vault.UUID, key: "AAAAPUBLICKEY"}])
       cli.run(["node", "bin/vault", "google", "-k"], function() { resume() })
     }})
     
@@ -107,7 +117,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("saves a global public key", function(resume) { with(this) {
-      expect(cli, "_signData").given(true, null).yielding([null, {key: "AAAAPUBLICKEY"}])
       cli.run(["node", "bin/vault", "-ck"], function() {
         config.read("internet", function(e, internet) {
           config.read("google", function(e, google) {
@@ -118,7 +127,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("saves a service-specific public key", function(resume) { with(this) {
-      expect(cli, "_signData").given(true, null).yielding([null, {key: "AAAAPUBLICKEY"}])
       cli.run(["node", "bin/vault", "-ck", "google"], function() {
         config.read("internet", function(e, internet) {
           config.read("google", function(e, google) {
@@ -224,8 +232,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
     
     it("outputs a password using a service-specific private key", function(resume) { with(this) {
-      expect(stdout, "write").given("?.@=(J8_^OCXCHTJ(*JA")
-      expect(cli, "_signData").given("AAAAPUBLICKEY", Vault.UUID).yielding([null, {signature: "4576", key: "AAAAPUBLICKEY"}])
+      expect(stdout, "write").given('++IAP:^*$6,"9~R-}%R-')
       cli.run(["node", "bin/vault", "facebook"], function() { resume() })
     }})
     

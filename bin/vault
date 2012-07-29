@@ -36,35 +36,17 @@ var cli = new CLI({
     pw('*', process.stdin, process.stderr, callback);
   },
   
-  sshSign: function(key, message, callback) {
+  selectKey: function(callback) {
     var client = new SSH(),
         snip   = 12;
-    
-    var sign = function(key) {
-      if (typeof message !== 'string')
-        return callback(null, {key: key.ssh_key});
-      
-      client.sign(key, new Buffer(message), function(error, signature) {
-        if (signature)
-          callback(null, {
-            key:        key.ssh_key,
-            signature:  signature.signature
-          });
-        else
-          callback(new Error('Private key signing failed'));
-      });
-    };
     
     client.requestIdentities(function(error, keys) {
       keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
       
-      if (typeof key === 'string')
-        keys = keys.filter(function(k) { return k.ssh_key === key });
-      
       if (keys.length === 0)
         return callback(new Error('No usable RSA keys were found'));
       
-      if (keys.length === 1) return sign(keys[0]);
+      if (keys.length === 1) return callback(null, keys[0].ssh_key);
       
       console.error('\nWhich key would you like to use?\n');
       
@@ -75,9 +57,24 @@ var cli = new CLI({
       readline().question('\nEnter a number (1-' + keys.length + '): ', function(index) {
         index = parseInt(index, 10);
         if (index >= 1 && index <= keys.length)
-          sign(keys[index - 1]);
+          callback(null, keys[index - 1].ssh_key);
         else
           callback(new Error('Selected key must be between 1 and ' + keys.length));
+      });
+    });
+  },
+  
+  sign: function(sshKey, message, callback) {
+    var client = new SSH();
+    client.requestIdentities(function(error, keys) {
+      var key = keys.filter(function(k) { return k.ssh_key === sshKey })[0];
+      if (!key) return callback(new Error('Private key not found'));
+      
+      client.sign(key, new Buffer(message), function(error, signature) {
+        if (signature)
+          callback(null, signature.signature);
+        else
+          callback(new Error('Private key signing failed'));
       });
     });
   }

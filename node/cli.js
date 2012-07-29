@@ -37,7 +37,8 @@ var CLI = function(options) {
   this._tty     = options.tty;
   
   this._requestPassword = options.password;
-  this._signData = options.sshSign;
+  this._selectKey = options.selectKey;
+  this._signData = options.sign;
 };
 
 CLI.prototype.run = function(argv, callback, context) {
@@ -60,21 +61,18 @@ CLI.prototype.withPhrase = function(params, callback) {
       message = params.config ? null : Vault.UUID;
   
   if (params.key)
-    return this._signData(params.key, message, function(error, result) {
-      if (result) {
-        params.phrase = result.signature;
-        params.key    = result.key;
-        params.signed = true;
-      }
+    return this._selectKey(function(error, key) {
+      params.key = key;
       callback.call(self, error);
     });
     
-  if (!params.phrase) return callback.call(this);
+  if (params.phrase)
+    return this._requestPassword(function(password) {
+      params.phrase = password;
+      callback.call(self);
+    });
   
-  this._requestPassword(function(password) {
-    params.phrase = password;
-    callback.call(self);
-  });
+  return callback.call(this);
 };
 
 CLI.prototype.export = function(path, callback, context) {
@@ -97,8 +95,6 @@ CLI.prototype.import = function(path, callback, context) {
 
 CLI.prototype.configure = function(service, params, callback, context) {
   delete params.config;
-  delete params.signed;
-  if (params.key) delete params.phrase;
   
   this._config.edit(function(settings) {
     if (service) {
@@ -143,8 +139,8 @@ CLI.prototype.generate = function(service, params, callback, context) {
     var self = this;
     
     if (params.key && !params.signed)
-      this._signData(params.key, Vault.UUID, function(error, result) {
-        params.phrase = result.signature;
+      this._signData(params.key, Vault.UUID, function(error, signature) {
+        params.phrase = signature;
         complete.call(self);
       });
     else
