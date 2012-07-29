@@ -8,7 +8,7 @@
 , "engines"         : {"node": ">=0.4.0"}
 , "main"            : "./lib/vault.js"
 , "bin"             : {"vault": "./bin/vault"}
-, "dependencies"    : {"nopt": "", "pw": "", "ssh-agent": ""}
+, "dependencies"    : {"nopt": "", "pw": ">=0.0.4", "ssh-agent": ""}
 , "devDependencies" : {"jsclass": ""}
 
 , "scripts"         : {"test": "node spec/node.js"}

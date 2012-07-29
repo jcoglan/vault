@@ -26,11 +26,6 @@ var readline  = (parseInt(version[2], 10) <= 6)
                   return rl.createInterface({input: process.stdin, output: process.stderr});
                 };
 
-if (process.stdin.setRawMode)
-  tty.setRawMode = function(state) {
-    return process.stdin.setRawMode(state);
-  };
-
 var cli = new CLI({
   config: {path: path, key: key},
   output: process.stdout,
