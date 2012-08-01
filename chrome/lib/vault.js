@@ -44,10 +44,10 @@ Vault.extend = function(target, source) {
 };
 
 Vault.createHash = function(key, message, entropy) {
-  var CJS    = (typeof CryptoJS !== 'undefined') ? CryptoJS : require('./crypto-js-3.0.2'),
-      digits = (entropy || 256) / 4;
+  var CJS   = (typeof CryptoJS !== 'undefined') ? CryptoJS : require('./crypto-js-3.0.2'),
+      bytes = (entropy || 256) / 8;
   
-  return CJS.PBKDF2(key, message, {keySize: Math.ceil(digits / 8), iterations: 8}).toString();
+  return CJS.PBKDF2(key, message, {keySize: Math.ceil(bytes / 4), iterations: 8}).toString();
 };
 
 Vault.indexOf = function(list, item) {
@@ -68,12 +68,12 @@ Vault.map = function(list, callback, context) {
 
 Vault.pbkdf2 = function(password, salt, keylen, iterations, callback) {
   if (typeof require === 'function' && require('crypto').pbkdf2)
-    return require('crypto').pbkdf2(password, salt, iterations, 4 * keylen, function(error, key) {
+    return require('crypto').pbkdf2(password, salt, iterations, keylen, function(error, key) {
       callback(error, new Buffer(key, 'binary').toString('hex'));
     });
   
   var CJS = (typeof CryptoJS !== 'undefined') ? CryptoJS : require('./crypto-js-3.0.2'),
-      key = CJS.PBKDF2(password, salt, {keySize: keylen, iterations: iterations});
+      key = CJS.PBKDF2(password, salt, {keySize: Math.ceil(keylen/4), iterations: iterations});
   
   callback(null, key.toString());
 };
