@@ -4,14 +4,16 @@
 , "author"          : "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)"
 , "keywords"        : ["security", "passwords"]
 
-, "version"         : "0.2.0"
+, "version"         : "0.3.0"
 , "engines"         : {"node": ">=0.4.0"}
 , "main"            : "./lib/vault.js"
 , "bin"             : {"vault": "./bin/vault"}
 , "dependencies"    : {"nopt": "", "pw": ">=0.0.4"}
 , "devDependencies" : {"jsclass": ""}
 
-, "scripts"         : {"test": "node spec/node.js"}
+, "scripts"         : { "postinstall" : "./node/scripts/postinstall"
+                      , "test"        : "node spec/node.js"
+                      }
 
 , "bugs"            : "http://github.com/jcoglan/vault/issues"
 
