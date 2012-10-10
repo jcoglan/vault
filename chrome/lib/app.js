@@ -89,7 +89,7 @@ var getSettings = function() {
 };
 
 var update = function() {
-  var settings = getSettings(), vault;
+  var settings = getSettings();
   try {
     if (service.value && phrase.value) {
       word.value = new Vault(settings).generate(service.value);
