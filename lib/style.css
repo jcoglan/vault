@@ -71,7 +71,6 @@ input.text, input.password {
 .password .show label {
   display: inline;
 }
-
 .length, .repeat {
   float: left;
   margin-bottom: 1em;
@@ -80,6 +79,9 @@ input.text, input.password {
 .length {
   clear: both;
   margin-right: 6%;
+}
+.generator input {
+  font-family: Monaco, Courier New, monospace;
 }
 
 table label {
