@@ -143,6 +143,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     before(function(resume) { with(this) {
       config.edit(function(c) {
         c.services.twitter = {lower: 1, symbol: 0}
+        c.services.nothing = {}
         c.global.lower = 0
         c.global.phrase = "saved passphrase"
       }, function() { resume() })
@@ -182,6 +183,16 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
         })
       })
+    }})
+    
+    it("completes option fragments", function(resume) { with(this) {
+      expect(stdout, "write").given("--cmplt\n--config\n--dash\n--export\n--import\n--initpath\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
+      cli.run(["node", "bin/vault", "--cmplt", "--l"], function() { resume() })
+    }})
+    
+    it("completes service names", function(resume) { with(this) {
+      expect(stdout, "write").given("nothing\ntwitter")
+      cli.run(["node", "bin/vault", "--cmplt", "tw"], function() { resume() })
     }})
     
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
@@ -232,6 +243,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           assertEqual( {
             global: {lower: 0, phrase: "saved passphrase" },
             services: {
+              nothing: {},
               twitter: {lower: 1, symbol: 0}
             }
           }, json)

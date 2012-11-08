@@ -30,6 +30,10 @@ This program is written in JavaScript and is available as a Node program:
 
     npm install -g vault
 
+To enable tab-completion for bash, add this to your .bashrc scripts:
+
+    which vault && source "$( vault --initpath )"
+
 
 ## Usage
 

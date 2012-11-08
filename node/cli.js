@@ -1,23 +1,27 @@
 var fs         = require('fs'),
+    path       = require('path'),
     nopt       = require('nopt'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
     Config     = require('../lib/config'),
     
-    options = { 'config': Boolean,
-                'phrase': Boolean,
-                'length': Number,
-                'repeat': Number,
+    options = { 'config':   Boolean,
+                'phrase':   Boolean,
+                'length':   Number,
+                'repeat':   Number,
                 
-                'lower':  Number,
-                'upper':  Number,
-                'number': Number,
-                'space':  Number,
-                'dash':   Number,
-                'symbol': Number,
+                'lower':    Number,
+                'upper':    Number,
+                'number':   Number,
+                'space':    Number,
+                'dash':     Number,
+                'symbol':   Number,
                 
-                'export': String,
-                'import': String
+                'export':   String,
+                'import':   String,
+                
+                'initpath': Boolean,
+                'cmplt':    String
               },
     
     shorts  = { 'c': '--config',
@@ -41,12 +45,31 @@ CLI.prototype.run = function(argv, callback, context) {
   var params  = nopt(options, shorts, argv),
       service = params.argv.remain[0];
   
+  if (params.initpath) {
+    this._out.write(path.resolve(__dirname + '/scripts/init'));
+    return callback.call(context);
+  }
+  
+  if (params.cmplt) return this.complete(params.cmplt, callback, context);
+  
   this.withPhrase(params, function() {
     if      (params.export) this.export(params.export, callback, context);
     else if (params.import) this.import(params.import, callback, context);
     else if (params.config) this.configure(service, params, callback, context);
     else                    this.generate(service, params, callback, context);
   });
+};
+
+CLI.prototype.complete = function(word, callback, context) {
+  if (/^--/.test(word)) {
+    this._out.write(Object.keys(options).sort().map(function(o) { return '--' + o }).join('\n'));
+    callback.call(context);
+  } else {
+    this._config.list(function(error, services) {
+      this._out.write(services.sort().join('\n'));
+      callback.call(context, error);
+    }, this);
+  }
 };
 
 CLI.prototype.withPhrase = function(params, callback) {
