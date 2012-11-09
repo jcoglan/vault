@@ -1,5 +1,4 @@
-var crypto = require('crypto'),
-    Vault  = require('../lib/vault');
+var crypto = require('crypto');
 
 var randomBytes = function(size) {
   if (crypto.randomBytes) return crypto.randomBytes(size);
@@ -8,8 +7,9 @@ var randomBytes = function(size) {
   return buffer;
 };
 
-var AES = function(key) {
-  this._key = key;
+var AES = function(key, options) {
+  this._key  = key;
+  this._uuid = options.uuid;
 };
 
 AES.prototype.IV_SIZE  = 16;
@@ -17,11 +17,16 @@ AES.prototype.KEY_SIZE = 16;
 AES.prototype.MAC_SIZE = 64;
 
 AES.prototype.deriveKeys = function(callback, context) {
-  var self = this;
-  Vault.pbkdf2(self._key, Vault.UUID, self.KEY_SIZE, 1, function(error, key1) {
-    Vault.pbkdf2(self._key, Vault.UUID, self.KEY_SIZE, 2, function(error, key2) {
+  this.pbkdf2(this._key, this._uuid, this.KEY_SIZE, 1, function(error, key1) {
+    this.pbkdf2(this._key, this._uuid, this.KEY_SIZE, 2, function(error, key2) {
       callback.call(context, key1, key2);
-    });
+    }, this);
+  }, this);
+};
+
+AES.prototype.pbkdf2 = function(password, salt, keylen, iterations, callback, context) {
+  crypto.pbkdf2(password, salt, iterations, keylen, function(error, key) {
+    callback.call(context, error, new Buffer(key, 'binary').toString('hex'));
   });
 };
 
@@ -81,15 +86,19 @@ AES.prototype.decrypt = function(ciphertext, callback, context) {
     hmac.update(message.toString('base64'));
 
     var expected = hmac.digest('hex'),
-        actual   = mac.toString('utf8'),
-        h        = Vault.createHash;
+        actual   = mac.toString('utf8');
     
-    if (h(Vault.UUID, expected) !== h(Vault.UUID, actual))
-      callback.call(context, new Error('DecryptError'));
-    else if (plaintext === null)
-      callback.call(context, new Error('DecryptError'));
-    else
-      callback.call(context, null, plaintext);
+    this.pbkdf2(this._uuid, expected, 32, 1, function(error, key1) {
+      this.pbkdf2(this._uuid, actual, 32, 1, function(error, key2) {
+        
+        if (key1 !== key2)
+          callback.call(context, new Error('DecryptError'));
+        else if (plaintext === null)
+          callback.call(context, new Error('DecryptError'));
+        else
+          callback.call(context, null, plaintext);
+      }, this);
+    }, this);
   }, this);
 };
 

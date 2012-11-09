@@ -4,7 +4,7 @@ var fs    = require('fs'),
 
 var LocalStore = function(options) {
   this._path = options.path;
-  this._aes  = new AES(options.key);
+  this._aes  = new AES(options.key, {uuid: Vault.UUID});
 };
 
 LocalStore.prototype.clear = function(callback, context) {
