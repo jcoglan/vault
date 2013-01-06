@@ -7,6 +7,7 @@ var fs         = require('fs'),
     
     options = { 'config':   Boolean,
                 'phrase':   Boolean,
+                'key':      Boolean,
                 'length':   Number,
                 'repeat':   Number,
                 
@@ -26,6 +27,7 @@ var fs         = require('fs'),
     
     shorts  = { 'c': '--config',
                 'p': '--phrase',
+                'k': '--key',
                 'l': '--length',
                 'r': '--repeat',
                 'e': '--export',
@@ -39,6 +41,8 @@ var CLI = function(options) {
   this._tty     = options.tty;
   
   this._requestPassword = options.password;
+  this._selectKey = options.selectKey;
+  this._signData = options.sign;
 };
 
 CLI.prototype.run = function(argv, callback, context) {
@@ -73,13 +77,24 @@ CLI.prototype.complete = function(word, callback, context) {
 };
 
 CLI.prototype.withPhrase = function(params, callback) {
-  if (!params.phrase) return callback.call(this);
-  var self = this;
+  var self    = this,
+      message = params.config ? null : Vault.UUID;
   
-  this._requestPassword(function(password) {
-    params.phrase = password;
-    callback.call(self);
-  });
+  params.input = {key: !!params.key, phrase: !!params.phrase};
+  
+  if (params.key)
+    return this._selectKey(function(error, key) {
+      params.key = key;
+      callback.call(self, error);
+    });
+    
+  if (params.phrase)
+    return this._requestPassword(function(password) {
+      params.phrase = password;
+      callback.call(self);
+    });
+  
+  return callback.call(this);
 };
 
 CLI.prototype.export = function(path, callback, context) {
@@ -126,20 +141,32 @@ CLI.prototype.generate = function(service, params, callback, context) {
     if (service === undefined)
       return callback.call(context, new Error('No service name given'));
     
-    if (params.phrase === undefined)
-      return callback.call(context, new Error('No passphrase given; pass `-p` or run `vault -cp`'));
+    var complete = function() {
+      if (params.phrase === undefined)
+        return callback.call(context, new Error('No passphrase given; pass `-p` or run `vault -cp`'));
+      
+      var vault = new Vault(params), password;
+      try {
+        password = vault.generate(service);
+      } catch (e) {
+        return callback.call(context, e);
+      }
+      
+      this._out.write(password);
+      if (this._tty) this._out.write('\n');
+      
+      callback.call(context, null);
+    };
     
-    var vault = new Vault(params), password;
-    try {
-      password = vault.generate(service);
-    } catch (e) {
-      return callback.call(context, e);
-    }
+    var self = this;
     
-    this._out.write(password);
-    if (this._tty) this._out.write('\n');
-    
-    callback.call(context, null);
+    if (params.key && !params.input.phrase)
+      this._signData(params.key, Vault.UUID, function(error, signature) {
+        params.phrase = signature;
+        complete.call(self);
+      });
+    else
+      complete.call(self);
   }, this);
 };
 

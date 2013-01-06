@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 var CLI  = require('../node/cli'),
+    SSH  = require('ssh-agent'),
     pw   = require('pw'),
+    rl   = require('readline'),
     tty  = require('tty'),
     
     path = process.env.VAULT_PATH || '.vault',
@@ -14,6 +16,16 @@ var CLI  = require('../node/cli'),
 if (!/^\//.test(path))
   path = (process.env.HOME || process.env.USERPROFILE) + '/' + path;
 
+var version = process.versions.node.match(/(\d+)\.(\d+)\.(\d+)/), rl;
+
+var readline  = (parseInt(version[2], 10) <= 6)
+              ? function() {
+                  return rl.createInterface(process.stdin, process.stderr);
+                }
+              : function() {
+                  return rl.createInterface({input: process.stdin, output: process.stderr});
+                };
+
 var cli = new CLI({
   config: {path: path, key: key},
   output: process.stdout,
@@ -22,6 +34,49 @@ var cli = new CLI({
   password: function(callback) {
     process.stderr.write('Passphrase: ');
     pw('*', process.stdin, process.stderr, callback);
+  },
+  
+  selectKey: function(callback) {
+    var client = new SSH(),
+        snip   = 12;
+    
+    client.requestIdentities(function(error, keys) {
+      keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
+      
+      if (keys.length === 0)
+        return callback(new Error('No usable RSA keys were found'));
+      
+      if (keys.length === 1) return callback(null, keys[0].ssh_key);
+      
+      console.error('\nWhich key would you like to use?\n');
+      
+      keys.forEach(function(key, i) {
+        var abbrev = key.ssh_key.substr(0, snip) + '...' + key.ssh_key.substr(key.ssh_key.length - snip);
+        console.error((i+1) + ': ' + key.comment + ', ' + abbrev);
+      });
+      readline().question('\nEnter a number (1-' + keys.length + '): ', function(index) {
+        index = parseInt(index, 10);
+        if (index >= 1 && index <= keys.length)
+          callback(null, keys[index - 1].ssh_key);
+        else
+          callback(new Error('Selected key must be between 1 and ' + keys.length));
+      });
+    });
+  },
+  
+  sign: function(sshKey, message, callback) {
+    var client = new SSH();
+    client.requestIdentities(function(error, keys) {
+      var key = keys.filter(function(k) { return k.ssh_key === sshKey })[0];
+      if (!key) return callback(new Error('Private key not found'));
+      
+      client.sign(key, new Buffer(message), function(error, signature) {
+        if (signature)
+          callback(null, signature.signature);
+        else
+          callback(new Error('Private key signing failed'));
+      });
+    });
   }
 });
 
@@ -29,6 +84,8 @@ cli.run(process.argv, function(error) {
   if (error) {
     console.error(error.message);
     process.exit(1);
+  } else {
+    process.exit(0);
   }
 });
 
