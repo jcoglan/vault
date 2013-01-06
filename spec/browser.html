@@ -5,35 +5,35 @@
     <title>Vault tests</title>
   </head>
   <body>
-    
+
     <script type="text/javascript" src="../node_modules/jsclass/min/loader.js"></script>
     <script type="text/javascript" src="../lib/crypto-js-3.0.2.js"></script>
     <script type="text/javascript" src="../lib/vault.js"></script>
     <script type="text/javascript" src="../lib/config.js"></script>
     <script type="text/javascript">
       JS.cacheBust = true
-      
+
       JS.Packages(function() { with(this) {
         file('./vault_spec.js')
           .provides('VaultSpec')
           .requires('JS.Test', 'Vault')
-        
+
         file('./stream_spec.js')
           .provides('StreamSpec')
           .requires('JS.Test', 'Vault.Stream')
-        
+
         file('./config_spec.js')
           .provides('ConfigSpec')
           .requires('JS.Test', 'Vault.Config')
       }})
     </script>
-    
+
     <script type="text/javascript">
       JS.require('VaultSpec', 'StreamSpec', 'ConfigSpec', function() {
         JS.Test.autorun()
       })
     </script>
-    
+
   </body>
 </html>
 

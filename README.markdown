@@ -89,12 +89,12 @@ Instead of a simple passphrase, `vault` can use a value signed using your
 private key as its input. Use the `--key` or `-k` option:
 
     $ vault twitter -k
-    
+
     Which key would you like to use?
-    
+
     1: james@tesla, AAAAB3NzaC1y...+XRS6wsfyB7D
     2: james@tesla, AAAAB3NzaC1y...B4vwPOArAIKb
-    
+
     Enter a number (1-2): 1
     \vXY"xP}m7;,./eI{cz<
 
@@ -142,11 +142,11 @@ Both the passphrase and the character class settings can be overridden on a
 per-service basis:
 
     $ vault -c twitter --upper 1 --symbol 0
-    
+
     $ vault twitter -p
     Passphrase: *********
     Z2juOG1Z31BX1A9ET8Cn
-    
+
     $ vault google -p
     Passphrase: *********
     =hk|,;,>=r'}k=p-u>1p
@@ -157,14 +157,14 @@ key or any value derived from it. Next time you run `vault`, the public key is
 used to find the corresponding private key from `ssh-agent`.
 
     $ vault -c -k
-    
+
     Which key would you like to use?
-    
+
     1: james@tesla, AAAAB3NzaC1y...+XRS6wsfyB7D
     2: james@tesla, AAAAB3NzaC1y...B4vwPOArAIKb
-    
+
     Enter a number (1-2): 1
-    
+
     $ vault twitter
     \vXY"xP}m7;,./eI{cz<
 

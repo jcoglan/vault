@@ -5,9 +5,9 @@ var CLI  = require('../node/cli'),
     pw   = require('pw'),
     rl   = require('readline'),
     tty  = require('tty'),
-    
+
     path = process.env.VAULT_PATH || '.vault',
-    
+
     key  = process.env.VAULT_KEY ||
            process.env.LOGNAME ||
            process.env.USER ||
@@ -30,26 +30,26 @@ var cli = new CLI({
   config: {path: path, key: key},
   output: process.stdout,
   tty:    tty.isatty(1),
-  
+
   password: function(callback) {
     process.stderr.write('Passphrase: ');
     pw('*', process.stdin, process.stderr, callback);
   },
-  
+
   selectKey: function(callback) {
     var client = new SSH(),
         snip   = 12;
-    
+
     client.requestIdentities(function(error, keys) {
       keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
-      
+
       if (keys.length === 0)
         return callback(new Error('No usable RSA keys were found'));
-      
+
       if (keys.length === 1) return callback(null, keys[0].ssh_key);
-      
+
       console.error('\nWhich key would you like to use?\n');
-      
+
       keys.forEach(function(key, i) {
         var abbrev = key.ssh_key.substr(0, snip) + '...' + key.ssh_key.substr(key.ssh_key.length - snip);
         console.error((i+1) + ': ' + key.comment + ', ' + abbrev);
@@ -63,13 +63,13 @@ var cli = new CLI({
       });
     });
   },
-  
+
   sign: function(sshKey, message, callback) {
     var client = new SSH();
     client.requestIdentities(function(error, keys) {
       var key = keys.filter(function(k) { return k.ssh_key === sshKey })[0];
       if (!key) return callback(new Error('Private key not found'));
-      
+
       client.sign(key, new Buffer(message), function(error, signature) {
         if (signature)
           callback(null, signature.signature);

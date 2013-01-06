@@ -17,7 +17,7 @@ LocalStore.prototype.load = function(callback, context) {
   var self = this;
   fs.readFile(this._path, function(error, content) {
     if (error) return callback.call(context, null, null);
-    
+
     self._cipher.decrypt(content.toString(), function(error, plaintext) {
       var err = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
       if (error) return callback.call(context, err);

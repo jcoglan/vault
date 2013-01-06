@@ -30,11 +30,11 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       1,0,1,1,1,1,0,0,1,0,0,0,0,0,1,1,0,0,1,1,1,0,1,0,1,0,1,0,0,1,1,1,0,1,1,1,0,
       1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,1,0,1,0,0,0,1,0,1,0
     ]
-    
+
     this.stream = new Vault.Stream("foo", "bar")
     this.stream._bases[2] = bits.slice()
   }})
-  
+
   define("generate", function(base) { with(this) {
     var result = [], value = true
     while (value !== null) {
@@ -43,16 +43,16 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
     }
     return result
   }})
-  
+
   it("returns zero for base 1", function() { with(this) {
     assertEqual( 0, stream.generate(1) )
     assertEqual( bits, stream._bases[2] )
   }})
-  
+
   it("generates base 2 output", function() { with(this) {
     assertEqual( bits, generate(2) )
   }})
-  
+
   it("generates base 3 output", function() { with(this) {
     assertEqual([
       2,1,1,0,1,1,0,1,2,2,0,0,1,1,1,0,0,0,1,0,2,1,1,0,0,1,1,0,1,2,1,0,2,1,1,0,0,
@@ -68,7 +68,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       0,0,2,2,2,2,1,1,1,0,2,2,2,2,1,2,2,0,2,2
     ], generate(3) )
   }})
-  
+
   it("generates base 4 output", function() { with(this) {
     assertEqual([
       2,1,3,1,0,1,1,0,1,2,3,2,0,3,0,1,1,1,0,0,0,3,1,0,2,1,3,1,0,0,3,1,1,0,1,2,1,
@@ -87,7 +87,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       2,3,3,0,2,0,0,3,0,3,2,2,2,2,1,3,1,3,1,0,2,2,3,2,2,1,2,2,0,2,2
     ], generate(4) )
   }})
-  
+
   it("generates base 5 output", function() { with(this) {
     assertEqual([
       4,2,1,2,1,1,4,2,3,0,0,4,4,4,2,0,3,0,2,2,2,4,4,2,2,3,0,4,1,0,1,3,0,2,3,1,1,
@@ -100,7 +100,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       3,3,1,0,0
     ], generate(5) )
   }})
-  
+
   it("generates base 6 output", function() { with(this) {
     assertEqual([
       4,2,1,2,1,5,1,4,2,5,0,0,4,4,2,0,5,0,2,2,2,4,2,2,5,3,5,4,1,0,1,3,5,3,1,1,4,
@@ -113,7 +113,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       2,0,5,5,4,5,4,5,3,0,5,0,2,3,2,5,0,2,2,0,2
     ], generate(6) )
   }})
-  
+
   it("generates base 7 output", function() { with(this) {
     assertEqual([
       4,2,1,2,1,5,6,1,4,2,5,0,0,6,4,4,2,0,6,5,0,6,2,2,2,4,6,2,2,5,3,5,6,4,1,0,1,
@@ -127,7 +127,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       5,0,5
     ], generate(7) )
   }})
-  
+
   it("generates base 8 output", function() { with(this) {
     assertEqual([
       4,7,2,1,2,1,5,6,1,4,2,5,0,0,6,4,4,7,2,0,6,5,0,6,2,2,2,4,6,2,2,5,3,5,6,7,4,
@@ -142,7 +142,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       4,5,3,5,1,5,0,5
     ], generate(8) )
   }})
-  
+
   it("generates base 9 output", function() { with(this) {
     assertEqual([
       4,1,4,6,3,1,5,0,3,4,8,0,5,4,6,4,4,3,5,7,7,7,8,4,1,7,2,6,3,8,4,3,7,1,0,7,7,
@@ -153,7 +153,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       1,0,2,0,4,0,4,2,3,6,8,8
     ], generate(9) )
   }})
-  
+
   it("generates base 10 output", function() { with(this) {
     assertEqual([
       9,1,4,6,2,3,1,5,0,3,4,9,0,1,4,6,4,9,4,9,5,7,7,7,8,4,1,7,3,2,9,8,9,5,3,1,0,
@@ -164,7 +164,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       1,3,7,0,3,5,4,1,0,1,5,2,0,6,9,3,2,9,6,8,0
     ], generate(10) )
   }})
-  
+
   it("generates base 11 output", function() { with(this) {
     assertEqual([
       9,1,4,6,2,3,1,5,0,3,4,9,0,1,4,6,4,9,4,9,5,7,7,7,8,4,1,7,5,2,9,8,9,7,3,10,
@@ -176,7 +176,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       6,8,10
     ], generate(11) )
   }})
-  
+
   it("generates base 12 output", function() { with(this) {
     assertEqual([
       9,1,4,6,6,3,1,5,0,3,4,9,0,5,4,6,4,9,4,9,5,7,7,7,8,4,1,7,11,1,8,9,8,9,3,7,
@@ -188,7 +188,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       2,10,9,5,2,11,10,6,8,10
     ], generate(12) )
   }})
-  
+
   it("generates base 13 output", function() { with(this) {
     assertEqual([
       9,1,4,6,3,1,5,0,3,4,9,3,0,4,6,4,9,4,12,9,5,7,7,7,8,4,1,7,11,1,12,9,8,9,3,
@@ -200,7 +200,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       10,2,0,12,3,10,9,2,11,10,6,8,10
     ], generate(13) )
   }})
-  
+
   it("generates base 14 output", function() { with(this) {
     assertEqual([
       9,13,1,4,6,3,1,5,0,3,4,9,13,0,13,4,6,4,9,4,12,9,5,7,7,7,8,4,1,7,11,13,12,
@@ -213,7 +213,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       1,11,6,13,5
     ], generate(14) )
   }})
-  
+
   it("generates base 15 output", function() { with(this) {
     assertEqual([
       9,13,1,4,6,14,3,1,5,0,3,4,9,13,0,13,4,6,4,9,4,12,9,5,7,7,7,8,4,1,7,11,13,
@@ -226,7 +226,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       1,10,2,0,12,14,10,9,13,13,2,11,10,6,8,10
     ], generate(15) )
   }})
-  
+
   it("generates base 16 output", function() { with(this) {
     assertEqual([
       9,13,1,4,6,14,3,1,5,0,3,4,9,13,0,13,4,6,4,9,4,12,9,5,7,7,7,8,4,1,7,11,13,
@@ -240,7 +240,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       13,2,11,10,6,8,10
     ], generate(16) )
   }})
-  
+
   it("generates base 17 output", function() { with(this) {
     assertEqual([
       16,10,6,12,10,16,6,13,14,16,16,9,9,16,10,14,1,2,1,15,15,15,12,2,14,15,8,8,
@@ -251,7 +251,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       14,5,4,12,15,1,3,16,12,10,14,5,5,14,8
     ], generate(17) )
   }})
-  
+
   it("generates base 18 output", function() { with(this) {
     assertEqual([
       16,10,6,12,10,16,6,14,14,16,17,4,9,9,10,5,14,2,1,15,15,15,12,7,2,14,9,8,8,
@@ -262,7 +262,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       14,3,14,5,3,12,15,1,16,16,12,10,14,3,5,14,8
     ], generate(18) )
   }})
-  
+
   it("generates base 19 output", function() { with(this) {
     assertEqual([
       1,10,6,12,10,16,6,18,14,16,10,17,18,9,9,18,10,14,6,2,1,15,15,15,12,2,14,0,
@@ -273,7 +273,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       15,16,4,13,3,14,3,14,5,12,15,1,4,16,12,13,10,14,5,14,16,8
     ], generate(19) )
   }})
-  
+
   it("generates base 20 output", function() { with(this) {
     assertEqual([
       19,10,6,8,12,10,16,6,18,14,16,17,18,9,9,18,10,15,14,2,1,15,15,15,12,19,2,
@@ -285,7 +285,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       14,19,8
     ], generate(20) )
   }})
-  
+
   it("generates base 21 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,19,17,18,9,9,18,10,14,10,2,1,15,15,15,12,
@@ -297,7 +297,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       12,1,10,14,5,14,19,8
     ], generate(21) )
   }})
-  
+
   it("generates base 22 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,20,17,18,9,9,18,10,14,18,2,1,15,15,15,12,
@@ -309,7 +309,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       15,1,21,14,16,12,10,14,11,5,14,19,8
     ], generate(22) )
   }})
-  
+
   it("generates base 23 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,2,17,18,9,9,18,10,14,7,2,1,15,15,15,12,19,
@@ -321,7 +321,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       15,1,21,0,16,12,10,14,14,5,14,19,8
     ], generate(23) )
   }})
-  
+
   it("generates base 24 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,10,17,18,9,9,18,10,23,14,2,1,15,15,15,12,
@@ -333,7 +333,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       16,4,13,3,14,3,14,5,12,15,1,21,12,16,12,10,14,21,5,14,19,8
     ], generate(24) )
   }})
-  
+
   it("generates base 25 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,22,17,18,9,9,18,10,23,14,2,1,15,15,15,12,
@@ -345,7 +345,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       16,4,13,3,14,3,14,5,0,12,15,1,21,16,12,10,14,5,14,19,8
     ], generate(25) )
   }})
-  
+
   it("generates base 26 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,12,17,18,9,9,18,10,23,14,2,1,15,15,15,12,
@@ -357,7 +357,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       15,16,4,13,3,14,3,14,5,25,12,15,1,21,16,12,15,10,14,5,14,19,8
     ], generate(26) )
   }})
-  
+
   it("generates base 27 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,26,17,18,9,9,18,10,23,14,2,1,15,15,15,12,
@@ -369,7 +369,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       2,15,16,4,13,3,14,3,14,5,25,12,15,1,21,16,12,10,14,10,5,14,19,8
     ], generate(27) )
   }})
-  
+
   it("generates base 28 output", function() { with(this) {
     assertEqual([
       19,20,10,6,12,10,16,6,18,14,16,26,17,18,9,9,18,10,23,14,2,1,15,15,15,12,
@@ -381,7 +381,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       9,16,14,2,15,16,4,13,3,14,3,14,5,25,12,15,1,21,0,16,12,10,14,5,14,19,8
     ], generate(28) )
   }})
-  
+
   it("generates base 29 output", function() { with(this) {
     assertEqual([
       19,20,10,6,28,12,10,16,6,18,14,16,26,17,18,9,9,18,10,23,14,2,1,15,15,15,
@@ -394,7 +394,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       12,10,14,16,5,14,19,8
     ], generate(29) )
   }})
-  
+
   it("generates base 52 output", function() { with(this) {
     assertEqual([
       39,17,17,46,12,21,0,39,16,1,6,18,20,50,21,29,33,1,30,45,9,34,29,15,38,4,
@@ -405,7 +405,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       35,14,38,3,33,15,32,17,40,11,3,28,23,11,7,33,43,50,3,14,42,29,43,41,40
     ], generate(52) )
   }})
-  
+
   it("generates base 62 output", function() { with(this) {
     assertEqual([
       39,17,17,46,12,21,0,52,39,16,53,6,18,20,50,21,29,55,33,1,30,61,59,9,34,29,
@@ -417,7 +417,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
       55,3,28,23,11,7,33,43,50,3,14,42,29,52,43,41,40
     ], generate(62) )
   }})
-  
+
   it("generates base 94 output", function() { with(this) {
     assertEqual([
       78,69,13,10,64,87,29,6,81,73,20,85,32,32,38,60,76,39,39,8,61,34,2,68,75,

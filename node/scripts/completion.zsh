@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-if [[ ! -o interactive ]]; then                                                                                                        
+if [[ ! -o interactive ]]; then
   return
 fi
 

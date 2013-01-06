@@ -3,7 +3,7 @@ LocalStore = {
     delete localStorage.vaultSettings;
     callback.call(context, null);
   },
-  
+
   load: function(callback, context) {
     var json = localStorage.vaultSettings;
     if (json) {
@@ -12,7 +12,7 @@ LocalStore = {
       callback.call(context, null, null);
     }
   },
-  
+
   dump: function(config, callback, context) {
     localStorage.vaultSettings = JSON.stringify(config);
     callback.call(context, null);
