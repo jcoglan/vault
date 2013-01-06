@@ -1,10 +1,10 @@
-var fs    = require('fs'),
-    AES   = require('./aes'),
-    Vault = require('../lib/vault');
+var fs     = require('fs'),
+    Cipher = require('vault-cipher'),
+    Vault  = require('../lib/vault');
 
 var LocalStore = function(options) {
-  this._path = options.path;
-  this._aes  = new AES(options.key, {uuid: Vault.UUID});
+  this._path   = options.path;
+  this._cipher = new Cipher(options.key, {format: 'base64', work: 100, salt: Vault.UUID});
 };
 
 LocalStore.prototype.clear = function(callback, context) {
@@ -18,7 +18,7 @@ LocalStore.prototype.load = function(callback, context) {
   fs.readFile(this._path, function(error, content) {
     if (error) return callback.call(context, null, null);
     
-    self._aes.decrypt(content.toString(), function(error, plaintext) {
+    self._cipher.decrypt(content.toString(), function(error, plaintext) {
       var err = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
       if (error) return callback.call(context, err);
       var config;
@@ -36,7 +36,7 @@ LocalStore.prototype.dump = function(config, callback, context) {
 };
 
 LocalStore.prototype.import = function(string, callback, context) {
-  this._aes.encrypt(string, function(error, ciphertext) {
+  this._cipher.encrypt(string, function(error, ciphertext) {
     fs.writeFile(this._path, ciphertext, function() {
       callback.apply(context, arguments);
     });
