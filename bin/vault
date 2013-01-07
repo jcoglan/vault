@@ -6,25 +6,25 @@ var CLI  = require('../node/cli'),
     rl   = require('readline'),
     tty  = require('tty'),
 
-    path = process.env.VAULT_PATH || '.vault',
+    home = process.env.HOME ||
+           process.env.USERPROFILE,
 
     key  = process.env.VAULT_KEY ||
            process.env.LOGNAME ||
            process.env.USER ||
-           process.env.USERNAME;
+           process.env.USERNAME,
 
-if (!/^\//.test(path))
-  path = (process.env.HOME || process.env.USERPROFILE) + '/' + path;
+    path = require('path').resolve(home, process.env.VAULT_PATH || '.vault');
 
 var version = process.versions.node.match(/(\d+)\.(\d+)\.(\d+)/), rl;
 
-var readline  = (parseInt(version[2], 10) <= 6)
-              ? function() {
-                  return rl.createInterface(process.stdin, process.stderr);
-                }
-              : function() {
-                  return rl.createInterface({input: process.stdin, output: process.stderr});
-                };
+var readline = (parseInt(version[2], 10) <= 6)
+             ? function() {
+                 return rl.createInterface(process.stdin, process.stderr);
+               }
+             : function() {
+                 return rl.createInterface({input: process.stdin, output: process.stderr});
+               };
 
 var cli = new CLI({
   config: {path: path, key: key},
