@@ -11,5 +11,5 @@ _vault_complete() {
   reply=( "${(ps:\n:)completions}" )
 }
 
-compctl -K _vault_complete vault
+compctl -f -K _vault_complete vault
 

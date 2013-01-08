@@ -7,5 +7,5 @@ _vault_complete() {
   COMPREPLY=( $(compgen -W "$completions" -- "$word") )
 }
 
-complete -F _vault_complete vault
+complete -f -F _vault_complete vault
 
