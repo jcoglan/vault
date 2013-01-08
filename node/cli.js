@@ -74,6 +74,7 @@ CLI.prototype.complete = function(word, callback, context) {
     callback.call(context);
   } else {
     this._config.list(function(error, services) {
+      if (error) return callback.call(context, new Error('\n' + error.message));
       services = services.filter(function(s) { return s.indexOf(word) === 0 });
       this._out.write(services.sort().join('\n'));
       callback.call(context, error);
