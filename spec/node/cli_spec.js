@@ -223,13 +223,23 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes option fragments", function(resume) { with(this) {
-      expect(stdout, "write").given("--cmplt\n--config\n--dash\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
+      expect(stdout, "write").given("--length\n--lower")
       cli.run(["node", "bin/vault", "--cmplt", "--l"], function() { resume() })
     }})
 
+    it("completes option fragments with no letters", function(resume) { with(this) {
+      expect(stdout, "write").given("--cmplt\n--config\n--dash\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
+      cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
+    }})
+
     it("completes service names", function(resume) { with(this) {
-      expect(stdout, "write").given("facebook\nnothing\ntwitter")
+      expect(stdout, "write").given("twitter")
       cli.run(["node", "bin/vault", "--cmplt", "tw"], function() { resume() })
+    }})
+
+    it("completes empty service names", function(resume) { with(this) {
+      expect(stdout, "write").given("facebook\nnothing\ntwitter")
+      cli.run(["node", "bin/vault", "--cmplt", ""], function() { resume() })
     }})
 
     it("outputs a password using the stored passphrase", function(resume) { with(this) {

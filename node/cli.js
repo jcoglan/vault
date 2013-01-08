@@ -54,7 +54,8 @@ CLI.prototype.run = function(argv, callback, context) {
     return callback.call(context);
   }
 
-  if (params.cmplt) return this.complete(params.cmplt, callback, context);
+  if (params.cmplt !== undefined)
+    return this.complete(params.cmplt, callback, context);
 
   this.withPhrase(params, function() {
     if      (params.export) this.export(params.export, callback, context);
@@ -65,11 +66,15 @@ CLI.prototype.run = function(argv, callback, context) {
 };
 
 CLI.prototype.complete = function(word, callback, context) {
-  if (/^--/.test(word)) {
-    this._out.write(Object.keys(options).sort().map(function(o) { return '--' + o }).join('\n'));
+  if (word === 'true') word = '--';
+  if (/^-/.test(word)) {
+    var names = Object.keys(options).map(function(o) { return '--' + o });
+    names = names.filter(function(n) { return n.indexOf(word) === 0 });
+    this._out.write(names.sort().join('\n'));
     callback.call(context);
   } else {
     this._config.list(function(error, services) {
+      services = services.filter(function(s) { return s.indexOf(word) === 0 });
       this._out.write(services.sort().join('\n'));
       callback.call(context, error);
     }, this);
