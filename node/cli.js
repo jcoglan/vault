@@ -3,7 +3,6 @@ var fs         = require('fs'),
     nopt       = require('nopt'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
-    Config     = require('../lib/config'),
 
     options = { 'config':   Boolean,
                 'phrase':   Boolean,
@@ -35,10 +34,9 @@ var fs         = require('fs'),
               };
 
 var CLI = function(options) {
-  this._storage = new LocalStore(options.config);
-  this._config  = new Config(this._storage);
-  this._out     = options.output;
-  this._tty     = options.tty;
+  this._store = new LocalStore(options.config);
+  this._out   = options.output;
+  this._tty   = options.tty;
 
   this._requestPassword = options.password;
   this._selectKey = options.selectKey;
@@ -73,7 +71,7 @@ CLI.prototype.complete = function(word, callback, context) {
     this._out.write(names.sort().join('\n'));
     callback.call(context);
   } else {
-    this._config.list(function(error, services) {
+    this._store.listServices(function(error, services) {
       if (error) return callback.call(context, new Error('\n' + error.message));
       services = services.filter(function(s) { return s.indexOf(word) === 0 });
       this._out.write(services.sort().join('\n'));
@@ -104,7 +102,7 @@ CLI.prototype.withPhrase = function(params, callback) {
 };
 
 CLI.prototype.export = function(path, callback, context) {
-  this._storage.export(function(error, json) {
+  this._store.export(function(error, json) {
     if (error) return callback.call(context, error);
     json = json || JSON.stringify({global: {}, services: {}}, true, 2);
     fs.writeFile(path, json, function() {
@@ -117,32 +115,28 @@ CLI.prototype.import = function(path, callback, context) {
   var self = this;
   fs.readFile(path, function(error, content) {
     if (error) return callback.call(context, error);
-    self._storage.import(content.toString(), callback, context);
+    self._store.import(content.toString(), callback, context);
   });
 };
 
 CLI.prototype.configure = function(service, params, callback, context) {
-  delete params.config;
+  var settings = {};
 
-  this._config.edit(function(settings) {
-    if (service) {
-      settings.services[service] = settings.services[service] || {};
-      settings = settings.services[service];
-    } else {
-      settings = settings.global;
-    }
+  for (var key in params) {
+    if (key !== 'config' && typeof params[key] !== 'object')
+      settings[key] = params[key];
+  }
 
-    for (var key in params) {
-      if (typeof params[key] !== 'object')
-        settings[key] = params[key];
-    }
-  }, callback, context);
+  if (service)
+    this._store.saveService(service, settings, callback, context);
+  else
+    this._store.saveGlobals(settings, callback, context);
 };
 
 CLI.prototype.generate = function(service, params, callback, context) {
-  this._config.read(service, function(error, serviceConfig) {
+  this._store.serviceSettings(service, function(error, settings) {
     if (error) return callback.call(context, error);
-    Vault.extend(params, serviceConfig);
+    Vault.extend(params, settings);
 
     if (service === undefined)
       return callback.call(context, new Error('No service name given'));

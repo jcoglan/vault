@@ -1,7 +1,6 @@
 var fs         = require('fs'),
     path       = require('path'),
     LocalStore = require('../../node/local_store'),
-    Config     = require('../../lib/config'),
     CLI        = require('../../node/cli')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
@@ -33,7 +32,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     })
 
     this.storage = new LocalStore({path: configPath, key: "the key"})
-    this.config  = new Config(storage)
   }})
 
   after(function() { with(this) {
@@ -98,8 +96,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a global passphrase", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-cp"], function() {
-        config.read("internet", function(e, internet) {
-          config.read("google", function(e, google) {
+        storage.serviceSettings("internet", function(e, internet) {
+          storage.serviceSettings("google", function(e, google) {
             resume(function() {
               assertEqual( {phrase: "something"}, internet )
               assertEqual( {phrase: "something"}, google )
@@ -108,8 +106,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a service-specific passphrase", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-cp", "google"], function() {
-        config.read("internet", function(e, internet) {
-          config.read("google", function(e, google) {
+        storage.serviceSettings("internet", function(e, internet) {
+          storage.serviceSettings("google", function(e, google) {
             resume(function() {
               assertEqual( {}, internet )
               assertEqual( {phrase: "something"}, google )
@@ -118,8 +116,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a global public key", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-ck"], function() {
-        config.read("internet", function(e, internet) {
-          config.read("google", function(e, google) {
+        storage.serviceSettings("internet", function(e, internet) {
+          storage.serviceSettings("google", function(e, google) {
             resume(function() {
               assertEqual( {key: "AAAAPUBLICKEY"}, internet )
               assertEqual( {key: "AAAAPUBLICKEY"}, google )
@@ -128,8 +126,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a service-specific public key", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-ck", "google"], function() {
-        config.read("internet", function(e, internet) {
-          config.read("google", function(e, google) {
+        storage.serviceSettings("internet", function(e, internet) {
+          storage.serviceSettings("google", function(e, google) {
             resume(function() {
               assertEqual( {}, internet )
               assertEqual( {key: "AAAAPUBLICKEY"}, google )
@@ -138,8 +136,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a global character constraint", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "--length", "6", "--symbol", "0"], function() {
-        config.read("internet", function(e, internet) {
-          config.read("google", function(e, google) {
+        storage.serviceSettings("internet", function(e, internet) {
+          storage.serviceSettings("google", function(e, google) {
             resume(function() {
               assertEqual( {length: 6, symbol: 0}, internet )
               assertEqual( {length: 6, symbol: 0}, google )
@@ -148,8 +146,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a service-specific character constraint", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "google", "--length", "6", "--symbol", "0"], function() {
-        config.read("internet", function(e, internet) {
-          config.read("google", function(e, google) {
+        storage.serviceSettings("internet", function(e, internet) {
+          storage.serviceSettings("google", function(e, google) {
             resume(function() {
               assertEqual( {}, internet )
               assertEqual( {length: 6, symbol: 0}, google )
@@ -168,7 +166,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     it("imports a saved settings file", function(resume) { with(this) {
       fs.writeFileSync(exportPath, '{"services":{"google":{"length":8}}}')
       cli.run(["node", "bin/vault", "-i", exportPath], function() {
-        config.read("google", function(e, google) {
+        storage.serviceSettings("google", function(e, google) {
           resume(function() { assertEqual( {length: 8}, google ) })
         })
       })
@@ -177,17 +175,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
   describe("with a config file", function() { with(this) {
     before(function(resume) { with(this) {
-      config.edit(function(c) {
-        c.services.twitter = {lower: 1, symbol: 0}
-        c.services.nothing = {}
-        c.services.facebook = {key: "AAAAPUBLICKEY"}
-        c.global.lower = 0
-        c.global.phrase = "saved passphrase"
-      }, function() { resume() })
+      storage.load(function(error, config) {
+        config.services.twitter = {lower: 1, symbol: 0}
+        config.services.nothing = {}
+        config.services.facebook=  {key: "AAAAPUBLICKEY"}
+        config.global = {lower: 0, phrase: "saved passphrase"}
+        storage.dump(config, resume)
+      })
     }})
 
     it("reports an error if the key is wrong", function(resume) { with(this) {
-      cli._config = new Config(new LocalStore({path: configPath, key: "the wrong key"}))
+      cli._store = new LocalStore({path: configPath, key: "the wrong key"})
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
@@ -277,7 +275,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("changes a saved service setting", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "twitter", "--lower", "8"], function() {
-        config.read("twitter", function(e, twitter) {
+        storage.serviceSettings("twitter", function(e, twitter) {
           resume(function() { assertEqual( {lower: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
         })
       })
@@ -285,8 +283,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("changes a saved global setting", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "--lower", "8"], function() {
-        config.read("google", function(e, google) {
-          config.read("twitter", function(e, twitter) {
+        storage.serviceSettings("google", function(e, google) {
+          storage.serviceSettings("twitter", function(e, twitter) {
             resume(function() {
               assertEqual( {lower: 8, phrase: "saved passphrase"}, google )
               assertEqual( {lower: 1, symbol: 0, phrase: "saved passphrase"}, twitter )
