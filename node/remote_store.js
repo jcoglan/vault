@@ -125,7 +125,7 @@ RemoteStore.prototype._request = function(method, host, path, params, headers, c
     headers:  headers
   });
 
-  request.on('response', function(response) {
+  request.addListener('response', function(response) {
     var chunks = [],
         length = 0;
 
