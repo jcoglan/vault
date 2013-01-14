@@ -5,8 +5,6 @@
     <title>Vault</title>
     <script type="text/javascript" src="./lib/crypto-js-3.0.2.js"></script>
     <script type="text/javascript" src="./lib/vault.js"></script>
-    <script type="text/javascript" src="./lib/config.js"></script>
-    <script type="text/javascript" src="./local_store.js"></script>
     <link rel="stylesheet" type="text/css" href="./lib/style.css">
     <link rel="stylesheet" type="text/css" href="./style.css">
   </head>
@@ -87,15 +85,13 @@
       </div>
     </div>
 
-    <section class="generator">
+    <div class="generator">
       <div class="sub">
         <label for="word">Generated password</label>
         <input type="text" class="text" id="word" autocomplete="off">
-        <button id="clear-settings">Clear</button>
-        <button id="save-settings">Save</button>
         <button id="insert-password">Insert</button>
       </div>
-    </section>
+    </div>
 
     <script type="text/javascript" src="./lib/app.js"></script>
 
