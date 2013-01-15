@@ -22,8 +22,73 @@ var LocalStore = function(options) {
 };
 
 LocalStore.prototype.clear = function(callback, context) {
-  fs.unlink(this._path, function() {
-    callback.apply(context, arguments);
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    fs.unlink(this._path, function() {
+      callback.apply(context, arguments);
+    });
+  }, this);
+};
+
+LocalStore.prototype.listServices = function(callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+    callback.call(context, null, Object.keys(config.services).sort());
+  });
+};
+
+LocalStore.prototype.saveGlobals = function(settings, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.cal(context, error);
+
+    var saved   = config.global || {},
+        updated = {};
+
+    Vault.extend(updated, settings);
+    Vault.extend(updated, saved);
+    config.global = updated;
+
+    this.dump(config, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.saveService = function(service, settings, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.cal(context, error);
+
+    var saved   = config.services[service] || {},
+        updated = {};
+
+    Vault.extend(updated, settings);
+    Vault.extend(updated, saved);
+    config.services[service] = updated;
+
+    this.dump(config, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.deleteService = function(service, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    if (!config.services[service])
+      return callback.call(context, new Error('Service "' + service + '" is not configured'));
+
+    delete config.services[service];
+    this.dump(config, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.serviceSettings = function(service, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var settings = {};
+    Vault.extend(settings, config.services[service] || {});
+    Vault.extend(settings, config.global || {});
+
+    callback.call(context, null, settings);
   });
 };
 

@@ -185,6 +185,19 @@ use your current installation to export the settings, upgrade, then import.
     $ vault --import settings.json
 
 
+## Deleting saved settings
+
+You can delete any saved setting using the `--delete` and `--clear` options,
+aliased as lowercase `-x` and uppercase `-X` respectively. `--delete` removes
+settings for an individual service, and `--clear` deletes all saved settings.
+
+    $ vault --delete twitter
+    This will delete your "twitter" settings. Are you sure? (Y/n): Y
+
+    $ vault --clear
+    This will delete ALL your settings. Are you sure? (Y/n): Y
+
+
 ## How does it work?
 
 `vault` takes your passphrase and a service name and generates a hash from them

@@ -15,6 +15,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       output: this.stdout,
       tty:    false,
 
+      confirm: function(message, callback) {
+        callback(true)
+      },
+
       password: function(callback) {
         callback(passphrase)
       },
@@ -226,7 +230,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes option fragments with no letters", function(resume) { with(this) {
-      expect(stdout, "write").given("--cmplt\n--config\n--dash\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
+      expect(stdout, "write").given("--clear\n--cmplt\n--config\n--dash\n--delete\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
 
@@ -269,6 +273,22 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault"], function(e) {
         resume(function() {
           assertEqual( "No service name given", e.message )
+        })
+      })
+    }})
+
+    it("removes all saved services", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-X"], function() {
+        storage.serviceSettings("twitter", function(e, twitter) {
+          resume(function() { assertEqual( {}, twitter ) })
+        })
+      })
+    }})
+
+    it("removes a saved service", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-x", "twitter"], function() {
+        storage.serviceSettings("twitter", function(e, twitter) {
+          resume(function() { assertEqual( {lower: 0, phrase: "saved passphrase"}, twitter ) })
         })
       })
     }})

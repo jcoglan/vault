@@ -31,6 +31,12 @@ var cli = new CLI({
   output: process.stdout,
   tty:    tty.isatty(1),
 
+  confirm: function(message, callback) {
+    readline().question(message + ' (Y/n): ', function(input) {
+      callback(input === 'Y');
+    });
+  },
+
   password: function(callback) {
     process.stderr.write('Passphrase: ');
     pw('*', process.stdin, process.stderr, callback);
