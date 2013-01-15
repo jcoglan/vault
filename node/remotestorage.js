@@ -7,7 +7,7 @@ var http  = require('http'),
 var UnauthorizedError = function() {};
 require('util').inherits(UnauthorizedError, Error);
 
-var remoteStorage = function(clientId, scopes, address) {
+var remoteStorage = function(clientId, scopes) {
   this._clientId = clientId;
   this._scopes   = scopes;
 };
