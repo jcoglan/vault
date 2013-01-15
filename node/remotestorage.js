@@ -133,7 +133,7 @@ Connection.prototype._parseResponse = function(error, response, callback, contex
     error = new UnauthorizedError();
 
   if (error) return callback.call(context, error);
-  if (status !== 200) return callback.call(context, null, null);
+  if (status < 200 || status >= 300) return callback.call(context, null, null);
 
   var content  = response.body,
       type     = response.headers['content-type'],
