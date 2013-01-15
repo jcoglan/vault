@@ -4,27 +4,32 @@ var fs         = require('fs'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
 
-    options = { 'config':   Boolean,
-                'delete':   String,
-                'clear':    Boolean,
+    options = { 'phrase':         Boolean,
+                'key':            Boolean,
+                'length':         Number,
+                'repeat':         Number,
 
-                'phrase':   Boolean,
-                'key':      Boolean,
-                'length':   Number,
-                'repeat':   Number,
+                'lower':          Number,
+                'upper':          Number,
+                'number':         Number,
+                'space':          Number,
+                'dash':           Number,
+                'symbol':         Number,
 
-                'lower':    Number,
-                'upper':    Number,
-                'number':   Number,
-                'space':    Number,
-                'dash':     Number,
-                'symbol':   Number,
+                'config':         Boolean,
+                'delete':         String,
+                'clear':          Boolean,
 
-                'export':   String,
-                'import':   String,
+                'add-source':     String,
+                'delete-source':  String,
+                'browser':        String,
+                'text-browser':   String,
 
-                'initpath': Boolean,
-                'cmplt':    String
+                'export':         String,
+                'import':         String,
+
+                'initpath':       Boolean,
+                'cmplt':          String
               },
 
     shorts  = { 'c': '--config',
@@ -61,13 +66,27 @@ CLI.prototype.run = function(argv, callback, context) {
   if (params.cmplt !== undefined)
     return this.complete(params.cmplt, callback, context);
 
+  var opts = {
+        browser: params.browser || params['text-browser'],
+        inline:  params['text-browser'] !== undefined
+      },
+      source;
+
+  if (source = params['add-source'])
+    return this._store.addSource(source, opts, callback, context);
+  if (source = params['delete-source'])
+    return this._store.deleteSource(source, callback, context);
+
+  if (params.export) return this.export(params.export, callback, context);
+  if (params.import) return this.import(params.import, callback, context);
+  if (params.delete) return this.delete(params.delete, callback, context);
+  if (params.clear)  return this.deleteAll(callback, context);
+
   this.withPhrase(params, function() {
-    if      (params.export) this.export(params.export, callback, context);
-    else if (params.import) this.import(params.import, callback, context);
-    else if (params.delete) this.delete(params.delete, callback, context);
-    else if (params.clear)  this.deleteAll(callback, context);
-    else if (params.config) this.configure(service, params, callback, context);
-    else                    this.generate(service, params, callback, context);
+    if (params.config)
+      this.configure(service, params, callback, context);
+    else
+      this.generate(service, params, callback, context);
   });
 };
 

@@ -1,6 +1,7 @@
-var fs     = require('fs'),
-    Cipher = require('vault-cipher'),
-    Vault  = require('../lib/vault');
+var fs          = require('fs'),
+    Cipher      = require('vault-cipher'),
+    Vault       = require('../lib/vault'),
+    RemoteStore = require('./remote_store');
 
 var sort = function(object) {
   if (typeof object !== 'object') return object;
@@ -28,6 +29,33 @@ LocalStore.prototype.clear = function(callback, context) {
     fs.unlink(this._path, function() {
       callback.apply(context, arguments);
     });
+  }, this);
+};
+
+LocalStore.prototype.addSource = function(address, options, callback, context) {
+  var remote = new RemoteStore(address, options);
+  remote.connect(function(error, response) {
+    if (error) return callback.call(context, error);
+
+    this.load(function(error, config) {
+      if (error) return callback.call(context, error);
+      response.type = remote.getType();
+      Vault.extend(response, options);
+      config.sources[address] = response;
+      this.dump(config, callback, context);
+    }, this);
+  }, this);
+};
+
+LocalStore.prototype.deleteSource = function(address, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    if (!config.sources[address])
+      return callback.call(context, new Error('Source "' + address + '" does not exist'));
+
+    delete config.sources[address];
+    this.dump(config, callback, context);
   }, this);
 };
 
@@ -145,7 +173,7 @@ LocalStore.prototype.load = function(callback, context) {
   var self = this;
   fs.readFile(this._path, function(error, content) {
     if (error)
-      return callback.call(context, null, {global: {}, services: {}});
+      return callback.call(context, null, {global: {}, services: {}, sources: {}});
 
     self._cipher.decrypt(content.toString(), function(error, plaintext) {
       var err = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');

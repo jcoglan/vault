@@ -1,10 +1,18 @@
 var Vault = require('../lib/vault'),
     remoteStorage = require('./remotestorage');
 
-var RemoteStore = function() {
+var RemoteStore = function(address, options) {
   this._client = new remoteStorage('getvau.lt', ['vault:rw']);
-  this._user   = 'me@local.dev';
-  this._conn   = this._client.connect(this._user, {browser: 'elinks', inline: true});
+  this._user   = address;
+  this._conn   = this._client.connect(this._user, options);
+};
+
+RemoteStore.prototype.getType = function() {
+  return 'remotestorage';
+};
+
+RemoteStore.prototype.connect = function(callback, context) {
+  this._conn.connect(callback, context);
 };
 
 RemoteStore.prototype.clear = function(callback, context) {

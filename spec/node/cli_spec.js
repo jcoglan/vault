@@ -162,7 +162,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "-e", exportPath], function() {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
-          assertEqual( {global: {}, services: {}}, json )
+          assertEqual( {global: {}, services: {}, sources: {}}, json )
         })
       })
     }})
@@ -230,7 +230,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes option fragments with no letters", function(resume) { with(this) {
-      expect(stdout, "write").given("--clear\n--cmplt\n--config\n--dash\n--delete\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
+      expect(stdout, "write").given( ["--add-source", "--browser", "--clear",
+                                      "--cmplt", "--config", "--dash", "--delete",
+                                      "--delete-source", "--export", "--import",
+                                      "--initpath", "--key", "--length", "--lower",
+                                      "--number", "--phrase", "--repeat", "--space",
+                                      "--symbol", "--text-browser", "--upper"].join("\n") )
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
 
@@ -321,7 +326,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
               nothing: {},
               facebook: {key: "AAAAPUBLICKEY"},
               twitter: {lower: 1, symbol: 0}
-            }
+            },
+            sources: {}
           }, json)
         })
       })
