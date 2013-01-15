@@ -22,9 +22,13 @@ var LocalStore = function(options) {
 };
 
 LocalStore.prototype.clear = function(callback, context) {
-  fs.unlink(this._path, function() {
-    callback.apply(context, arguments);
-  });
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    fs.unlink(this._path, function() {
+      callback.apply(context, arguments);
+    });
+  }, this);
 };
 
 LocalStore.prototype.listServices = function(callback, context) {
@@ -60,6 +64,18 @@ LocalStore.prototype.saveService = function(service, settings, callback, context
     Vault.extend(updated, saved);
     config.services[service] = updated;
 
+    this.dump(config, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.deleteService = function(service, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    if (!config.services[service])
+      return callback.call(context, new Error('Service "' + service + '" is not configured'));
+
+    delete config.services[service];
     this.dump(config, callback, context);
   }, this);
 };

@@ -5,6 +5,9 @@ var fs         = require('fs'),
     LocalStore = require('./local_store'),
 
     options = { 'config':   Boolean,
+                'delete':   String,
+                'clear':    Boolean,
+
                 'phrase':   Boolean,
                 'key':      Boolean,
                 'length':   Number,
@@ -25,6 +28,8 @@ var fs         = require('fs'),
               },
 
     shorts  = { 'c': '--config',
+                'x': '--delete',
+                'X': '--clear',
                 'p': '--phrase',
                 'k': '--key',
                 'l': '--length',
@@ -39,6 +44,7 @@ var CLI = function(options) {
   this._tty   = options.tty;
 
   this._requestPassword = options.password;
+  this._confirmAction = options.confirm;
   this._selectKey = options.selectKey;
   this._signData = options.sign;
 };
@@ -58,6 +64,8 @@ CLI.prototype.run = function(argv, callback, context) {
   this.withPhrase(params, function() {
     if      (params.export) this.export(params.export, callback, context);
     else if (params.import) this.import(params.import, callback, context);
+    else if (params.delete) this.delete(params.delete, callback, context);
+    else if (params.clear)  this.deleteAll(callback, context);
     else if (params.config) this.configure(service, params, callback, context);
     else                    this.generate(service, params, callback, context);
   });
@@ -131,6 +139,27 @@ CLI.prototype.configure = function(service, params, callback, context) {
     this._store.saveService(service, settings, callback, context);
   else
     this._store.saveGlobals(settings, callback, context);
+};
+
+CLI.prototype.delete = function(service, callback, context) {
+  if (!service) return callback.call(context, new Error('No service name given'));
+  var store = this._store;
+  this._confirmAction('This will delete your "' + service + '" settings. Are you sure?', function(confirm) {
+    if (confirm)
+      store.deleteService(service, callback, context);
+    else
+      callback.call(context);
+  });
+};
+
+CLI.prototype.deleteAll = function(callback, context) {
+  var store = this._store;
+  this._confirmAction('This will delete ALL your settings. Are you sure?', function(confirm) {
+    if (confirm)
+      store.clear(callback, context);
+    else
+      callback.call(context);
+  });
 };
 
 CLI.prototype.generate = function(service, params, callback, context) {
