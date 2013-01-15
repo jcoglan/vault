@@ -7,6 +7,35 @@ var RemoteStore = function() {
   this._conn   = this._client.connect(this._user, {browser: 'elinks', inline: true});
 };
 
+RemoteStore.prototype.clear = function(callback, context) {
+  this._recursiveDelete('/vault/', callback, context);
+};
+
+RemoteStore.prototype._recursiveDelete = function(dirname, callback, context) {
+  this._conn.get(dirname, function(error, listing) {
+    if (error) return callback.call(context, error);
+    if (!listing) return callback.call(context);
+
+    var entries  = Object.keys(JSON.parse(listing.content.toString('utf8'))),
+        length   = entries.length,
+        complete = 0;
+
+    if (length === 0) return callback.call(context);
+
+    var ping = function() {
+      complete += 1;
+      if (complete === length) callback.call(context);
+    };
+
+    for (var i = 0; i < length; i++) {
+      if (/\/$/.test(entries[i]))
+        this._recursiveDelete(dirname + entries[i], ping, this);
+      else
+        this._conn.delete(dirname + entries[i], ping, this);
+    }
+  }, this);
+};
+
 RemoteStore.prototype.export = function(callback, context) {
   // TODO
 };
@@ -18,7 +47,10 @@ RemoteStore.prototype.import = function(json, callback, context) {
 RemoteStore.prototype.listServices = function(callback, context) {
   this._conn.get('/vault/services/', function(error, listing) {
     if (error) return callback.call(context, error);
-    var services = Object.keys(JSON.parse(listing.content.toString('utf8')));
+
+    var json     = listing ? listing.content.toString('utf8') : '{}',
+        services = Object.keys(JSON.parse(json));
+
     callback.call(context, null, services);
   });
 };
@@ -29,6 +61,10 @@ RemoteStore.prototype.saveGlobals = function(settings, callback, context) {
 
 RemoteStore.prototype.saveService = function(service, settings, callback, context) {
   this._save('/vault/services/' + service, settings, callback, context);
+};
+
+RemoteStore.prototype.deleteService = function(service, callback, context) {
+  this._conn.delete('/vault/services/' + service, callback, context);
 };
 
 RemoteStore.prototype.serviceSettings = function(service, callback, context) {
