@@ -32,7 +32,7 @@ var cli = new CLI({
   tty:    tty.isatty(1),
 
   confirm: function(message, callback) {
-    var rl = readline()
+    var rl = readline();
     rl.question(message + ' (Y/n): ', function(input) {
       rl.close();
       callback(input === 'Y');
