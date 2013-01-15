@@ -18,13 +18,17 @@ RemoteStore.prototype._recursiveDelete = function(dirname, callback, context) {
 
     var entries  = Object.keys(JSON.parse(listing.content.toString('utf8'))),
         length   = entries.length,
-        complete = 0;
+        complete = 0,
+        called   = false;
 
     if (length === 0) return callback.call(context);
 
-    var ping = function() {
+    var ping = function(error) {
       complete += 1;
-      if (complete === length) callback.call(context);
+      if (complete === length || error) {
+        if (!called) callback.call(context, error);
+        called = true;
+      }
     };
 
     for (var i = 0; i < length; i++) {
