@@ -8,6 +8,8 @@ var LocalStore = function(options) {
   this._cipher = new Cipher(options.key, {format: 'base64', work: 100, salt: Vault.UUID});
 };
 
+LocalStore.LOCAL = 'local';
+
 LocalStore.prototype.clear = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
@@ -16,13 +18,6 @@ LocalStore.prototype.clear = function(callback, context) {
       callback.apply(context, arguments);
     });
   }, this);
-};
-
-LocalStore.prototype.listSources = function(callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-    callback.call(context, null, Object.keys(config.sources || {}).sort());
-  });
 };
 
 LocalStore.prototype.addSource = function(address, options, callback, context) {
@@ -54,6 +49,34 @@ LocalStore.prototype.deleteSource = function(address, callback, context) {
     delete config.sources[address];
     this.dump(config, callback, context);
   }, this);
+};
+
+LocalStore.prototype.setSource = function(address, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    if (address !== LocalStore.LOCAL && (!config.sources || !config.sources[address]))
+      return callback.call(context, new Error('Source "' + address + '" does not exist'));
+
+    config.sources = config.sources || {};
+    config.sources.__default__ = address;
+    this.dump(config, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.listSources = function(callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var sources     = config.sources || {},
+        sourceNames = Object.keys(sources)
+                        .filter(function(s) { return !/^__[a-z]+__$/.test(s) });
+
+    var current = sources.__default__;
+    if (!current || !sources[current]) current = LocalStore.LOCAL;
+
+    callback.call(context, null, sourceNames.concat(LocalStore.LOCAL), current);
+  });
 };
 
 LocalStore.prototype.listServices = function(callback, context) {

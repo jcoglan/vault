@@ -22,6 +22,8 @@ var fs         = require('fs'),
 
                 'add-source':     String,
                 'delete-source':  String,
+                'set-source':     String,
+                'list-sources':   Boolean,
                 'browser':        String,
                 'text-browser':   String,
 
@@ -33,14 +35,14 @@ var fs         = require('fs'),
               },
 
     shorts  = { 'c': '--config',
-                'x': '--delete',
-                'X': '--clear',
-                'p': '--phrase',
+                'e': '--export',
+                'i': '--import',
                 'k': '--key',
                 'l': '--length',
+                'p': '--phrase',
                 'r': '--repeat',
-                'e': '--export',
-                'i': '--import'
+                'x': '--delete',
+                'X': '--clear'
               };
 
 var CLI = function(options) {
@@ -60,7 +62,7 @@ CLI.prototype.run = function(argv, callback, context) {
 
   if (params.initpath) {
     this._out.write(path.resolve(__dirname + '/scripts/init'));
-    return callback.call(context);
+    return callback.call(context, null);
   }
 
   if (params.cmplt !== undefined)
@@ -73,9 +75,13 @@ CLI.prototype.run = function(argv, callback, context) {
       source;
 
   if (source = params['add-source'])
-    return this._store.addSource(source, opts, callback, context);
+    return this.addSource(source, opts, callback, context);
   if (source = params['delete-source'])
     return this._store.deleteSource(source, callback, context);
+  if (source = params['set-source'])
+    return this._store.setSource(source, callback, context);
+
+  if (params['list-sources']) return this.listSources(callback, context);
 
   if (params.export) return this.export(params.export, callback, context);
   if (params.import) return this.import(params.import, callback, context);
@@ -96,7 +102,7 @@ CLI.prototype.complete = function(word, callback, context) {
     var names = Object.keys(options).map(function(o) { return '--' + o });
     names = names.filter(function(n) { return n.indexOf(word) === 0 });
     this._out.write(names.sort().join('\n'));
-    callback.call(context);
+    callback.call(context, null);
   } else {
     this._store.listServices(function(error, services) {
       this._store.listSources(function(error, sources) {
@@ -108,6 +114,36 @@ CLI.prototype.complete = function(word, callback, context) {
       }, this);
     }, this);
   }
+};
+
+CLI.prototype.addSource = function(source, options, callback, context) {
+  this._store.addSource(source, options, function(error) {
+    if (error) return callback.call(context, error);
+
+    this._out.write('Source "' + source + '" was successfully added.\n');
+    var self = this;
+
+    this._confirmAction('Do you want to set "' + source + '" as your default source?', function(confirm) {
+      if (confirm)
+        self._store.setSource(source, callback, context);
+      else
+        callback.call(context, null);
+    });
+  }, this);
+};
+
+CLI.prototype.listSources = function(callback, context) {
+  this._store.listSources(function(error, sources, current) {
+    if (error) return callback.call(context, error);
+    sources = sources.sort();
+    var output = '';
+    for (var i = 0, n = sources.length; i < n; i++) {
+      output += (sources[i] === current) ? '*' : ' ';
+      output += ' ' + sources[i] + '\n';
+    }
+    this._out.write(output);
+    callback.call(context, null);
+  }, this);
 };
 
 CLI.prototype.withPhrase = function(params, callback) {
@@ -172,7 +208,7 @@ CLI.prototype.delete = function(service, callback, context) {
     if (confirm)
       store.deleteService(service, callback, context);
     else
-      callback.call(context);
+      callback.call(context, null);
   });
 };
 
@@ -182,7 +218,7 @@ CLI.prototype.deleteAll = function(callback, context) {
     if (confirm)
       store.clear(callback, context);
     else
-      callback.call(context);
+      callback.call(context, null);
   });
 };
 

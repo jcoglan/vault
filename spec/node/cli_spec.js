@@ -180,11 +180,16 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   describe("with a config file", function() { with(this) {
     before(function(resume) { with(this) {
       storage.load(function(error, config) {
+        config.global = {lower: 0, phrase: "saved passphrase"}
+
         config.services.twitter = {lower: 1, symbol: 0}
         config.services.nothing = {}
         config.services.facebook=  {key: "AAAAPUBLICKEY"}
-        config.global = {lower: 0, phrase: "saved passphrase"}
-        config.sources = {"me@local.dev": {}}
+
+        config.sources["me@local.dev"] = {}
+        config.sources["jcoglan@5apps.com"] = {}
+        config.sources.__default__ = "me@local.dev"
+
         storage.dump(config, resume)
       })
     }})
@@ -226,17 +231,20 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes option fragments", function(resume) { with(this) {
-      expect(stdout, "write").given("--length\n--lower")
-      cli.run(["node", "bin/vault", "--cmplt", "--l"], function() { resume() })
+      expect(stdout, "write").given("--lower")
+      cli.run(["node", "bin/vault", "--cmplt", "--lo"], function() { resume() })
     }})
 
     it("completes option fragments with no letters", function(resume) { with(this) {
       expect(stdout, "write").given( ["--add-source", "--browser", "--clear",
                                       "--cmplt", "--config", "--dash", "--delete",
                                       "--delete-source", "--export", "--import",
-                                      "--initpath", "--key", "--length", "--lower",
-                                      "--number", "--phrase", "--repeat", "--space",
-                                      "--symbol", "--text-browser", "--upper"].join("\n") )
+                                      "--initpath", "--key", "--length",
+                                      "--list-sources", "--lower", "--number",
+                                      "--phrase", "--repeat", "--set-source",
+                                      "--space", "--symbol", "--text-browser",
+                                      "--upper"].join("\n") )
+
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
 
@@ -251,7 +259,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes empty service names", function(resume) { with(this) {
-      expect(stdout, "write").given(["facebook", "me@local.dev", "nothing", "twitter"].join("\n"))
+      expect(stdout, "write").given(["facebook", "jcoglan@5apps.com", "local", "me@local.dev", "nothing", "twitter"].join("\n"))
       cli.run(["node", "bin/vault", "--cmplt", ""], function() { resume() })
     }})
 
@@ -278,6 +286,25 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
       expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fxY<mO")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
+    }})
+
+    it("lists the available sources", function(resume) { with(this) {
+      expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "* me@local.dev", ""].join("\n") )
+      cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+    }})
+
+    it("lets you change the current source", function(resume) { with(this) {
+      expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
+      cli.run(["node", "bin/vault", "--set-source", "local"], function() {
+        cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+      })
+    }})
+
+    it("shows local as the current source if the current remote is deleted", function(resume) { with(this) {
+      expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", ""].join("\n") )
+      cli.run(["node", "bin/vault", "--delete-source", "me@local.dev"], function() {
+        cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+      })
     }})
 
     it("reports an error if no service given", function(resume) { with(this) {
