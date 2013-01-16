@@ -188,7 +188,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
         config.sources["me@local.dev"] = {}
         config.sources["jcoglan@5apps.com"] = {}
-        config.sources.__default__ = "me@local.dev"
+        config.sources.__current__ = "me@local.dev"
 
         storage.dump(config, resume)
       })

@@ -59,7 +59,7 @@ LocalStore.prototype.setSource = function(address, callback, context) {
       return callback.call(context, new Error('Source "' + address + '" does not exist'));
 
     config.sources = config.sources || {};
-    config.sources.__default__ = address;
+    config.sources.__current__ = address;
     this.dump(config, callback, context);
   }, this);
 };
@@ -72,7 +72,7 @@ LocalStore.prototype.listSources = function(callback, context) {
         sourceNames = Object.keys(sources)
                         .filter(function(s) { return !/^__[a-z]+__$/.test(s) });
 
-    var current = sources.__default__;
+    var current = sources.__current__;
     if (!current || !sources[current]) current = LocalStore.LOCAL;
 
     callback.call(context, null, sourceNames.concat(LocalStore.LOCAL), current);
