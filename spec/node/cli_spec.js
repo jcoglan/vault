@@ -7,7 +7,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   before(function() { with(this) {
     this.configPath = path.resolve(__dirname + "/.vault")
     this.exportPath = path.resolve(__dirname + "/export.json")
-    this.stdout     = {}
+    this.stdout     = {write: function() {}}
     this.passphrase = "something"
 
     this.cli = new CLI({
@@ -100,8 +100,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a global passphrase", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-cp"], function() {
-        storage.serviceSettings("internet", function(e, internet) {
-          storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("internet", true, function(e, internet) {
+          storage.serviceSettings("google", true, function(e, google) {
             resume(function() {
               assertEqual( {phrase: "something"}, internet )
               assertEqual( {phrase: "something"}, google )
@@ -110,8 +110,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a service-specific passphrase", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-cp", "google"], function() {
-        storage.serviceSettings("internet", function(e, internet) {
-          storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("internet", true, function(e, internet) {
+          storage.serviceSettings("google", true, function(e, google) {
             resume(function() {
               assertEqual( {}, internet )
               assertEqual( {phrase: "something"}, google )
@@ -120,8 +120,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a global public key", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-ck"], function() {
-        storage.serviceSettings("internet", function(e, internet) {
-          storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("internet", true, function(e, internet) {
+          storage.serviceSettings("google", true, function(e, google) {
             resume(function() {
               assertEqual( {key: "AAAAPUBLICKEY"}, internet )
               assertEqual( {key: "AAAAPUBLICKEY"}, google )
@@ -130,8 +130,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a service-specific public key", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-ck", "google"], function() {
-        storage.serviceSettings("internet", function(e, internet) {
-          storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("internet", true, function(e, internet) {
+          storage.serviceSettings("google", true, function(e, google) {
             resume(function() {
               assertEqual( {}, internet )
               assertEqual( {key: "AAAAPUBLICKEY"}, google )
@@ -140,8 +140,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a global character constraint", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "--length", "6", "--symbol", "0"], function() {
-        storage.serviceSettings("internet", function(e, internet) {
-          storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("internet", true, function(e, internet) {
+          storage.serviceSettings("google", true, function(e, google) {
             resume(function() {
               assertEqual( {length: 6, symbol: 0}, internet )
               assertEqual( {length: 6, symbol: 0}, google )
@@ -150,8 +150,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("saves a service-specific character constraint", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "google", "--length", "6", "--symbol", "0"], function() {
-        storage.serviceSettings("internet", function(e, internet) {
-          storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("internet", true, function(e, internet) {
+          storage.serviceSettings("google", true, function(e, google) {
             resume(function() {
               assertEqual( {}, internet )
               assertEqual( {length: 6, symbol: 0}, google )
@@ -170,7 +170,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     it("imports a saved settings file", function(resume) { with(this) {
       fs.writeFileSync(exportPath, '{"services":{"google":{"length":8}}}')
       cli.run(["node", "bin/vault", "-i", exportPath], function() {
-        storage.serviceSettings("google", function(e, google) {
+        storage.serviceSettings("google", true, function(e, google) {
           resume(function() { assertEqual( {length: 8}, google ) })
         })
       })
@@ -185,10 +185,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         config.services.twitter = {lower: 1, symbol: 0}
         config.services.nothing = {}
         config.services.facebook=  {key: "AAAAPUBLICKEY"}
-
-        config.sources["me@local.dev"] = {}
-        config.sources["jcoglan@5apps.com"] = {}
-        config.sources.__current__ = "me@local.dev"
 
         storage.dump(config, resume)
       })
@@ -253,13 +249,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "--cmplt", "tw"], function() { resume() })
     }})
 
-    it("completes source addresses", function(resume) { with(this) {
-      expect(stdout, "write").given("me@local.dev")
-      cli.run(["node", "bin/vault", "--cmplt", "me"], function() { resume() })
-    }})
-
     it("completes empty service names", function(resume) { with(this) {
-      expect(stdout, "write").given(["facebook", "jcoglan@5apps.com", "local", "me@local.dev", "nothing", "twitter"].join("\n"))
+      expect(stdout, "write").given(["facebook", "local", "nothing", "twitter"].join("\n"))
       cli.run(["node", "bin/vault", "--cmplt", ""], function() { resume() })
     }})
 
@@ -288,23 +279,41 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
     }})
 
-    it("lists the available sources", function(resume) { with(this) {
-      expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "* me@local.dev", ""].join("\n") )
-      cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
-    }})
+    describe("source-managing methods", function() { with(this) {
+      before(function(resume) { with(this) {
+        var RS = require("../../node/remote_store")
+        stub(RS.prototype, "listServices").yielding([null, []])
 
-    it("lets you change the current source", function(resume) { with(this) {
-      expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
-      cli.run(["node", "bin/vault", "--set-source", "local"], function() {
-        cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
-      })
-    }})
+        storage.load(function(error, config) {
+          config.sources["me@local.dev"] = {}
+          config.sources["jcoglan@5apps.com"] = {}
+          storage.dump(config, resume)
+        })
+      }})
 
-    it("shows local as the current source if the current remote is deleted", function(resume) { with(this) {
-      expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", ""].join("\n") )
-      cli.run(["node", "bin/vault", "--delete-source", "me@local.dev"], function() {
+      it("completes source addresses", function(resume) { with(this) {
+        expect(stdout, "write").given("me@local.dev")
+        cli.run(["node", "bin/vault", "--cmplt", "me"], function() { resume() })
+      }})
+
+      it("lists the available sources", function(resume) { with(this) {
+        expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
         cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
-      })
+      }})
+
+      it("lets you change the current source", function(resume) { with(this) {
+        expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "* me@local.dev", ""].join("\n") )
+        cli.run(["node", "bin/vault", "--set-source", "me@local.dev"], function() {
+          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+        })
+      }})
+
+      it("shows local as the current source if the current remote is deleted", function(resume) { with(this) {
+        expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", ""].join("\n") )
+        cli.run(["node", "bin/vault", "--delete-source", "me@local.dev"], function() {
+          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+        })
+      }})
     }})
 
     it("reports an error if no service given", function(resume) { with(this) {
@@ -317,7 +326,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("removes all saved services", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-X"], function() {
-        storage.serviceSettings("twitter", function(e, twitter) {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {}, twitter ) })
         })
       })
@@ -325,7 +334,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("removes a saved service", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-x", "twitter"], function() {
-        storage.serviceSettings("twitter", function(e, twitter) {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {lower: 0, phrase: "saved passphrase"}, twitter ) })
         })
       })
@@ -333,7 +342,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("changes a saved service setting", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "twitter", "--lower", "8"], function() {
-        storage.serviceSettings("twitter", function(e, twitter) {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {lower: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
         })
       })
@@ -341,8 +350,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("changes a saved global setting", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "--lower", "8"], function() {
-        storage.serviceSettings("google", function(e, google) {
-          storage.serviceSettings("twitter", function(e, twitter) {
+        storage.serviceSettings("google", true, function(e, google) {
+          storage.serviceSettings("twitter", true, function(e, twitter) {
             resume(function() {
               assertEqual( {lower: 8, phrase: "saved passphrase"}, google )
               assertEqual( {lower: 1, symbol: 0, phrase: "saved passphrase"}, twitter )

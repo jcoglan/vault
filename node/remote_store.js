@@ -2,9 +2,13 @@ var Vault = require('../lib/vault'),
     remoteStorage = require('./remotestorage');
 
 var RemoteStore = function(address, options) {
-  this._client = new remoteStorage('getvau.lt', ['vault:rw']);
-  this._user   = address;
-  this._conn   = this._client.connect(this._user, options);
+  this._client  = new remoteStorage('getvau.lt', ['vault:rw']);
+  this._address = address;
+  this._conn    = this._client.connect(this._address, options);
+};
+
+RemoteStore.prototype.getName = function() {
+  return this._address;
 };
 
 RemoteStore.prototype.getType = function() {
@@ -79,11 +83,17 @@ RemoteStore.prototype.deleteService = function(service, callback, context) {
   this._conn.delete('/vault/services/' + service, callback, context);
 };
 
-RemoteStore.prototype.serviceSettings = function(service, callback, context) {
-  this._read('/vault/global', function(error, global) {
-    this._read('/vault/services/' + service, function(error, local) {
-      Vault.extend(local, global);
-      callback.call(context, null, local);
+RemoteStore.prototype.serviceSettings = function(service, includeGlobal, callback, context) {
+  this._read('/vault/services/' + service, function(error, local) {
+    if (error) return callback.call(context, error);
+
+    if (!includeGlobal && !local)
+      return callback.call(context, null, null);
+
+    this._read('/vault/global', function(error, global) {
+      var merged = local || {};
+      Vault.extend(merged, global || {});
+      callback.call(context, null, merged);
     }, this);
   }, this);
 };
@@ -94,7 +104,7 @@ RemoteStore.prototype._save = function(path, settings, callback, context) {
 
     var updated = {};
     Vault.extend(updated, settings);
-    Vault.extend(updated, saved);
+    Vault.extend(updated, saved || {});
 
     var payload = JSON.stringify(updated, true, 2);
 
@@ -108,7 +118,7 @@ RemoteStore.prototype._read = function(path, callback, context) {
 
     var payload = item
                 ? JSON.parse(item.content.toString('utf8'))
-                : {};
+                : null;
 
     callback.call(context, null, payload);
   });

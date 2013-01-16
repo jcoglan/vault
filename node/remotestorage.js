@@ -4,7 +4,10 @@ var http  = require('http'),
     qs    = require('querystring'),
     oauth = require('remotestorage-oauth');
 
-var UnauthorizedError = function() {};
+var UnauthorizedError = function(message) {
+  Error.apply(this, arguments);
+  this.message = message;
+};
 require('util').inherits(UnauthorizedError, Error);
 
 var remoteStorage = function(clientId, scopes) {
@@ -23,6 +26,10 @@ var Connection = function(client, address, options) {
   this._user    = parts[0];
   this._host    = parts[1];
   this._options = options || {};
+
+  this._storageUrl = this._options.storage;
+  this._oauthUrl   = this._options.oauth;
+  this._token      = this._options.token;
 };
 
 Connection.prototype._storageDetails = function() {
@@ -130,7 +137,9 @@ Connection.prototype.delete = function(path, callback, context) {
 Connection.prototype._parseResponse = function(error, response, callback, context) {
   var status = response && response.statusCode;
   if (status === 401 || status === 403)
-    error = new UnauthorizedError();
+    error = new UnauthorizedError('Access denied for source "' + this._address +
+                                  '"; either remove this source using --delete-source ' +
+                                  'or re-authenticate using --add-source');
 
   if (error) return callback.call(context, error);
   if (status < 200 || status >= 300) return callback.call(context, null, null);

@@ -1,7 +1,8 @@
-var fs          = require('fs'),
-    Cipher      = require('vault-cipher'),
-    Vault       = require('../lib/vault'),
-    RemoteStore = require('./remote_store');
+var fs             = require('fs'),
+    Cipher         = require('vault-cipher'),
+    Vault          = require('../lib/vault'),
+    CompositeStore = require('./composite_store'),
+    RemoteStore    = require('./remote_store');
 
 var LocalStore = function(options) {
   this._path   = options.path;
@@ -9,6 +10,10 @@ var LocalStore = function(options) {
 };
 
 LocalStore.LOCAL = 'local';
+
+LocalStore.prototype.getName = function() {
+  return LocalStore.LOCAL;
+};
 
 LocalStore.prototype.clear = function(callback, context) {
   this.load(function(error, config) {
@@ -18,6 +23,10 @@ LocalStore.prototype.clear = function(callback, context) {
       callback.apply(context, arguments);
     });
   }, this);
+};
+
+LocalStore.prototype.composite = function() {
+  return new CompositeStore(this);
 };
 
 LocalStore.prototype.addSource = function(address, options, callback, context) {
@@ -79,6 +88,27 @@ LocalStore.prototype.listSources = function(callback, context) {
   });
 };
 
+LocalStore.prototype.getStore = function(source, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var store = (!source || source === LocalStore.LOCAL)
+              ? this
+              : new RemoteStore(source, config.sources[source]);
+
+    callback.call(context, null, store);
+  }, this);
+};
+
+LocalStore.prototype.currentStore = function(callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var current = (config.sources || {}).__current__;
+    this.getStore(current, callback, context);
+  }, this);
+};
+
 LocalStore.prototype.listServices = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
@@ -130,9 +160,12 @@ LocalStore.prototype.deleteService = function(service, callback, context) {
   }, this);
 };
 
-LocalStore.prototype.serviceSettings = function(service, callback, context) {
+LocalStore.prototype.serviceSettings = function(service, includeGlobal, callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
+
+    if (!includeGlobal && (!config.services || !config.services[service]))
+      return callback.call(context, null, null);
 
     var settings = {};
     Vault.extend(settings, (config.services || {})[service] || {});

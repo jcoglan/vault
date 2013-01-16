@@ -46,7 +46,7 @@ var fs         = require('fs'),
               };
 
 var CLI = function(options) {
-  this._store = new LocalStore(options.config);
+  this._store = new LocalStore(options.config).composite();
   this._out   = options.output;
   this._tty   = options.tty;
 
@@ -104,8 +104,8 @@ CLI.prototype.complete = function(word, callback, context) {
     this._out.write(names.sort().join('\n'));
     callback.call(context, null);
   } else {
-    this._store.listServices(function(error, services) {
-      this._store.listSources(function(error, sources) {
+    this._store.listSources(function(error, sources) {
+      this._store.listServices(function(error, services) {
         if (error) return callback.call(context, new Error('\n' + error.message));
         var all = services.concat(sources);
         all = all.filter(function(s) { return s.indexOf(word) === 0 });
@@ -196,9 +196,17 @@ CLI.prototype.configure = function(service, params, callback, context) {
   }
 
   if (service)
-    this._store.saveService(service, settings, callback, context);
+    this._store.saveService(service, settings, function(error, store) {
+      if (error) return callback.call(context, error);
+      this._out.write('Settings for service "' + service + '" saved to "' + store + '"\n');
+      callback.call(context);
+    }, this);
   else
-    this._store.saveGlobals(settings, callback, context);
+    this._store.saveGlobals(settings, function(error, store) {
+      if (error) return callback.call(context, error);
+      this._out.write('Global settings saved to "' + store + '"\n');
+      callback.call(context);
+    }, this);
 };
 
 CLI.prototype.delete = function(service, callback, context) {
@@ -223,7 +231,7 @@ CLI.prototype.deleteAll = function(callback, context) {
 };
 
 CLI.prototype.generate = function(service, params, callback, context) {
-  this._store.serviceSettings(service, function(error, settings) {
+  this._store.serviceSettings(service, true, function(error, settings) {
     if (error) return callback.call(context, error);
     Vault.extend(params, settings);
 
