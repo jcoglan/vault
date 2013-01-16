@@ -129,9 +129,10 @@ CLI.prototype.withPhrase = function(params, callback) {
 };
 
 CLI.prototype.export = function(path, callback, context) {
-  this._store.export(function(error, json) {
+  this._store.export(function(error, config) {
     if (error) return callback.call(context, error);
-    json = json || JSON.stringify({global: {}, services: {}}, true, 2);
+    config = config || {global: {}, services: {}};
+    var json = JSON.stringify(config, true, 2);
     fs.writeFile(path, json, function() {
       callback.apply(context, arguments);
     });
@@ -142,7 +143,8 @@ CLI.prototype.import = function(path, callback, context) {
   var self = this;
   fs.readFile(path, function(error, content) {
     if (error) return callback.call(context, error);
-    self._store.import(content.toString(), callback, context);
+    var config = JSON.parse(content.toString());
+    self._store.import(config, callback, context);
   });
 };
 

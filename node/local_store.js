@@ -135,11 +135,12 @@ LocalStore.prototype.load = function(callback, context) {
 
 LocalStore.prototype.dump = function(config, callback, context) {
   config = sort(config);
-  this.import(JSON.stringify(config, true, 2), callback, context);
+  this.import(config, callback, context);
 };
 
-LocalStore.prototype.import = function(string, callback, context) {
-  this._cipher.encrypt(string, function(error, ciphertext) {
+LocalStore.prototype.import = function(config, callback, context) {
+  var json = JSON.stringify(config, true, 2);
+  this._cipher.encrypt(json, function(error, ciphertext) {
     fs.writeFile(this._path, ciphertext, function() {
       if (callback) callback.apply(context, arguments);
     });
@@ -148,8 +149,9 @@ LocalStore.prototype.import = function(string, callback, context) {
 
 LocalStore.prototype.export = function(callback, context) {
   this.load(function(error, config) {
-    if (error) callback.call(context, error);
-    else callback.call(context, null, config && JSON.stringify(config, true, 2));
+    if (error) return callback.call(context, error);
+    delete config.sources;
+    callback.call(context, null, config);
   });
 };
 

@@ -162,7 +162,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "-e", exportPath], function() {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
-          assertEqual( {global: {}, services: {}, sources: {}}, json )
+          assertEqual( {global: {}, services: {}}, json )
         })
       })
     }})
@@ -326,8 +326,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
               nothing: {},
               facebook: {key: "AAAAPUBLICKEY"},
               twitter: {lower: 1, symbol: 0}
-            },
-            sources: {}
+            }
           }, json)
         })
       })
