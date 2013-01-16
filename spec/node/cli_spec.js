@@ -184,6 +184,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         config.services.nothing = {}
         config.services.facebook=  {key: "AAAAPUBLICKEY"}
         config.global = {lower: 0, phrase: "saved passphrase"}
+        config.sources = {"me@local.dev": {}}
         storage.dump(config, resume)
       })
     }})
@@ -244,8 +245,13 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "--cmplt", "tw"], function() { resume() })
     }})
 
+    it("completes source addresses", function(resume) { with(this) {
+      expect(stdout, "write").given("me@local.dev")
+      cli.run(["node", "bin/vault", "--cmplt", "me"], function() { resume() })
+    }})
+
     it("completes empty service names", function(resume) { with(this) {
-      expect(stdout, "write").given("facebook\nnothing\ntwitter")
+      expect(stdout, "write").given(["facebook", "me@local.dev", "nothing", "twitter"].join("\n"))
       cli.run(["node", "bin/vault", "--cmplt", ""], function() { resume() })
     }})
 
