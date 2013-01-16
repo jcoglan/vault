@@ -18,6 +18,13 @@ LocalStore.prototype.clear = function(callback, context) {
   }, this);
 };
 
+LocalStore.prototype.listSources = function(callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+    callback.call(context, null, Object.keys(config.sources || {}).sort());
+  });
+};
+
 LocalStore.prototype.addSource = function(address, options, callback, context) {
   var remote = new RemoteStore(address, options);
   remote.connect(function(error, response) {

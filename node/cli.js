@@ -99,10 +99,13 @@ CLI.prototype.complete = function(word, callback, context) {
     callback.call(context);
   } else {
     this._store.listServices(function(error, services) {
-      if (error) return callback.call(context, new Error('\n' + error.message));
-      services = services.filter(function(s) { return s.indexOf(word) === 0 });
-      this._out.write(services.sort().join('\n'));
-      callback.call(context, error);
+      this._store.listSources(function(error, sources) {
+        if (error) return callback.call(context, new Error('\n' + error.message));
+        var all = services.concat(sources);
+        all = all.filter(function(s) { return s.indexOf(word) === 0 });
+        this._out.write(all.sort().join('\n'));
+        callback.call(context, error);
+      }, this);
     }, this);
   }
 };
