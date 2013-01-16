@@ -120,6 +120,8 @@ LocalStore.prototype.serviceSettings = function(service, callback, context) {
 };
 
 LocalStore.prototype.load = function(callback, context) {
+  if (this._configCache) return callback.call(context, null, this._configCache);
+
   var self = this;
   fs.readFile(this._path, function(error, content) {
     if (error)
@@ -135,6 +137,7 @@ LocalStore.prototype.load = function(callback, context) {
       } catch (e) {
         return callback.call(context, err);
       }
+      self._configCache = config;
       callback.call(context, null, config);
     });
   });
@@ -157,8 +160,8 @@ LocalStore.prototype.import = function(config, callback, context) {
 LocalStore.prototype.export = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
-    delete config.sources;
-    callback.call(context, null, config);
+    var exported = {global: config.global, services: config.services};
+    callback.call(context, null, exported);
   });
 };
 
