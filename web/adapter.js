@@ -1,3 +1,20 @@
+var keys = function(object) {
+  var list = [];
+  for (var key in object) {
+    if (object.hasOwnProperty(key))
+      list.push(key);
+  }
+  return list;
+};
+
+var map = function(list, mapper, context) {
+  var result = [];
+  for (var i = 0, n = list.length; i < n; i++) {
+    result[i] = mapper.call(context, list[i], i, list);
+  }
+  return result;
+};
+
 var queryparse = function(string) {
   if (typeof string === 'object') return string;
   if (/^ *$/.test(string)) return {};
