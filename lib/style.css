@@ -26,6 +26,14 @@ body, input {
 .nav .current a {
   color: #fff;
 }
+#message {
+  color: #fff;
+  float: right;
+  line-height: 1em;
+  font-size: 70%;
+  margin-top: 2.5em;
+  text-transform: uppercase;
+}
 
 .sub {
   margin: 0 auto;
