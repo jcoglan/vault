@@ -211,8 +211,12 @@ var request = function(method, _url, params, headers, callback, context) {
   if (method === 'GET') {
     params = params.toString();
     if (params !== '') path = path + sep + params;
-  } else if (method === 'PUT') {
+  }
+  else if (method === 'PUT') {
     headers['Content-Length'] = params.length.toString();
+  }
+  else if (method === 'DELETE') {
+    headers['Content-Length'] = '0';
   }
 
   var req = client.request({
