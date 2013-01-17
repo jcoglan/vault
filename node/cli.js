@@ -34,13 +34,16 @@ var fs         = require('fs'),
                 'cmplt':          String
               },
 
-    shorts  = { 'c': '--config',
+    shorts  = { 'a': '--add-source',
+                'c': '--config',
+                'd': '--delete-source',
                 'e': '--export',
                 'i': '--import',
                 'k': '--key',
                 'l': '--length',
                 'p': '--phrase',
                 'r': '--repeat',
+                's': '--set-source',
                 'x': '--delete',
                 'X': '--clear'
               };
