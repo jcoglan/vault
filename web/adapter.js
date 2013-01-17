@@ -60,9 +60,16 @@ var request = function(method, url, params, headers, callback, context) {
   }
 
   xhr.onload = xhr.onerror = xhr.ontimeout = function() {
+    var headers = {},
+        raw     = xhr.getAllResponseHeaders();
+
+    map(raw.match(/^[^:]+:/gm), function(name) {
+      name = name.replace(/^\s*/, '').replace(/:\s*$/, '');
+      headers[name.toLowerCase()] = xhr.getResponseHeader(name);
+    });
     callback.call(context, null, {
       statusCode: xhr.status,
-      headers:    {},
+      headers:    headers,
       body:       xhr.responseText
     });
   };
