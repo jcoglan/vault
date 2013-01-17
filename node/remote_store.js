@@ -2,7 +2,7 @@ var Vault = require('../lib/vault'),
     remoteStorage = require('./remotestorage');
 
 var RemoteStore = function(address, options) {
-  this._client  = new remoteStorage('getvau.lt', ['vault:rw']);
+  this._client  = new remoteStorage('getvau.lt', {vault: ['r', 'w']});
   this._address = address;
   this._conn    = this._client.connect(this._address, options);
 };

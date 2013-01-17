@@ -4,11 +4,11 @@ var http  = require('http'),
     qs    = require('querystring'),
     oauth = require('remotestorage-oauth');
 
-var UnauthorizedError = function(message) {
+var RequestError = function(message) {
   Error.apply(this, arguments);
   this.message = message;
 };
-require('util').inherits(UnauthorizedError, Error);
+require('util').inherits(RequestError, Error);
 
 var remoteStorage = function(clientId, scopes) {
   this._clientId = clientId;
@@ -17,6 +17,16 @@ var remoteStorage = function(clientId, scopes) {
 
 remoteStorage.prototype.connect = function(address, options) {
   return new Connection(this, address, options);
+};
+
+remoteStorage.prototype.getScopes = function(version) {
+  var scopes = [], scope;
+  for (var key in this._scopes) {
+    scope = key;
+    if (version !== '2011.10') scope += ':' + this._scopes[key].join('');
+    scopes.push(scope);
+  }
+  return scopes;
 };
 
 var Connection = function(client, address, options) {
@@ -29,6 +39,7 @@ var Connection = function(client, address, options) {
 
   this._storageUrl = this._options.storage;
   this._oauthUrl   = this._options.oauth;
+  this._version    = this._options.version;
   this._token      = this._options.token;
 };
 
@@ -36,6 +47,7 @@ Connection.prototype._storageDetails = function() {
   return {
     storage: this._storageUrl,
     oauth:   this._oauthUrl,
+    version: this._version,
     token:   this._token
   };
 };
@@ -48,10 +60,11 @@ Connection.prototype.connect = function(callback, context) {
 
     this._storageUrl = response.storage;
     this._oauthUrl   = response.oauth;
+    this._version    = response.version;
 
     var url      = response.oauth,
         clientId = this._client._clientId,
-        scopes   = this._client._scopes,
+        scopes   = this._client.getScopes(this._version),
         self     = this;
 
     oauth.authorize(url, clientId, scopes, this._options, function(error, token) {
@@ -75,17 +88,34 @@ Connection.prototype.discover = function(callback, context) {
 
     request('GET', url, {resource: resource}, {}, function(error, response) {
       if (error) return attempt.call(this, index + 1);
-      var jrd, store, auth, self = this;
+      var jrd, link, template, store, auth;
 
       try {
-        jrd   = JSON.parse(response.body.toString('utf8'));
-        store = jrd.links[0].href;
-        auth  = jrd.links[0].properties['auth-endpoint'];
+        jrd      = JSON.parse(response.body.toString('utf8'));
+        link     = jrd.links[0];
+        template = link.template;
+        auth     = (link.properties || {})['auth-endpoint'];
+        store    = link.href;
       } catch (e) {
         return attempt.call(this, index + 1);
       }
 
-      callback.call(context, null, {storage: store, oauth: auth});
+      if (template) {
+        request('GET', template.replace('{uri}', encodeURIComponent(resource)), {}, {}, function(error, response) {
+          if (error) return attempt.call(this, index + 1);
+          try {
+            jrd   = JSON.parse(response.body.toString('utf8'));
+            link  = jrd.links[0];
+            auth  = link.auth;
+            store = link.template;
+          } catch (e) {
+            return attempt.call(this, index + 1);
+          }
+          callback.call(context, null, {storage: store, oauth: auth, version: '2011.10'});
+        }, this);
+      } else {
+        callback.call(context, null, {storage: store, oauth: auth, version: 'draft.00'});
+      }
     }, this);
   };
 
@@ -96,11 +126,11 @@ Connection.prototype.get = function(path, callback, context) {
   this.connect(function(error, response) {
     if (error) return callback.call(context, error);
 
-    var url     = response.storage + path,
+    var url     = this._urlFor(path),
         headers = {Authorization: 'Bearer ' + response.token};
 
     request('GET', url, {}, headers, function(error, response) {
-      this._parseResponse(error, response, callback, context);
+      this._parseResponse(error, 'GET', response, callback, context);
     }, this);
   }, this);
 };
@@ -109,14 +139,14 @@ Connection.prototype.put = function(path, type, content, callback, context) {
   this.connect(function(error, response) {
     if (error) return callback.call(context, error);
 
-    var url     = response.storage + path,
+    var url     = this._urlFor(path),
         headers = {
           'Authorization': 'Bearer ' + response.token,
           'Content-Type':  type
         };
 
     request('PUT', url, content, headers, function(error, response) {
-      this._parseResponse(error, response, callback, context);
+      this._parseResponse(error, 'PUT', response, callback, context);
     }, this);
   }, this);
 };
@@ -125,21 +155,29 @@ Connection.prototype.delete = function(path, callback, context) {
   this.connect(function(error, response) {
     if (error) return callback.call(context, error);
 
-    var url     = response.storage + path,
+    var url     = this._urlFor(path),
         headers = {Authorization: 'Bearer ' + response.token};
 
     request('DELETE', url, {}, headers, function(error, response) {
-      this._parseResponse(error, response, callback, context);
+      this._parseResponse(error, 'DELETE', response, callback, context);
     }, this);
   }, this);
 };
 
-Connection.prototype._parseResponse = function(error, response, callback, context) {
+Connection.prototype._urlFor = function(path) {
+  var root = this._storageUrl;
+  if (this._version === '2011.10') root = root.replace(/\/+\{category\}\/*/, '');
+  return root + path;
+};
+
+Connection.prototype._parseResponse = function(error, method, response, callback, context) {
   var status = response && response.statusCode;
+
   if (status === 401 || status === 403)
-    error = new UnauthorizedError('Access denied for source "' + this._address +
-                                  '"; either remove this source using --delete-source ' +
-                                  'or re-authenticate using --add-source');
+    error = new RequestError('Access denied for "' + this._address + '"');
+
+  if (method === 'PUT' && status >= 400)
+    error = new RequestError('Request to "' + this._address + '" failed');
 
   if (error) return callback.call(context, error);
   if (status < 200 || status >= 300) return callback.call(context, null, null);
@@ -170,8 +208,12 @@ var request = function(method, _url, params, headers, callback, context) {
   if (typeof params === 'string')  params = new Buffer(params, 'utf8');
   if (!(params instanceof Buffer)) params = new Buffer(qs.stringify(params), 'utf8');
 
-  if (method === 'GET') path = path + sep + params.toString();
-  if (method === 'PUT') headers['Content-Length'] = params.length;
+  if (method === 'GET') {
+    params = params.toString();
+    if (params !== '') path = path + sep + params;
+  } else if (method === 'PUT') {
+    headers['Content-Length'] = params.length.toString();
+  }
 
   var req = client.request({
     method:   method,
@@ -211,5 +253,5 @@ var request = function(method, _url, params, headers, callback, context) {
 };
 
 module.exports = remoteStorage;
-remoteStorage.UnauthorizedError = UnauthorizedError;
+remoteStorage.RequestError = RequestError;
 
