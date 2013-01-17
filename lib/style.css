@@ -18,7 +18,7 @@ body, input {
 .nav li {
   float: left;
   line-height: 1em;
-  margin: 1.5em 1em 0 0;
+  margin: 1.5em 0.5em 0 0;
 }
 .nav a {
   font-weight: normal;
@@ -27,12 +27,14 @@ body, input {
   color: #fff;
 }
 #message {
-  color: #fff;
+  color: #9292a8;
   float: right;
   line-height: 1em;
   font-size: 70%;
-  margin-top: 2.5em;
-  text-transform: uppercase;
+  margin-top: 2.4em;
+}
+#message.active {
+  color: #fff;
 }
 
 .sub {
