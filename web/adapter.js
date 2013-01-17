@@ -60,10 +60,13 @@ var request = function(method, url, params, headers, callback, context) {
   }
 
   xhr.onload = xhr.onerror = xhr.ontimeout = function() {
+    if (xhr.status === 0)
+      return callback.call(context, new Error('Request failied: ' + url));
+
     var headers = {},
         raw     = xhr.getAllResponseHeaders();
 
-    map(raw.match(/^[^:]+:/gm), function(name) {
+    map(raw.match(/^[^:]+:/gm) || [], function(name) {
       name = name.replace(/^\s*/, '').replace(/:\s*$/, '');
       headers[name.toLowerCase()] = xhr.getResponseHeader(name);
     });
