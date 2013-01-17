@@ -8,6 +8,7 @@
     <script type="text/javascript" src="./lib/vault.js"></script>
     <script type="text/javascript" src="./adapter.js"></script>
     <script type="text/javascript" src="./lib/remotestorage.js"></script>
+    <script type="text/javascript" src="./lib/remote_store.js"></script>
     <link rel="stylesheet" type="text/css" href="./lib/style.css">
   </head>
   <body>
@@ -31,7 +32,7 @@
       <div class="sub">
         <form id="connectForm" action="./storage.html">
           <label for="address">Address</label>
-          <input type="email" class="text" name="address" id="address" value="">
+          <input type="email" class="text" name="address" id="address" value="" autocomplete="off">
           <button>Connect</button>
         </form>
         <p id="feedback"></p>

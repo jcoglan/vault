@@ -281,7 +281,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     describe("source-managing methods", function() { with(this) {
       before(function(resume) { with(this) {
-        var RS = require("../../node/remote_store")
+        var RS = require("../../lib/remote_store")
         stub(RS.prototype, "listServices").yielding([null, []])
 
         storage.load(function(error, config) {

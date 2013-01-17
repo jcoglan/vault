@@ -1,8 +1,8 @@
 var fs             = require('fs'),
     Cipher         = require('vault-cipher'),
     Vault          = require('../lib/vault'),
-    CompositeStore = require('./composite_store'),
-    RemoteStore    = require('./remote_store');
+    RemoteStore    = require('../lib/remote_store'),
+    CompositeStore = require('./composite_store');
 
 var LocalStore = function(options) {
   this._path   = options.path;
