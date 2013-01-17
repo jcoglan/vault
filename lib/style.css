@@ -6,9 +6,30 @@ body, input {
   padding: 0;
 }
 
+.nav {
+  background: #2c2c35;
+}
+.nav ul {
+  list-style: none;
+  height: 2.5em;
+  margin: 0;
+  padding: 0;
+}
+.nav li {
+  float: left;
+  line-height: 1em;
+  margin: 1.5em 1em 0 0;
+}
+.nav a {
+  font-weight: normal;
+}
+.nav .current a {
+  color: #fff;
+}
+
 .sub {
   margin: 0 auto;
-  padding: 0 1em 1.5em;
+  padding: 0 1em 1.2em;
   width: 400px;
 }
 .form {
@@ -27,6 +48,9 @@ h1 {
 h2, p {
   font-size: 1em;
   margin: 1em 0;
+}
+p:last-child {
+  margin-bottom: 0;
 }
 a {
   color: #39f;
