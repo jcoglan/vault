@@ -57,6 +57,9 @@ a {
   font-weight: bold;
   text-decoration: none;
 }
+#feedback {
+  font-weight: bold;
+}
 
 label, input.text, input.password {
   display: block;
