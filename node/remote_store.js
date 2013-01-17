@@ -1,5 +1,5 @@
 var Vault = require('../lib/vault'),
-    remoteStorage = require('./remotestorage');
+    remoteStorage = require('../lib/remotestorage').remoteStorage;
 
 var RemoteStore = function(address, options) {
   this._client  = new remoteStorage('getvau.lt', {vault: ['r', 'w']});
@@ -16,7 +16,7 @@ RemoteStore.prototype.getType = function() {
 };
 
 RemoteStore.prototype.connect = function(callback, context) {
-  this._conn.connect(callback, context);
+  this._conn.authorize(callback, context);
 };
 
 RemoteStore.prototype.clear = function(callback, context) {

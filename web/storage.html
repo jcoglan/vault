@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+    <title>Vault</title>
+    <script type="text/javascript" src="./lib/crypto-js-3.0.2.js"></script>
+    <script type="text/javascript" src="./lib/vault.js"></script>
+    <script type="text/javascript" src="./adapter.js"></script>
+    <script type="text/javascript" src="./lib/remotestorage.js"></script>
+    <link rel="stylesheet" type="text/css" href="./lib/style.css">
+  </head>
+  <body>
+
+    <div class="nav">
+      <div class="sub">
+        <ul>
+          <li><a href="./">Home</a></li>
+          <li><a href="./storage.html">Storage</a></li>
+          <li><a href="./faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub">
+      <p>If you have a <a href="http://remotestorage.io/">remoteStorage</a>
+        account, you can use it to save your Vault settings.</p>
+    </div>
+
+    <div class="form">
+      <div class="sub">
+        <form id="connect" action="./storage.html">
+          <label for="address">Address</label>
+          <input type="email" class="text" name="address" id="address" value="">
+          <button>Connect</button>
+        </form>
+        <p id="feedback"></p>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="./lib/app.js"></script>
+
+  </body>
+</html>
+
