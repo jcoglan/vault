@@ -10,7 +10,7 @@
 , "bin"             : {"vault": "./bin/vault"}
 , "preferGlobal"    : true
 
-, "dependencies"    : { "nopt": ""
+, "dependencies"    : { "nopt": "~>2.0.0"
                       , "pw": ">=0.0.4"
                       , "remotestorage-oauth": ""
                       , "ssh-agent": ""
