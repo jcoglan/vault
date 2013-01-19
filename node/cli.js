@@ -1,10 +1,10 @@
 var fs         = require('fs'),
     path       = require('path'),
-    nopt       = require('nopt'),
+    OptParser  = require('./optparser'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
 
-    options = { 'phrase':         Boolean,
+    OPTIONS = { 'phrase':         Boolean,
                 'key':            Boolean,
                 'length':         Number,
                 'repeat':         Number,
@@ -34,7 +34,7 @@ var fs         = require('fs'),
                 'cmplt':          String
               },
 
-    shorts  = { 'a': '--add-source',
+    SHORTS  = { 'a': '--add-source',
                 'c': '--config',
                 'd': '--delete-source',
                 'e': '--export',
@@ -49,9 +49,10 @@ var fs         = require('fs'),
               };
 
 var CLI = function(options) {
-  this._store = new LocalStore(options.config).composite();
-  this._out   = options.output;
-  this._tty   = options.tty;
+  this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
+  this._store  = new LocalStore(options.config).composite();
+  this._out    = options.output;
+  this._tty    = options.tty;
 
   this._requestPassword = options.password;
   this._confirmAction = options.confirm;
@@ -60,49 +61,53 @@ var CLI = function(options) {
 };
 
 CLI.prototype.run = function(argv, callback, context) {
-  var params  = nopt(options, shorts, argv),
-      service = params.argv.remain[0];
+  this._parser.parse(argv, function(error, params) {
+    if (error) return callback.call(context, error);
 
-  if (params.initpath) {
-    this._out.write(path.resolve(__dirname + '/scripts/init'));
-    return callback.call(context, null);
-  }
+    var service = params.service;
+    delete params.service;
 
-  if (params.cmplt !== undefined)
-    return this.complete(params.cmplt, callback, context);
+    if (params.initpath) {
+      this._out.write(path.resolve(__dirname + '/scripts/init'));
+      return callback.call(context);
+    }
 
-  var opts = {
-        browser: params.browser || params['text-browser'],
-        inline:  params['text-browser'] !== undefined
-      },
-      source;
+    if (params.cmplt !== undefined)
+      return this.complete(params.cmplt, callback, context);
 
-  if (source = params['add-source'])
-    return this.addSource(source, opts, callback, context);
-  if (source = params['delete-source'])
-    return this._store.deleteSource(source, callback, context);
-  if (source = params['set-source'])
-    return this._store.setSource(source, callback, context);
+    var opts = {
+          browser: params.browser || params['text-browser'],
+          inline:  params['text-browser'] !== undefined
+        },
+        source;
 
-  if (params['list-sources']) return this.listSources(callback, context);
+    if (source = params['add-source'])
+      return this.addSource(source, opts, callback, context);
+    if (source = params['delete-source'])
+      return this._store.deleteSource(source, callback, context);
+    if (source = params['set-source'])
+      return this._store.setSource(source, callback, context);
 
-  if (params.export) return this.export(params.export, callback, context);
-  if (params.import) return this.import(params.import, callback, context);
-  if (params.delete) return this.delete(params.delete, callback, context);
-  if (params.clear)  return this.deleteAll(callback, context);
+    if (params['list-sources']) return this.listSources(callback, context);
 
-  this.withPhrase(params, function() {
-    if (params.config)
-      this.configure(service, params, callback, context);
-    else
-      this.generate(service, params, callback, context);
-  });
+    if (params.export) return this.export(params.export, callback, context);
+    if (params.import) return this.import(params.import, callback, context);
+    if (params.delete) return this.delete(params.delete, callback, context);
+    if (params.clear)  return this.deleteAll(callback, context);
+
+    this.withPhrase(params, function() {
+      if (params.config)
+        this.configure(service, params, callback, context);
+      else
+        this.generate(service, params, callback, context);
+    });
+  }, this);
 };
 
 CLI.prototype.complete = function(word, callback, context) {
   if (word === 'true') word = '--';
   if (/^-/.test(word)) {
-    var names = Object.keys(options).map(function(o) { return '--' + o });
+    var names = Object.keys(OPTIONS).map(function(o) { return '--' + o });
     names = names.filter(function(n) { return n.indexOf(word) === 0 });
     this._out.write(names.sort().join('\n'));
     callback.call(context, null);

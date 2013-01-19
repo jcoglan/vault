@@ -10,14 +10,13 @@
 , "bin"             : {"vault": "./bin/vault"}
 , "preferGlobal"    : true
 
-, "dependencies"    : { "nopt": "~2.0.0"
-                      , "pw": ">=0.0.4"
-                      , "remotestorage-oauth": ""
-                      , "ssh-agent": ""
+, "dependencies"    : { "posix-argv-parser": "~0.4.2"
+                      , "pw": "~0.0.4"
+                      , "remotestorage-oauth": "~0.1.0"
+                      , "ssh-agent": "~0.2.1"
                       , "vault-cipher": "~0.3.0"
                       }
-, "devDependencies" : { "jsclass": ""
-                      }
+, "devDependencies" : { "jsclass": "" }
 
 , "scripts"         : { "postinstall" : "./node/scripts/postinstall"
                       , "test"        : "node spec/node.js"
