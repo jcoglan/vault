@@ -34,7 +34,7 @@ var OptParser = function(options, shorts, args) {
 OptParser.prototype.parse = function(argv, callback, context) {
   var self = this;
   this._parser.parse(argv.slice(2), function(error, opt) {
-    if (error) return callback.call(context, error);
+    if (error) return callback.call(context, new Error(error[0]));
 
     var processed = {}, name, type;
 
