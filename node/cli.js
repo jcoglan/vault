@@ -1,10 +1,10 @@
 var fs         = require('fs'),
     path       = require('path'),
-    nopt       = require('nopt'),
+    OptParser  = require('./optparser'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
 
-    options = { 'config':   Boolean,
+    OPTIONS = { 'config':   Boolean,
                 'delete':   String,
                 'clear':    Boolean,
 
@@ -27,7 +27,7 @@ var fs         = require('fs'),
                 'cmplt':    String
               },
 
-    shorts  = { 'c': '--config',
+    SHORTS  = { 'c': '--config',
                 'x': '--delete',
                 'X': '--clear',
                 'p': '--phrase',
@@ -39,9 +39,10 @@ var fs         = require('fs'),
               };
 
 var CLI = function(options) {
-  this._store = new LocalStore(options.config);
-  this._out   = options.output;
-  this._tty   = options.tty;
+  this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
+  this._store  = new LocalStore(options.config);
+  this._out    = options.output;
+  this._tty    = options.tty;
 
   this._requestPassword = options.password;
   this._confirmAction = options.confirm;
@@ -50,31 +51,35 @@ var CLI = function(options) {
 };
 
 CLI.prototype.run = function(argv, callback, context) {
-  var params  = nopt(options, shorts, argv),
-      service = params.argv.remain[0];
+  this._parser.parse(argv, function(error, params) {
+    if (error) return callback.call(context, error);
 
-  if (params.initpath) {
-    this._out.write(path.resolve(__dirname + '/scripts/init'));
-    return callback.call(context);
-  }
+    var service = params.service;
+    delete params.service;
 
-  if (params.cmplt !== undefined)
-    return this.complete(params.cmplt, callback, context);
+    if (params.initpath) {
+      this._out.write(path.resolve(__dirname + '/scripts/init'));
+      return callback.call(context);
+    }
 
-  this.withPhrase(params, function() {
-    if      (params.export) this.export(params.export, callback, context);
-    else if (params.import) this.import(params.import, callback, context);
-    else if (params.delete) this.delete(params.delete, callback, context);
-    else if (params.clear)  this.deleteAll(callback, context);
-    else if (params.config) this.configure(service, params, callback, context);
-    else                    this.generate(service, params, callback, context);
-  });
+    if (params.cmplt !== undefined)
+      return this.complete(params.cmplt, callback, context);
+
+    this.withPhrase(params, function() {
+      if      (params.export) this.export(params.export, callback, context);
+      else if (params.import) this.import(params.import, callback, context);
+      else if (params.delete) this.delete(params.delete, callback, context);
+      else if (params.clear)  this.deleteAll(callback, context);
+      else if (params.config) this.configure(service, params, callback, context);
+      else                    this.generate(service, params, callback, context);
+    });
+  }, this);
 };
 
 CLI.prototype.complete = function(word, callback, context) {
   if (word === 'true') word = '--';
   if (/^-/.test(word)) {
-    var names = Object.keys(options).map(function(o) { return '--' + o });
+    var names = Object.keys(OPTIONS).map(function(o) { return '--' + o });
     names = names.filter(function(n) { return n.indexOf(word) === 0 });
     this._out.write(names.sort().join('\n'));
     callback.call(context);
