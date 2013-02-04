@@ -1,6 +1,6 @@
 { "name"            : "vault"
 , "description"     : "Generates safe passwords for the web"
-, "homepage"        : "https://vault.jcoglan.com"
+, "homepage"        : "https://getvau.lt/"
 , "author"          : "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)"
 , "keywords"        : ["security", "passwords"]
 
