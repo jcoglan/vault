@@ -68,6 +68,14 @@ LocalStore.prototype.saveService = function(service, settings, callback, context
   }, this);
 };
 
+LocalStore.prototype.deleteGlobals = function(callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+    config.global = {};
+    this.dump(config, callback, context);
+  }, this);
+};
+
 LocalStore.prototype.deleteService = function(service, callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);

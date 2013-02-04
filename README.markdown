@@ -187,12 +187,17 @@ use your current installation to export the settings, upgrade, then import.
 
 ## Deleting saved settings
 
-You can delete any saved setting using the `--delete` and `--clear` options,
-aliased as lowercase `-x` and uppercase `-X` respectively. `--delete` removes
-settings for an individual service, and `--clear` deletes all saved settings.
+You can delete any saved setting using the `--delete`, `--delete-globals` and
+`--clear` options. (`--delete` is aliased as lowercase `-x` and `--clear` as
+uppercase `-X`.) `--delete` removes settings for an individual service,
+`--delete-globals` removes your global settings and `--clear` deletes all saved
+settings.
 
     $ vault --delete twitter
     This will delete your "twitter" settings. Are you sure? (Y/n): Y
+
+    $ vault --delete-globals
+    This will delete your global settings. Are you sure? (Y/n): Y
 
     $ vault --clear
     This will delete ALL your settings. Are you sure? (Y/n): Y

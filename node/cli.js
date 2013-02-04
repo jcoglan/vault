@@ -4,27 +4,28 @@ var fs         = require('fs'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
 
-    OPTIONS = { 'config':   Boolean,
-                'delete':   String,
-                'clear':    Boolean,
+    OPTIONS = { 'config':         Boolean,
+                'delete':         String,
+                'delete-globals': Boolean,
+                'clear':          Boolean,
 
-                'phrase':   Boolean,
-                'key':      Boolean,
-                'length':   Number,
-                'repeat':   Number,
+                'phrase':         Boolean,
+                'key':            Boolean,
+                'length':         Number,
+                'repeat':         Number,
 
-                'lower':    Number,
-                'upper':    Number,
-                'number':   Number,
-                'space':    Number,
-                'dash':     Number,
-                'symbol':   Number,
+                'lower':          Number,
+                'upper':          Number,
+                'number':         Number,
+                'space':          Number,
+                'dash':           Number,
+                'symbol':         Number,
 
-                'export':   String,
-                'import':   String,
+                'export':         String,
+                'import':         String,
 
-                'initpath': Boolean,
-                'cmplt':    String
+                'initpath':       Boolean,
+                'cmplt':          String
               },
 
     SHORTS  = { 'c': '--config',
@@ -66,10 +67,13 @@ CLI.prototype.run = function(argv, callback, context) {
       return this.complete(params.cmplt, callback, context);
 
     this.withPhrase(params, function() {
-      if      (params.export) this.export(params.export, callback, context);
-      else if (params.import) this.import(params.import, callback, context);
+      if (params['delete-globals']) this.deleteGlobals(callback, context);
       else if (params.delete) this.delete(params.delete, callback, context);
       else if (params.clear)  this.deleteAll(callback, context);
+
+      else if (params.export) this.export(params.export, callback, context);
+      else if (params.import) this.import(params.import, callback, context);
+
       else if (params.config) this.configure(service, params, callback, context);
       else                    this.generate(service, params, callback, context);
     });
@@ -144,6 +148,16 @@ CLI.prototype.configure = function(service, params, callback, context) {
     this._store.saveService(service, settings, callback, context);
   else
     this._store.saveGlobals(settings, callback, context);
+};
+
+CLI.prototype.deleteGlobals = function(callback, context) {
+  var store = this._store;
+  this._confirmAction('This will delete your global settings. Are you sure?', function(confirm) {
+    if (confirm)
+      store.deleteGlobals(callback, context);
+    else
+      callback.call(context);
+  });
 };
 
 CLI.prototype.delete = function(service, callback, context) {

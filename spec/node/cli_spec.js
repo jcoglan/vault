@@ -230,7 +230,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes option fragments with no letters", function(resume) { with(this) {
-      expect(stdout, "write").given("--clear\n--cmplt\n--config\n--dash\n--delete\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
+      expect(stdout, "write").given("--clear\n--cmplt\n--config\n--dash\n--delete\n--delete-globals\n--export\n--import\n--initpath\n--key\n--length\n--lower\n--number\n--phrase\n--repeat\n--space\n--symbol\n--upper")
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
 
@@ -281,6 +281,14 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "-X"], function() {
         storage.serviceSettings("twitter", function(e, twitter) {
           resume(function() { assertEqual( {}, twitter ) })
+        })
+      })
+    }})
+
+    it("removes global settings", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "--delete-globals"], function() {
+        storage.serviceSettings("twitter", function(e, twitter) {
+          resume(function() { assertEqual( {lower: 1, symbol: 0}, twitter ) })
         })
       })
     }})
