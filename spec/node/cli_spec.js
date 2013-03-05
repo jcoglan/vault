@@ -233,7 +233,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("completes option fragments with no letters", function(resume) { with(this) {
       expect(stdout, "write").given( ["--add-source", "--browser", "--clear",
-                                      "--cmplt", "--config", "--dash", "--delete",
+                                      "--cmplt", "--config", "--dash",
+                                      "--delete", "--delete-globals",
                                       "--delete-source", "--export", "--import",
                                       "--initpath", "--key", "--length",
                                       "--list-sources", "--lower", "--number",
@@ -328,6 +329,14 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "-X"], function() {
         storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {}, twitter ) })
+        })
+      })
+    }})
+
+    it("removes global settings", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "--delete-globals"], function() {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
+          resume(function() { assertEqual( {lower: 1, symbol: 0}, twitter ) })
         })
       })
     }})

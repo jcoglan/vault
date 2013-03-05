@@ -18,6 +18,7 @@ var fs         = require('fs'),
 
                 'config':         Boolean,
                 'delete':         String,
+                'delete-globals': Boolean,
                 'clear':          Boolean,
 
                 'add-source':     String,
@@ -90,6 +91,7 @@ CLI.prototype.run = function(argv, callback, context) {
 
     if (params['list-sources']) return this.listSources(callback, context);
 
+    if (params['delete-globals']) return this.deleteGlobals(callback, context);
     if (params.export) return this.export(params.export, callback, context);
     if (params.import) return this.import(params.import, callback, context);
     if (params.delete) return this.delete(params.delete, callback, context);
@@ -215,6 +217,16 @@ CLI.prototype.configure = function(service, params, callback, context) {
       this._out.write('Global settings saved to "' + store + '"\n');
       callback.call(context);
     }, this);
+};
+
+CLI.prototype.deleteGlobals = function(callback, context) {
+  var store = this._store;
+  this._confirmAction('This will delete your global settings. Are you sure?', function(confirm) {
+    if (confirm)
+      store.deleteGlobals(callback, context);
+    else
+      callback.call(context);
+  });
 };
 
 CLI.prototype.delete = function(service, callback, context) {

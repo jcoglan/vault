@@ -102,6 +102,7 @@ var local = function(name) {
 
 single('saveGlobals');
 single('saveService');
+single('deleteGlobals');
 single('deleteService');
 single('clear');
 
