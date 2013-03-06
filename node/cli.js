@@ -57,7 +57,6 @@ var CLI = function(options) {
   this._store  = new LocalStore(options.config).composite();
   this._out    = options.stdout;
   this._err    = options.stderr;
-  this._tmp    = options.tmp;
   this._tty    = options.tty;
 
   this._requestPassword = options.password;
@@ -172,7 +171,7 @@ CLI.prototype.withNotes = function(service, params, callback) {
                 '# Notes for ' + service + '\n' +
                 '# Save this file and quit your editor to save your notes\n\n';
 
-    editor.edit(this._tmp, notes, function(error, text) {
+    editor.editTempfile(notes, function(error, text) {
       if (error) return callback.call(this, error);
       params.notes = /^\s*$/.test(text) ? undefined : text;
       callback.call(this);
