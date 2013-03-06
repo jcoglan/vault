@@ -169,8 +169,8 @@ CLI.prototype.withNotes = function(service, params, callback) {
 
   this._store.serviceSettings(service, false, function(error, settings) {
     var notes = (settings || {}).notes ||
-                '# Editing notes for ' + service + '\n' +
-                '# Delete these lines, save this file and quit your editor to save your notes\n\n';
+                '# Notes for ' + service + '\n' +
+                '# Save this file and quit your editor to save your notes\n\n';
 
     editor.edit(this._tmp, notes, function(error, text) {
       if (error) return callback.call(this, error);
