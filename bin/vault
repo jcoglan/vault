@@ -14,6 +14,7 @@ var CLI  = require('../node/cli'),
            process.env.USER ||
            process.env.USERNAME,
 
+    tmp  = require('path').resolve(home, '.VAULTMSG'),
     path = require('path').resolve(home, process.env.VAULT_PATH || '.vault');
 
 var version = process.versions.node.match(/(\d+)\.(\d+)\.(\d+)/), rl;
@@ -28,7 +29,9 @@ var readline = (parseInt(version[2], 10) <= 6)
 
 var cli = new CLI({
   config: {path: path, key: key},
-  output: process.stdout,
+  stdout: process.stdout,
+  stderr: process.stderr,
+  tmp:    tmp,
   tty:    tty.isatty(1),
 
   confirm: function(message, callback) {

@@ -1,6 +1,7 @@
 var fs         = require('fs'),
     path       = require('path'),
     OptParser  = require('./optparser'),
+    editor     = require('./editor'),
     Vault      = require('../lib/vault'),
     LocalStore = require('./local_store'),
 
@@ -15,6 +16,7 @@ var fs         = require('fs'),
                 'space':          Number,
                 'dash':           Number,
                 'symbol':         Number,
+                'notes':          Boolean,
 
                 'config':         Boolean,
                 'delete':         String,
@@ -42,6 +44,7 @@ var fs         = require('fs'),
                 'i': '--import',
                 'k': '--key',
                 'l': '--length',
+                'n': '--notes',
                 'p': '--phrase',
                 'r': '--repeat',
                 's': '--set-source',
@@ -52,7 +55,9 @@ var fs         = require('fs'),
 var CLI = function(options) {
   this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
   this._store  = new LocalStore(options.config).composite();
-  this._out    = options.output;
+  this._out    = options.stdout;
+  this._err    = options.stderr;
+  this._tmp    = options.tmp;
   this._tty    = options.tty;
 
   this._requestPassword = options.password;
@@ -92,10 +97,10 @@ CLI.prototype.run = function(argv, callback, context) {
     if (params['list-sources']) return this.listSources(callback, context);
 
     if (params['delete-globals']) return this.deleteGlobals(callback, context);
-    if (params.export) return this.export(params.export, callback, context);
-    if (params.import) return this.import(params.import, callback, context);
     if (params.delete) return this.delete(params.delete, callback, context);
     if (params.clear)  return this.deleteAll(callback, context);
+    if (params.export) return this.export(params.export, callback, context);
+    if (params.import) return this.import(params.import, callback, context);
 
     this.withPhrase(params, function() {
       if (params.config)
@@ -156,6 +161,25 @@ CLI.prototype.listSources = function(callback, context) {
   }, this);
 };
 
+CLI.prototype.withNotes = function(service, params, callback) {
+  if (!params.notes) return callback.call(this);
+
+  if (!service)
+    return callback.call(this, new Error('No service name given'));
+
+  this._store.serviceSettings(service, false, function(error, settings) {
+    var notes = (settings || {}).notes ||
+                '# Editing notes for ' + service + '\n' +
+                '# Delete these lines, save this file and quit your editor to save your notes\n\n';
+
+    editor.edit(this._tmp, notes, function(error, text) {
+      if (error) return callback.call(this, error);
+      params.notes = /^\s*$/.test(text) ? undefined : text;
+      callback.call(this);
+    }, this);
+  }, this);
+};
+
 CLI.prototype.withPhrase = function(params, callback) {
   var self    = this,
       message = params.config ? null : Vault.UUID;
@@ -198,25 +222,28 @@ CLI.prototype.import = function(path, callback, context) {
 };
 
 CLI.prototype.configure = function(service, params, callback, context) {
-  var settings = {};
+  this.withNotes(service, params, function(error) {
+    if (error) return callback.call(context, error);
 
-  for (var key in params) {
-    if (key !== 'config' && typeof params[key] !== 'object')
-      settings[key] = params[key];
-  }
+    var settings = {};
+    for (var key in params) {
+      if (key !== 'config' && typeof params[key] !== 'object')
+        settings[key] = params[key];
+    }
 
-  if (service)
-    this._store.saveService(service, settings, function(error, store) {
-      if (error) return callback.call(context, error);
-      this._out.write('Settings for service "' + service + '" saved to "' + store + '"\n');
-      callback.call(context);
-    }, this);
-  else
-    this._store.saveGlobals(settings, function(error, store) {
-      if (error) return callback.call(context, error);
-      this._out.write('Global settings saved to "' + store + '"\n');
-      callback.call(context);
-    }, this);
+    if (service)
+      this._store.saveService(service, settings, function(error, store) {
+        if (error) return callback.call(context, error);
+        this._out.write('Settings for service "' + service + '" saved to "' + store + '"\n');
+        callback.call(context);
+      }, this);
+    else
+      this._store.saveGlobals(settings, function(error, store) {
+        if (error) return callback.call(context, error);
+        this._out.write('Global settings saved to "' + store + '"\n');
+        callback.call(context);
+      }, this);
+  });
 };
 
 CLI.prototype.deleteGlobals = function(callback, context) {
@@ -271,6 +298,9 @@ CLI.prototype.generate = function(service, params, callback, context) {
 
       this._out.write(password);
       if (this._tty) this._out.write('\n');
+
+      if (settings.notes !== undefined)
+        this._err.write('\n' + settings.notes.replace(/^\s*|\s*$/g, '') + '\n\n');
 
       callback.call(context, null);
     };

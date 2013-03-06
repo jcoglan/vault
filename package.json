@@ -10,7 +10,9 @@
 , "bin"             : {"vault": "./bin/vault"}
 , "preferGlobal"    : true
 
-, "dependencies"    : { "posix-argv-parser": "~0.4.2"
+, "dependencies"    : { "async": "~0.2.0"
+                      , "mkdirp": "~0.3.0"
+                      , "posix-argv-parser": "~0.4.2"
                       , "pw": "~0.0.4"
                       , "remotestorage-oauth": "~0.1.0"
                       , "ssh-agent": "~0.2.1"

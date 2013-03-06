@@ -1,5 +1,6 @@
 var fs         = require('fs'),
     path       = require('path'),
+    editor     = require('../../node/editor'),
     LocalStore = require('../../node/local_store'),
     CLI        = require('../../node/cli')
 
@@ -8,11 +9,13 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     this.configPath = path.resolve(__dirname + "/.vault")
     this.exportPath = path.resolve(__dirname + "/export.json")
     this.stdout     = {write: function() {}}
+    this.stderr     = {write: function() {}}
     this.passphrase = "something"
 
     this.cli = new CLI({
       config: {path: configPath, key: "the key"},
-      output: this.stdout,
+      stdout: this.stdout,
+      stderr: this.stderr,
       tty:    false,
 
       confirm: function(message, callback) {
@@ -158,6 +161,24 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       })})})})
     }})
 
+    it("saves some notes for a service", function(resume) { with(this) {
+      stub(editor, "edit").yields([null, "Saved notes!"])
+      cli.run(["node", "bin/vault", "-c", "--notes", "google"], function() {
+        storage.serviceSettings("google", true, function(e, google) {
+          resume(function() {
+            assertEqual( {notes: "Saved notes!"}, google )
+      })})})
+    }})
+
+    it("deletes the notes for a service", function(resume) { with(this) {
+      stub(editor, "edit").yields([null, " \n\r\t\t \n\r\n "])
+      cli.run(["node", "bin/vault", "-c", "--notes", "google"], function() {
+        storage.serviceSettings("google", true, function(e, google) {
+          resume(function() {
+            assertEqual( {}, google )
+      })})})
+    }})
+
     it("exports the default settings", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-e", exportPath], function() {
         resume(function() {
@@ -183,7 +204,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         config.global = {lower: 0, phrase: "saved passphrase"}
 
         config.services.twitter = {lower: 1, symbol: 0}
-        config.services.nothing = {}
+        config.services.nothing = {notes: "\nSome notes!\n===========\n\n\n\n"}
         config.services.facebook=  {key: "AAAAPUBLICKEY"}
 
         storage.dump(config, resume)
@@ -237,10 +258,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                                       "--delete", "--delete-globals",
                                       "--delete-source", "--export", "--import",
                                       "--initpath", "--key", "--length",
-                                      "--list-sources", "--lower", "--number",
-                                      "--phrase", "--repeat", "--set-source",
-                                      "--space", "--symbol", "--text-browser",
-                                      "--upper"].join("\n") )
+                                      "--list-sources", "--lower", "--notes",
+                                      "--number", "--phrase", "--repeat",
+                                      "--set-source", "--space", "--symbol",
+                                      "--text-browser", "--upper"].join("\n") )
 
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
@@ -278,6 +299,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
       expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fxY<mO")
       cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
+    }})
+
+    it("outputs a password on stdout and the notes on stderr", function(resume) { with(this) {
+      expect(stdout, "write").given("1$5QC<'<?[FWE~&'P(]U")
+      expect(stderr, "write").given("\nSome notes!\n===========\n\n")
+      cli.run(["node", "bin/vault", "nothing"], function() { resume() })
     }})
 
     describe("source-managing methods", function() { with(this) {
@@ -374,8 +401,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           assertEqual( {
             global: {lower: 0, phrase: "saved passphrase" },
             services: {
-              nothing: {},
               facebook: {key: "AAAAPUBLICKEY"},
+              nothing: {notes: "\nSome notes!\n===========\n\n\n\n"},
               twitter: {lower: 1, symbol: 0}
             }
           }, json)

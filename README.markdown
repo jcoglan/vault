@@ -26,11 +26,11 @@ strong.
 
 ## Installation
 
-This program is written in JavaScript and is available as a Node program:
+This program is written in JavaScript and is available as a Node package:
 
     npm install -g vault
 
-To enable tab-completion for bash, add this to your .bashrc scripts:
+To enable tab-completion for bashr or zsh, add this to your shell profile:
 
     which vault > /dev/null && . "$( vault --initpath )"
 
@@ -183,6 +183,27 @@ use your current installation to export the settings, upgrade, then import.
     $ vault --export settings.json
     $ npm install -g vault
     $ vault --import settings.json
+
+
+## Notes
+
+You can save notes for any of the services you use. Notes are stored in the
+service's settings, but are not used for generating passwords. To edit the notes
+for a service, use `--config` with `--notes` or `-n`:
+
+    $ vault -c -n google
+
+This opens your `$EDITOR` where you can edit the notes. When you save the file
+and close the editor, the updated notes will be saved into your `.vault` file.
+
+When you ask for the password for a service, Vault will print any notes you have
+saved for it. It prints the password to stdout and the notes to stderr, so you
+can pipe the password to the clipboard if you like and still the notes printed
+in your terminal.
+
+    $ vault google | pbcopy
+
+    The notes will appear here. The password is saved to the clipboard.
 
 
 ## Deleting saved settings
