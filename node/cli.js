@@ -34,13 +34,15 @@ var fs         = require('fs'),
                 'import':         String,
 
                 'initpath':       Boolean,
-                'cmplt':          String
+                'cmplt':          String,
+                'help':           Boolean
               },
 
     SHORTS  = { 'a': '--add-source',
                 'c': '--config',
                 'd': '--delete-source',
                 'e': '--export',
+                'h': '--help',
                 'i': '--import',
                 'k': '--key',
                 'l': '--length',
@@ -69,8 +71,14 @@ CLI.prototype.run = function(argv, callback, context) {
   this._parser.parse(argv, function(error, params) {
     if (error) return callback.call(context, error);
 
-    var service = params.service;
+    var service = params.service, self = this;
     delete params.service;
+
+    if (params.help)
+      return fs.readFile(__dirname + '/usage.txt', function(error, content) {
+        self._out.write(content);
+        callback.call(context);
+      });
 
     if (params.initpath) {
       this._out.write(path.resolve(__dirname + '/scripts/init'));

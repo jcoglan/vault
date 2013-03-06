@@ -1,0 +1,37 @@
+Usage: vault [OPTIONS] [SERVICE]
+
+Password generation:
+  -p, --phrase                  prompt the user for the passphrase
+  -k, --key                     use SHH private key to generate passwords
+  -l, --length NUMBER           emit password of length NUMBER
+  -r, --repeat NUMBER           allow maximum of NUMBER repeated adjacent chars
+      --lower NUMBER            include at least NUMBER lowercase letters
+      --upper NUMBER            include at least NUMBER uppercase letters
+      --number NUMBER           include at least NUMBER digits
+      --space NUMBER            include at least NUMBER spaces
+      --dash NUMBER             include at least NUMBER of "-" or "_"
+      --symbol NUMBER           include at least NUMBER symbol chars
+
+Configuration:
+  -n, --notes                   open $EDITOR to edit notes for SERVICE
+  -c, --config                  save the given settings for SERVICE or global
+  -x, --delete NAME             delete settings for SERVICE
+      --delete-globals          delete the global shared settings
+  -X, --clear                   delete all settings
+
+Storage management:
+  -a, --add-source SOURCE       attempt to connect RemoteStorage SOURCE
+  -d, --delete-source SOURCE    delete connection to SOURCE
+  -s, --set-source SOURCE       set current active source
+      --list-sources            list all connected sources
+      --browser BROWSER         launch BROWSER to go through auth process
+      --text-browser BROWSER    use terminal-based BROWSER for the auth process
+  -e, --export PATH             export all saved settings into file PATH
+  -i, --import PATH             import saved settings from file PATH
+
+Environment variables:
+  VAULT_KEY                     encryption key for settings file
+  VAULT_PATH                    path to settings file, default is $HOME/.vault
+
+Full documentation is available at http://github.com/jcoglan/vault
+

@@ -256,12 +256,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       expect(stdout, "write").given( ["--add-source", "--browser", "--clear",
                                       "--cmplt", "--config", "--dash",
                                       "--delete", "--delete-globals",
-                                      "--delete-source", "--export", "--import",
-                                      "--initpath", "--key", "--length",
-                                      "--list-sources", "--lower", "--notes",
-                                      "--number", "--phrase", "--repeat",
-                                      "--set-source", "--space", "--symbol",
-                                      "--text-browser", "--upper"].join("\n") )
+                                      "--delete-source", "--export", "--help",
+                                      "--import", "--initpath", "--key",
+                                      "--length", "--list-sources", "--lower",
+                                      "--notes", "--number", "--phrase",
+                                      "--repeat", "--set-source", "--space",
+                                      "--symbol", "--text-browser", "--upper"].join("\n") )
 
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
