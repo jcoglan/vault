@@ -2,7 +2,7 @@ Usage: vault [OPTIONS] [SERVICE]
 
 Password generation:
   -p, --phrase                  prompt the user for the passphrase
-  -k, --key                     use SHH private key to generate passwords
+  -k, --key                     use SSH private key to generate passwords
   -l, --length NUMBER           emit password of length NUMBER
   -r, --repeat NUMBER           allow maximum of NUMBER repeated adjacent chars
       --lower NUMBER            include at least NUMBER lowercase letters

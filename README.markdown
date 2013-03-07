@@ -85,9 +85,9 @@ of times the same character can appear in a row.
     $ vault google -p -r 2
 
 
-## Using your private key
+## Using your SSH private key
 
-Instead of a simple passphrase, `vault` can use a value signed using your
+Instead of a simple passphrase, `vault` can use a value signed using your SSH
 private key as its input. Use the `--key` or `-k` option:
 
     $ vault twitter -k
