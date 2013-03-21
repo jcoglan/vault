@@ -23,6 +23,7 @@ var fs         = require('fs'),
                 'delete-globals': Boolean,
                 'clear':          Boolean,
 
+                'source':         String,
                 'add-source':     String,
                 'delete-source':  String,
                 'set-source':     String,
@@ -49,7 +50,8 @@ var fs         = require('fs'),
                 'n': '--notes',
                 'p': '--phrase',
                 'r': '--repeat',
-                's': '--set-source',
+                's': '--source',
+                'S': '--set-source',
                 'x': '--delete',
                 'X': '--clear'
               };
@@ -99,9 +101,12 @@ CLI.prototype.run = function(argv, callback, context) {
     if (source = params['delete-source'])
       return this._store.deleteSource(source, callback, context);
     if (source = params['set-source'])
-      return this._store.setSource(source, callback, context);
+      return this._store.setDefaultSource(source, callback, context);
 
     if (params['list-sources']) return this.listSources(callback, context);
+
+    if (source = params.source) this._store.setSource(source);
+    delete params.source;
 
     if (params['delete-globals']) return this.deleteGlobals(callback, context);
     if (params.delete) return this.delete(params.delete, callback, context);
@@ -110,10 +115,12 @@ CLI.prototype.run = function(argv, callback, context) {
     if (params.import) return this.import(params.import, callback, context);
 
     this.withPhrase(params, function() {
-      if (params.config)
+      if (params.config) {
+        delete params.config;
         this.configure(service, params, callback, context);
-      else
+      } else {
         this.generate(service, params, callback, context);
+      }
     });
   }, this);
 };
@@ -174,22 +181,25 @@ CLI.prototype.withNotes = function(service, params, callback) {
   if (!service)
     return callback.call(this, new Error('No service name given'));
 
-  this._store.serviceSettings(service, false, function(error, settings) {
-    var notes = (settings || {}).notes ||
-                '# Notes for ' + service + '\n' +
-                '# Save this file and quit your editor to save your notes\n\n';
+  this._store.currentStore(function(error, store) {
+    if (error) return callback.call(this, error);
 
-    editor.editTempfile(notes, function(error, text) {
-      if (error) return callback.call(this, error);
-      params.notes = /^\s*$/.test(text) ? undefined : text;
-      callback.call(this);
+    store.serviceSettings(service, false, function(error, settings) {
+      var notes = (settings || {}).notes ||
+                  '# Notes for "' + service + '" in "' + store.getName() + '"\n' +
+                  '# Save this file and quit your editor to save your notes\n';
+
+      editor.editTempfile(notes, function(error, text) {
+        if (error) return callback.call(this, error);
+        params.notes = /^\s*$/.test(text) ? undefined : text;
+        callback.call(this);
+      }, this);
     }, this);
   }, this);
 };
 
 CLI.prototype.withPhrase = function(params, callback) {
-  var self    = this,
-      message = params.config ? null : Vault.UUID;
+  var self = this;
 
   params.input = {key: !!params.key, phrase: !!params.phrase};
 
@@ -234,8 +244,7 @@ CLI.prototype.configure = function(service, params, callback, context) {
 
     var settings = {};
     for (var key in params) {
-      if (key !== 'config' && typeof params[key] !== 'object')
-        settings[key] = params[key];
+      if (typeof params[key] !== 'object') settings[key] = params[key];
     }
 
     if (service)

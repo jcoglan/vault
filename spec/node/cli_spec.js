@@ -5,7 +5,11 @@ var fs         = require('fs'),
     CLI        = require('../../node/cli')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
+  define("createStubs", function() {})
+
   before(function() { with(this) {
+    createStubs()
+
     this.configPath = path.resolve(__dirname + "/.vault")
     this.exportPath = path.resolve(__dirname + "/export.json")
     this.stdout     = {write: function() {}}
@@ -203,9 +207,9 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       storage.load(function(error, config) {
         config.global = {lower: 0, phrase: "saved passphrase"}
 
-        config.services.twitter = {lower: 1, symbol: 0}
-        config.services.nothing = {notes: "\nSome notes!\n===========\n\n\n\n"}
-        config.services.facebook=  {key: "AAAAPUBLICKEY"}
+        config.services.twitter  = {lower: 1, symbol: 0}
+        config.services.nothing  = {notes: "\nSome notes!\n===========\n\n\n\n"}
+        config.services.facebook = {key: "AAAAPUBLICKEY"}
 
         storage.dump(config, resume)
       })
@@ -260,8 +264,9 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                                       "--import", "--initpath", "--key",
                                       "--length", "--list-sources", "--lower",
                                       "--notes", "--number", "--phrase",
-                                      "--repeat", "--set-source", "--space",
-                                      "--symbol", "--text-browser", "--upper"].join("\n") )
+                                      "--repeat", "--set-source", "--source",
+                                      "--space", "--symbol", "--text-browser",
+                                      "--upper"].join("\n") )
 
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
@@ -329,7 +334,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
       }})
 
-      it("lets you change the current source", function(resume) { with(this) {
+      it("lets you change the default source", function(resume) { with(this) {
         expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "* me@local.dev", ""].join("\n") )
         cli.run(["node", "bin/vault", "--set-source", "me@local.dev"], function() {
           cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })

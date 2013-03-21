@@ -20,10 +20,11 @@ Configuration:
   -X, --clear                   delete all settings
 
 Storage management:
+      --list-sources            list all connected sources
   -a, --add-source SOURCE       attempt to connect RemoteStorage SOURCE
   -d, --delete-source SOURCE    delete connection to SOURCE
-  -s, --set-source SOURCE       set current active source
-      --list-sources            list all connected sources
+  -s, --source SOURCE           set active source for the present command
+  -S, --set-source SOURCE       set default active source
       --browser BROWSER         launch BROWSER to go through auth process
       --text-browser BROWSER    use terminal-based BROWSER for the auth process
   -e, --export PATH             export all saved settings into file PATH

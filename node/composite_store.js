@@ -2,6 +2,15 @@ var CompositeStore = function(local) {
   this._local = local;
 };
 
+CompositeStore.prototype.setSource = function(source) {
+  this._source = source;
+  this._local.setSource(source);
+};
+
+CompositeStore.prototype.currentStore = function(callback, context) {
+  this._local.currentStore(callback, context);
+};
+
 var single = function(name) {
   CompositeStore.prototype[name] = function() {
     var args     = Array.prototype.slice.call(arguments),
@@ -32,7 +41,7 @@ var resolveConcat = function(results, callback, context) {
 
 var resolveChoice = function(results, backends, current, name, params, callback, context) {
   var candidates = Object.keys(results);
-      selected   = candidates.length === 1 ? candidates[0] : current,
+      selected   = (candidates.length === 1) ? candidates[0] : current,
       method     = backends[selected][name];
 
   params.push(function(error, result) {
@@ -48,6 +57,12 @@ var multi = function(name, concat) {
         params   = args.slice(0, arity - 2),
         callback = args[arity - 2],
         context  = args[arity - 1];
+
+    if (this._source)
+      return this._local.getStore(this._source, function(error, store) {
+        if (error) return callback.call(context, error);
+        store[name].apply(store, args);
+      });
 
     this._local.listSources(function(error, stores, current) {
       if (error) return callback.call(context, error);
@@ -111,7 +126,7 @@ multi('serviceSettings', false);
 
 local('addSource');
 local('deleteSource');
-local('setSource');
+local('setDefaultSource');
 local('listSources');
 
 // TODO

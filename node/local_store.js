@@ -15,6 +15,10 @@ LocalStore.prototype.getName = function() {
   return LocalStore.LOCAL;
 };
 
+LocalStore.prototype.setSource = function(source) {
+  this._source = source;
+};
+
 LocalStore.prototype.clear = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
@@ -60,7 +64,7 @@ LocalStore.prototype.deleteSource = function(address, callback, context) {
   }, this);
 };
 
-LocalStore.prototype.setSource = function(address, callback, context) {
+LocalStore.prototype.setDefaultSource = function(address, callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
 
@@ -81,11 +85,11 @@ LocalStore.prototype.listSources = function(callback, context) {
         sourceNames = Object.keys(sources)
                         .filter(function(s) { return !/^__[a-z]+__$/.test(s) });
 
-    var current = sources.__current__;
+    var current = this._source || sources.__current__;
     if (!current || !sources[current]) current = LocalStore.LOCAL;
 
     callback.call(context, null, sourceNames.concat(LocalStore.LOCAL), current);
-  });
+  }, this);
 };
 
 LocalStore.prototype.getStore = function(source, callback, context) {
@@ -104,7 +108,7 @@ LocalStore.prototype.currentStore = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
 
-    var current = (config.sources || {}).__current__;
+    var current = this._source || (config.sources || {}).__current__;
     this.getStore(current, callback, context);
   }, this);
 };
