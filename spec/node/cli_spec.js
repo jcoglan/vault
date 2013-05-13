@@ -16,6 +16,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     this.stdout     = {write: function() {}}
     this.stderr     = {write: function() {}}
     this.passphrase = "something"
+    this.confirm    = true
 
     this.cli = new CLI({
       config: {path: configPath, key: "the key"},
@@ -24,7 +25,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       tty:    false,
 
       confirm: function(message, callback) {
-        callback(true)
+        callback(confirm)
       },
 
       password: function(callback) {
@@ -359,6 +360,18 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
             cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
           })
+        }})
+
+        describe("when the user chooses not to make the source the default", function() { with(this) {
+          before(function() { this.confirm = false })
+
+          it("makes the new source the default", function(resume) { with(this) {
+            expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
+            expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", "  person@example.com", ""].join("\n") )
+            cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
+              cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+            })
+          }})
         }})
       }})
 
