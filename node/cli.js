@@ -154,7 +154,7 @@ CLI.prototype.addSource = function(source, options, callback, context) {
 
     this._confirmAction('Do you want to set "' + source + '" as your default source?', function(confirm) {
       if (confirm)
-        self._store.setSource(source, callback, context);
+        self._store.setDefaultSource(source, callback, context);
       else
         callback.call(context, null);
     });
