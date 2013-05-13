@@ -1,8 +1,9 @@
-var fs         = require('fs'),
-    path       = require('path'),
-    editor     = require('../../node/editor'),
-    LocalStore = require('../../node/local_store'),
-    CLI        = require('../../node/cli')
+var fs          = require('fs'),
+    path        = require('path'),
+    editor      = require('../../node/editor'),
+    LocalStore  = require('../../node/local_store'),
+    RemoteStore = require('../../lib/remote_store'),
+    CLI         = require('../../node/cli')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   define("createStubs", function() {})
@@ -42,7 +43,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       }
     })
 
-    this.storage = new LocalStore({path: configPath, key: "the key"})
+    this.storage = new LocalStore({path: configPath, key: "the key", cache: false})
   }})
 
   after(function() { with(this) {
@@ -314,14 +315,100 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     describe("source-managing methods", function() { with(this) {
       before(function(resume) { with(this) {
-        var RS = require("../../lib/remote_store")
-        stub(RS.prototype, "listServices").yielding([null, []])
+        stub(RemoteStore.prototype, "listServices").yielding([null, []])
 
         storage.load(function(error, config) {
           config.sources["me@local.dev"] = {}
           config.sources["jcoglan@5apps.com"] = {}
           storage.dump(config, resume)
         })
+      }})
+
+      describe("adding a valid source", function() { with(this) {
+        before(function() { with(this) {
+          stub(RemoteStore.prototype, "connect").yielding([null, {
+            oauth:   "https://example.com/auth/person",
+            storage: "https://example.com/store/person",
+            version: "draft.00",
+            token:   "HsLEuMkjrkDBluj5jSy0doPx/b8="
+          }])
+        }})
+
+        it("adds the source to the local store", function(resume) { with(this) {
+          expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
+          cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
+            storage.load(function(error, config) {
+              resume(function() {
+                assertEqual({
+                  type:    "remotestorage",
+                  version: "draft.00",
+                  oauth:   "https://example.com/auth/person",
+                  storage: "https://example.com/store/person",
+                  token:   "HsLEuMkjrkDBluj5jSy0doPx/b8=",
+                  browser: null,
+                  inline:  false
+                }, config.sources["person@example.com"])
+              })
+            })
+          })
+        }})
+
+        it("makes the new source the default", function(resume) { with(this) {
+          expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
+          expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "  me@local.dev", "* person@example.com", ""].join("\n") )
+          cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
+            cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+          })
+        }})
+      }})
+
+      describe("adding a valid source with an inline browser", function() { with(this) {
+        before(function() { with(this) {
+          stub(RemoteStore.prototype, "connect").yielding([null, {
+            oauth:   "https://example.com/auth/person",
+            storage: "https://example.com/store/person",
+            version: "draft.00",
+            token:   "HsLEuMkjrkDBluj5jSy0doPx/b8="
+          }])
+        }})
+
+        it("adds the source to the local store", function(resume) { with(this) {
+          expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
+          cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
+            storage.load(function(error, config) {
+              resume(function() {
+                assertEqual({
+                  type:    "remotestorage",
+                  version: "draft.00",
+                  oauth:   "https://example.com/auth/person",
+                  storage: "https://example.com/store/person",
+                  token:   "HsLEuMkjrkDBluj5jSy0doPx/b8=",
+                  browser: "elinks",
+                  inline:  true
+                }, config.sources["person@example.com"])
+              })
+            })
+          })
+        }})
+      }})
+
+      describe("adding an invalid source", function() { with(this) {
+        before(function() { with(this) {
+          stub(RemoteStore.prototype, "connect").yielding([
+            {message: "Could not find remoteStorage endpoints for person@example.com"}
+          ])
+        }})
+
+        it("does not add the source to the local store", function(resume) { with(this) {
+          cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function(error) {
+            storage.load(function(err, config) {
+              resume(function() {
+                assertEqual( "Could not find remoteStorage endpoints for person@example.com", error.message )
+                assertEqual( undefined, config.sources["person@example.com"] )
+              })
+            })
+          })
+        }})
       }})
 
       it("completes source addresses", function(resume) { with(this) {

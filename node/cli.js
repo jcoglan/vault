@@ -91,7 +91,7 @@ CLI.prototype.run = function(argv, callback, context) {
       return this.complete(params.cmplt, callback, context);
 
     var opts = {
-          browser: params.browser || params['text-browser'],
+          browser: params.browser || params['text-browser'] || null,
           inline:  params['text-browser'] !== undefined
         },
         source;

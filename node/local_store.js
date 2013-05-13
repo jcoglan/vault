@@ -7,6 +7,7 @@ var fs             = require('fs'),
 var LocalStore = function(options) {
   this._path   = options.path;
   this._cipher = new Cipher(options.key, {format: 'base64', work: 100, salt: Vault.UUID});
+  this._cache  = options.cache !== false;
 };
 
 LocalStore.LOCAL = 'local';
@@ -188,7 +189,8 @@ LocalStore.prototype.serviceSettings = function(service, includeGlobal, callback
 };
 
 LocalStore.prototype.load = function(callback, context) {
-  if (this._configCache) return callback.call(context, null, this._configCache);
+  if (this._cache && this._configCache)
+    return callback.call(context, null, this._configCache);
 
   var self = this;
   fs.readFile(this._path, function(error, content) {
