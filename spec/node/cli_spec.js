@@ -95,16 +95,14 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "No passphrase given; pass `-p` or run `vault -cp`", e.message )
-        })
-      })
+      })})
     }})
 
     it("reports an error if no service given", function(resume) { with(this) {
       cli.run(["node", "bin/vault"], function(e) {
         resume(function() {
           assertEqual( "No service name given", e.message )
-        })
-      })
+      })})
     }})
 
     it("saves a global passphrase", function(resume) { with(this) {
@@ -190,8 +188,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         resume(function() {
           var json = JSON.parse(fs.readFileSync(exportPath))
           assertEqual( {global: {}, services: {}}, json )
-        })
-      })
+      })})
     }})
 
     it("imports a saved settings file", function(resume) { with(this) {
@@ -199,8 +196,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "-i", exportPath], function() {
         storage.serviceSettings("google", true, function(e, google) {
           resume(function() { assertEqual( {length: 8}, google ) })
-        })
-      })
+      })})
     }})
   }})
 
@@ -222,8 +218,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
-        })
-      })
+      })})
     }})
 
     it("reports an error if the file has been tampered", function(resume) { with(this) {
@@ -231,8 +226,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
-        })
-      })
+      })})
     }})
 
     it("reports an error if the file has a zero-length payload", function(resume) { with(this) {
@@ -240,8 +234,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
-        })
-      })
+      })})
     }})
 
     it("reports an error if the file is too short", function(resume) { with(this) {
@@ -249,8 +242,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
-        })
-      })
+      })})
     }})
 
     it("completes option fragments", function(resume) { with(this) {
@@ -349,9 +341,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                   browser: null,
                   inline:  false
                 }, config.sources["person@example.com"])
-              })
-            })
-          })
+          })})})
         }})
 
         it("makes the new source the default", function(resume) { with(this) {
@@ -399,9 +389,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                   browser: "elinks",
                   inline:  true
                 }, config.sources["person@example.com"])
-              })
-            })
-          })
+          })})})
         }})
       }})
 
@@ -418,9 +406,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
               resume(function() {
                 assertEqual( "Could not find remoteStorage endpoints for person@example.com", error.message )
                 assertEqual( undefined, config.sources["person@example.com"] )
-              })
-            })
-          })
+          })})})
         }})
       }})
 
@@ -453,40 +439,35 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault"], function(e) {
         resume(function() {
           assertEqual( "No service name given", e.message )
-        })
-      })
+      })})
     }})
 
     it("removes all saved services", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-X"], function() {
         storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {}, twitter ) })
-        })
-      })
+      })})
     }})
 
     it("removes global settings", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "--delete-globals"], function() {
         storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {lower: 1, symbol: 0}, twitter ) })
-        })
-      })
+      })})
     }})
 
     it("removes a saved service", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-x", "twitter"], function() {
         storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {lower: 0, phrase: "saved passphrase"}, twitter ) })
-        })
-      })
+      })})
     }})
 
     it("changes a saved service setting", function(resume) { with(this) {
       cli.run(["node", "bin/vault", "-c", "twitter", "--lower", "8"], function() {
         storage.serviceSettings("twitter", true, function(e, twitter) {
           resume(function() { assertEqual( {lower: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
-        })
-      })
+      })})
     }})
 
     it("changes a saved global setting", function(resume) { with(this) {
