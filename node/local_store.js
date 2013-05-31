@@ -24,9 +24,11 @@ LocalStore.prototype.clear = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
 
-    fs.unlink(this._path, function() {
-      callback.apply(context, arguments);
-    });
+    delete this._configCache;
+    config.global = {};
+    config.services = {};
+
+    this.dump(config, callback, context);
   }, this);
 };
 

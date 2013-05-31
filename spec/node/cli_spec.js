@@ -375,8 +375,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     describe("source-managing methods", function() { with(this) {
       before(function(resume) { with(this) {
-        this._5apps = {}
-        this._local = {}
+        this._5apps   = {}
+        this._local   = {}
+        this._example = {}
+
         stub(RemoteStorage.prototype, "connect").given("jcoglan@5apps.com", {}).returns(_5apps)
         stub(RemoteStorage.prototype, "connect").given("me@local.dev", {}).returns(_local)
 
@@ -389,7 +391,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding a valid source", function() { with(this) {
         before(function() { with(this) {
-          this._example = {}
           stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false}).returns(_example)
 
           stub(_example, "authorize").yielding([null, {
@@ -440,7 +441,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding a valid source with an inline browser", function() { with(this) {
         before(function() { with(this) {
-          this._example = {}
           stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: "elinks", inline: true}).returns(_example)
 
           stub(_example, "authorize").yielding([null, {
@@ -471,7 +471,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding an invalid source", function() { with(this) {
         before(function() { with(this) {
-          this._example = {}
           stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false}).returns(_example)
 
           stub(_example, "authorize").yielding([
@@ -486,6 +485,17 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                 assertEqual( "Could not find remoteStorage endpoints for person@example.com", error.message )
                 assertEqual( undefined, config.sources["person@example.com"] )
           })})})
+        }})
+      }})
+
+      describe("clearing the settings", function() { with(this) {
+        before(function(resume) { with(this) {
+          cli.run(["node", "bin/vault", "-X"], resume)
+        }})
+
+        it("does not delete the saved sources", function(resume) { with(this) {
+          expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
+          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
         }})
       }})
 
