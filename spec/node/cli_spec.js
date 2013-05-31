@@ -499,6 +499,19 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         }})
       }})
 
+      describe("importing a settings file", function() { with(this) {
+        before(function(resume) { with(this) {
+          cli.run(["node", "bin/vault", "-e", exportPath], function() {
+            cli.run(["node", "bin/vault", "-i", exportPath], resume)
+          })
+        }})
+
+        it("does not delete the saved sources", function(resume) { with(this) {
+          expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
+          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+        }})
+      }})
+
       it("completes source addresses", function(resume) { with(this) {
         stub(_5apps, "get").given("/vault/services/").yields([null, {content: "{}"}])
         stub(_local, "get").given("/vault/services/").yields([null, {content: "{}"}])

@@ -24,7 +24,6 @@ LocalStore.prototype.clear = function(callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
 
-    delete this._configCache;
     config.global = {};
     config.services = {};
 
@@ -217,15 +216,21 @@ LocalStore.prototype.load = function(callback, context) {
 
 LocalStore.prototype.dump = function(config, callback, context) {
   config = sort(config);
-  this.import(config, callback, context);
-};
-
-LocalStore.prototype.import = function(config, callback, context) {
   var json = JSON.stringify(config, true, 2);
+
   this._cipher.encrypt(json, function(error, ciphertext) {
     fs.writeFile(this._path, ciphertext, function() {
       if (callback) callback.apply(context, arguments);
     });
+  }, this);
+};
+
+LocalStore.prototype.import = function(settings, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+    Vault.extend(config.global, settings.global);
+    Vault.extend(config.services, settings.services);
+    this.dump(config, callback, context);
   }, this);
 };
 
