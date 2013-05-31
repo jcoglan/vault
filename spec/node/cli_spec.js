@@ -306,6 +306,73 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli.run(["node", "bin/vault", "nothing"], function() { resume() })
     }})
 
+    it("reports an error if no service given", function(resume) { with(this) {
+      cli.run(["node", "bin/vault"], function(e) {
+        resume(function() {
+          assertEqual( "No service name given", e.message )
+      })})
+    }})
+
+    it("removes all saved services", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-X"], function() {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
+          resume(function() { assertEqual( {}, twitter ) })
+      })})
+    }})
+
+    it("removes global settings", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "--delete-globals"], function() {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
+          resume(function() { assertEqual( {lower: 1, symbol: 0}, twitter ) })
+      })})
+    }})
+
+    it("removes a saved service", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-x", "twitter"], function() {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
+          resume(function() { assertEqual( {lower: 0, phrase: "saved passphrase"}, twitter ) })
+      })})
+    }})
+
+    it("changes a saved service setting", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-c", "twitter", "--lower", "8"], function() {
+        storage.serviceSettings("twitter", true, function(e, twitter) {
+          resume(function() { assertEqual( {lower: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
+      })})
+    }})
+
+    it("changes a saved global setting", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-c", "--lower", "8"], function() {
+        storage.serviceSettings("google", true, function(e, google) {
+          storage.serviceSettings("twitter", true, function(e, twitter) {
+            resume(function() {
+              assertEqual( {lower: 8, phrase: "saved passphrase"}, google )
+              assertEqual( {lower: 1, symbol: 0, phrase: "saved passphrase"}, twitter )
+      })})})})
+    }})
+
+    it("exports the saved settings in plaintext", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-e", exportPath], function() {
+        resume(function() {
+          var json = JSON.parse(fs.readFileSync(exportPath))
+          assertEqual( {
+            global: {lower: 0, phrase: "saved passphrase" },
+            services: {
+              facebook: {key: "AAAAPUBLICKEY"},
+              nothing: {notes: "\nSome notes!\n===========\n\n\n\n"},
+              twitter: {lower: 1, symbol: 0}
+            }
+          }, json)
+        })
+      })
+    }})
+
+    it("throws an error when importing a missing file", function(resume) { with(this) {
+      cli.run(["node", "bin/vault", "-i", __dirname + "/nosuch"], function(error) {
+        resume(function() { assert(error) })
+      })
+    }})
+
     describe("source-managing methods", function() { with(this) {
       before(function(resume) { with(this) {
         this._5apps = {}
@@ -447,73 +514,6 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
         })
       }})
-    }})
-
-    it("reports an error if no service given", function(resume) { with(this) {
-      cli.run(["node", "bin/vault"], function(e) {
-        resume(function() {
-          assertEqual( "No service name given", e.message )
-      })})
-    }})
-
-    it("removes all saved services", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-X"], function() {
-        storage.serviceSettings("twitter", true, function(e, twitter) {
-          resume(function() { assertEqual( {}, twitter ) })
-      })})
-    }})
-
-    it("removes global settings", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "--delete-globals"], function() {
-        storage.serviceSettings("twitter", true, function(e, twitter) {
-          resume(function() { assertEqual( {lower: 1, symbol: 0}, twitter ) })
-      })})
-    }})
-
-    it("removes a saved service", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-x", "twitter"], function() {
-        storage.serviceSettings("twitter", true, function(e, twitter) {
-          resume(function() { assertEqual( {lower: 0, phrase: "saved passphrase"}, twitter ) })
-      })})
-    }})
-
-    it("changes a saved service setting", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-c", "twitter", "--lower", "8"], function() {
-        storage.serviceSettings("twitter", true, function(e, twitter) {
-          resume(function() { assertEqual( {lower: 8, symbol: 0, phrase: "saved passphrase"}, twitter ) })
-      })})
-    }})
-
-    it("changes a saved global setting", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-c", "--lower", "8"], function() {
-        storage.serviceSettings("google", true, function(e, google) {
-          storage.serviceSettings("twitter", true, function(e, twitter) {
-            resume(function() {
-              assertEqual( {lower: 8, phrase: "saved passphrase"}, google )
-              assertEqual( {lower: 1, symbol: 0, phrase: "saved passphrase"}, twitter )
-      })})})})
-    }})
-
-    it("exports the saved settings in plaintext", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-e", exportPath], function() {
-        resume(function() {
-          var json = JSON.parse(fs.readFileSync(exportPath))
-          assertEqual( {
-            global: {lower: 0, phrase: "saved passphrase" },
-            services: {
-              facebook: {key: "AAAAPUBLICKEY"},
-              nothing: {notes: "\nSome notes!\n===========\n\n\n\n"},
-              twitter: {lower: 1, symbol: 0}
-            }
-          }, json)
-        })
-      })
-    }})
-
-    it("throws an error when importing a missing file", function(resume) { with(this) {
-      cli.run(["node", "bin/vault", "-i", __dirname + "/nosuch"], function(error) {
-        resume(function() { assert(error) })
-      })
     }})
   }})
 }})
