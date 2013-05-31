@@ -1,9 +1,9 @@
-var fs          = require('fs'),
-    path        = require('path'),
-    editor      = require('../../node/editor'),
-    LocalStore  = require('../../node/local_store'),
-    RemoteStore = require('../../lib/remote_store'),
-    CLI         = require('../../node/cli')
+var fs            = require('fs'),
+    path          = require('path'),
+    editor        = require('../../node/editor'),
+    LocalStore    = require('../../node/local_store'),
+    RemoteStorage = require('../../lib/remotestorage'),
+    CLI           = require('../../node/cli')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   define("createStubs", function() {})
@@ -308,7 +308,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     describe("source-managing methods", function() { with(this) {
       before(function(resume) { with(this) {
-        stub(RemoteStore.prototype, "listServices").yielding([null, []])
+        this._5apps = {}
+        this._local = {}
+        stub(RemoteStorage.prototype, "connect").given("jcoglan@5apps.com", {}).returns(_5apps)
+        stub(RemoteStorage.prototype, "connect").given("me@local.dev", {}).returns(_local)
 
         storage.load(function(error, config) {
           config.sources["me@local.dev"] = {}
@@ -319,7 +322,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding a valid source", function() { with(this) {
         before(function() { with(this) {
-          stub(RemoteStore.prototype, "connect").yielding([null, {
+          this._example = {}
+          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false}).returns(_example)
+
+          stub(_example, "authorize").yielding([null, {
             oauth:   "https://example.com/auth/person",
             storage: "https://example.com/store/person",
             version: "draft.00",
@@ -347,7 +353,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         it("makes the new source the default", function(resume) { with(this) {
           expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
           expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "  me@local.dev", "* person@example.com", ""].join("\n") )
-          cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
+          cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
             cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
           })
         }})
@@ -358,7 +364,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           it("makes the new source the default", function(resume) { with(this) {
             expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
             expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", "  person@example.com", ""].join("\n") )
-            cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
+            cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
               cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
             })
           }})
@@ -367,7 +373,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding a valid source with an inline browser", function() { with(this) {
         before(function() { with(this) {
-          stub(RemoteStore.prototype, "connect").yielding([null, {
+          this._example = {}
+          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: "elinks", inline: true}).returns(_example)
+
+          stub(_example, "authorize").yielding([null, {
             oauth:   "https://example.com/auth/person",
             storage: "https://example.com/store/person",
             version: "draft.00",
@@ -395,7 +404,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding an invalid source", function() { with(this) {
         before(function() { with(this) {
-          stub(RemoteStore.prototype, "connect").yielding([
+          this._example = {}
+          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false}).returns(_example)
+
+          stub(_example, "authorize").yielding([
             {message: "Could not find remoteStorage endpoints for person@example.com"}
           ])
         }})
@@ -411,6 +423,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       }})
 
       it("completes source addresses", function(resume) { with(this) {
+        stub(_5apps, "get").given("/vault/services/").yields([null, {content: "{}"}])
+        stub(_local, "get").given("/vault/services/").yields([null, {content: "{}"}])
         expect(stdout, "write").given("me@local.dev")
         cli.run(["node", "bin/vault", "--cmplt", "me"], function() { resume() })
       }})
