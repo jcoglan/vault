@@ -251,16 +251,13 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("completes option fragments with no letters", function(resume) { with(this) {
-      expect(stdout, "write").given( ["--add-source", "--browser", "--clear",
-                                      "--cmplt", "--config", "--dash",
-                                      "--delete", "--delete-globals",
-                                      "--delete-source", "--export", "--help",
-                                      "--import", "--initpath", "--key",
-                                      "--length", "--list-sources", "--lower",
-                                      "--notes", "--number", "--phrase",
-                                      "--repeat", "--set-source", "--source",
-                                      "--space", "--symbol", "--text-browser",
-                                      "--upper"].join("\n") )
+      expect(stdout, "write").given( ["--add-source", "--browser", "--cert",
+        "--clear", "--cmplt", "--config", "--dash", "--delete",
+        "--delete-globals", "--delete-source", "--export", "--help",
+        "--import", "--initpath", "--key", "--length", "--list-sources",
+        "--lower", "--notes", "--number", "--phrase", "--repeat",
+        "--set-source", "--show-source", "--source", "--space", "--symbol",
+        "--text-browser", "--upper"].join("\n") )
 
       cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
     }})
@@ -391,7 +388,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding a valid source", function() { with(this) {
         before(function() { with(this) {
-          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false}).returns(_example)
+          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false, ca: undefined}).returns(_example)
 
           stub(_example, "authorize").yielding([null, {
             oauth:   "https://example.com/auth/person",
@@ -407,13 +404,13 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
             storage.load(function(error, config) {
               resume(function() {
                 assertEqual({
-                  type:    "remotestorage",
-                  version: "draft.00",
+                  browser: null,
+                  inline:  false,
                   oauth:   "https://example.com/auth/person",
                   storage: "https://example.com/store/person",
                   token:   "HsLEuMkjrkDBluj5jSy0doPx/b8=",
-                  browser: null,
-                  inline:  false
+                  type:    "remotestorage",
+                  version: "draft.00"
                 }, config.sources["person@example.com"])
           })})})
         }})
@@ -441,7 +438,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding a valid source with an inline browser", function() { with(this) {
         before(function() { with(this) {
-          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: "elinks", inline: true}).returns(_example)
+          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: "elinks", inline: true, ca: undefined}).returns(_example)
 
           stub(_example, "authorize").yielding([null, {
             oauth:   "https://example.com/auth/person",
@@ -457,13 +454,13 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
             storage.load(function(error, config) {
               resume(function() {
                 assertEqual({
-                  type:    "remotestorage",
-                  version: "draft.00",
+                  browser: "elinks",
+                  inline:  true,
                   oauth:   "https://example.com/auth/person",
                   storage: "https://example.com/store/person",
                   token:   "HsLEuMkjrkDBluj5jSy0doPx/b8=",
-                  browser: "elinks",
-                  inline:  true
+                  type:    "remotestorage",
+                  version: "draft.00"
                 }, config.sources["person@example.com"])
           })})})
         }})
@@ -471,7 +468,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
       describe("adding an invalid source", function() { with(this) {
         before(function() { with(this) {
-          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false}).returns(_example)
+          stub(RemoteStorage.prototype, "connect").given("person@example.com", {browser: null, inline: false, ca: undefined}).returns(_example)
 
           stub(_example, "authorize").yielding([
             {message: "Could not find remoteStorage endpoints for person@example.com"}

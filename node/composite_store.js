@@ -128,6 +128,7 @@ multi('serviceSettings', false);
 local('addSource');
 local('deleteSource');
 local('setDefaultSource');
+local('showSource');
 local('listSources');
 
 single('export');

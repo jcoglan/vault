@@ -94,6 +94,17 @@ LocalStore.prototype.listSources = function(callback, context) {
   }, this);
 };
 
+LocalStore.prototype.showSource = function(address, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    if (address !== LocalStore.LOCAL && (!config.sources || !config.sources[address]))
+      return callback.call(context, new Error('Source "' + address + '" does not exist'));
+
+    callback.call(context, null, config.sources[address]);
+  }, this);
+};
+
 LocalStore.prototype.getStore = function(source, callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);

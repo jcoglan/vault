@@ -24,9 +24,11 @@ var fs         = require('fs'),
                 'clear':          Boolean,
 
                 'source':         String,
+                'cert':           String,
                 'add-source':     String,
                 'delete-source':  String,
                 'set-source':     String,
+                'show-source':    String,
                 'list-sources':   Boolean,
                 'browser':        String,
                 'text-browser':   String,
@@ -56,6 +58,8 @@ var fs         = require('fs'),
                 'X': '--clear'
               };
 
+var exists = fs.existsSync || path.existsSync;
+
 var CLI = function(options) {
   this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
   this._store  = new LocalStore(options.config).composite();
@@ -79,20 +83,24 @@ CLI.prototype.run = function(argv, callback, context) {
     if (params.help)
       return fs.readFile(__dirname + '/usage.txt', function(error, content) {
         self._out.write(content);
-        callback.call(context);
+        callback.call(context, null);
       });
 
     if (params.initpath) {
       this._out.write(path.resolve(__dirname + '/scripts/init'));
-      return callback.call(context);
+      return callback.call(context, null);
     }
 
     if (params.cmplt !== undefined)
       return this.complete(params.cmplt, callback, context);
 
+    if (params.cert && !exists(params.cert))
+      return callback.call(context, new Error('File "' + params.cert + '" does not exist'));
+
     var opts = {
           browser: params.browser || params['text-browser'] || null,
-          inline:  params['text-browser'] !== undefined
+          inline:  params['text-browser'] !== undefined,
+          ca:      params.cert && fs.readFileSync(params.cert).toString('utf8')
         },
         source;
 
@@ -102,6 +110,8 @@ CLI.prototype.run = function(argv, callback, context) {
       return this._store.deleteSource(source, callback, context);
     if (source = params['set-source'])
       return this._store.setDefaultSource(source, callback, context);
+    if (source = params['show-source'])
+      return this.showSource(source, callback, context);
 
     if (params['list-sources']) return this.listSources(callback, context);
 
@@ -159,6 +169,14 @@ CLI.prototype.addSource = function(source, options, callback, context) {
         callback.call(context, null);
     });
   }, this);
+};
+
+CLI.prototype.showSource = function(source, callback, context) {
+  this._store.showSource(source, function(error, settings) {
+    if (error) return callback.call(context, error);
+    console.log(settings);
+    callback.call(context, null);
+  });
 };
 
 CLI.prototype.listSources = function(callback, context) {
@@ -239,7 +257,7 @@ CLI.prototype.import = function(path, callback, context) {
     self._store.import(config, function(error, store) {
       if (error) return callback.call(context, error);
       self._out.write('Imported settings from ' + path + ' to "' + store + '"\n');
-      callback.call(context);
+      callback.call(context, null);
     });
   });
 };
@@ -257,13 +275,13 @@ CLI.prototype.configure = function(service, params, callback, context) {
       this._store.saveService(service, settings, function(error, store) {
         if (error) return callback.call(context, error);
         this._out.write('Settings for service "' + service + '" saved to "' + store + '"\n');
-        callback.call(context);
+        callback.call(context, null);
       }, this);
     else
       this._store.saveGlobals(settings, function(error, store) {
         if (error) return callback.call(context, error);
         this._out.write('Global settings saved to "' + store + '"\n');
-        callback.call(context);
+        callback.call(context, null);
       }, this);
   });
 };
@@ -274,7 +292,7 @@ CLI.prototype.deleteGlobals = function(callback, context) {
     if (confirm)
       store.deleteGlobals(callback, context);
     else
-      callback.call(context);
+      callback.call(context, null);
   });
 };
 
