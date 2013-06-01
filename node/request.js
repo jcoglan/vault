@@ -1,11 +1,15 @@
 var http  = require('http'),
     https = require('https'),
+    fs    = require('fs'),
     url   = require('url'),
     qs    = require('querystring');
+
+var fileCache = {};
 
 module.exports = function(method, _url, params, headers, callback, context) {
   var uri    = url.parse(_url),
       client = (uri.protocol === 'https:') ? https : http,
+      ca     = process.env.VAULT_CA,
       path   = uri.path,
       sep    = /\?/.test(path) ? '&' : '?';
 
@@ -23,13 +27,19 @@ module.exports = function(method, _url, params, headers, callback, context) {
     headers['Content-Length'] = '0';
   }
 
-  var req = client.request({
+  var options = {
     method:   method,
     host:     uri.hostname,
     port:     uri.port || (client === https ? 443 : 80),
     path:     path,
     headers:  headers
-  });
+  };
+  try {
+    if (ca) options.ca = fileCache[ca] = fileCache[ca] || fs.readFileSync(ca);
+  } catch (error) {
+    return callback.call(context, error);
+  }
+  var req = client.request(options);
 
   req.addListener('response', function(response) {
     var chunks = [],

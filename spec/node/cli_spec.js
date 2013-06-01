@@ -512,6 +512,88 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         }})
       }})
 
+      describe("exporting", function() { with(this) {
+        describe("with the local source", function() { with(this) {
+          before(function(resume) { with(this) {
+            cli.run(["node", "bin/vault", "-e", exportPath], resume)
+          }})
+
+          it("exports the saved settings in plaintext", function() { with(this) {
+            var json = JSON.parse(fs.readFileSync(exportPath))
+            assertEqual( {
+              global: {lower: 0, phrase: "saved passphrase" },
+              services: {
+                facebook: {key: "AAAAPUBLICKEY"},
+                nothing: {notes: "\nSome notes!\n===========\n\n\n\n"},
+                twitter: {lower: 1, symbol: 0}
+              }
+            }, json)
+          }})
+        }})
+
+        describe("with a remote source", function() { with(this) {
+          before(function(resume) { with(this) {
+            expect(_5apps, "get").given("/vault/global").yielding([null, {
+              content: '{"phrase": "magic beans", "length": 30}'
+            }])
+            expect(_5apps, "get").given("/vault/services/").yielding([null, {
+              content: '{"songkick": "", "foo%2Fbar": ""}'
+            }])
+            expect(_5apps, "get").given("/vault/services/songkick").yielding([null, {
+              content: '{"space": 12}'
+            }])
+            expect(_5apps, "get").given("/vault/services/foo%2Fbar").yielding([null, {
+              content: '{"symbol": 0}'
+            }])
+
+            expect(_local, "get").exactly(0)
+
+            cli.run(["node", "bin/vault", "--set-source", "jcoglan@5apps.com"], function() {
+              cli.run(["node", "bin/vault", "-e", exportPath], resume)
+            })
+          }})
+
+          it("exports the remote source's settings", function() { with(this) {
+            var json = JSON.parse(fs.readFileSync(exportPath))
+            assertEqual( {
+              global: {length: 30, phrase: "magic beans"},
+              services: {
+                "foo/bar":  {symbol: 0},
+                "songkick": {space: 12}
+              }
+            }, json)
+          }})
+        }})
+
+        describe("with an explicitly specified source", function() { with(this) {
+          before(function(resume) { with(this) {
+            expect(_local, "get").given("/vault/global").yielding([null, {
+              content: '{"phrase": "iron and wine", "length": 15}'
+            }])
+            expect(_local, "get").given("/vault/services/").yielding([null, {
+              content: '{"twitter": ""}'
+            }])
+            expect(_local, "get").given("/vault/services/twitter").yielding([null, {
+              content: '{"dash": 0}'
+            }])
+
+            expect(_5apps, "get").exactly(0)
+
+            cli.run(["node", "bin/vault", "-s", "me@local.dev", "-e", exportPath], resume)
+          }})
+
+          it("exports the specified source's settings", function() { with(this) {
+            var json = JSON.parse(fs.readFileSync(exportPath))
+            assertEqual( {
+              global: {length: 15, phrase: "iron and wine"},
+              services: {
+                "twitter": {dash: 0}
+              }
+            }, json)
+          }})
+        }})
+      }})
+
       it("completes source addresses", function(resume) { with(this) {
         stub(_5apps, "get").given("/vault/services/").yields([null, {content: "{}"}])
         stub(_local, "get").given("/vault/services/").yields([null, {content: "{}"}])

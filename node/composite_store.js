@@ -23,7 +23,8 @@ var single = function(name) {
       if (error) return callback.call(context, error);
 
       params.push(function(error) {
-        callback.call(context, error, store.getName());
+        var result = [error, store.getName()].concat(Array.prototype.slice.call(arguments, 1));
+        callback.apply(context, result);
       });
       var method = store[name];
       method.apply(store, params);
@@ -129,9 +130,8 @@ local('deleteSource');
 local('setDefaultSource');
 local('listSources');
 
-// TODO
-local('export');
-local('import');
+single('export');
+single('import');
 
 module.exports = CompositeStore;
 

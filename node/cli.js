@@ -219,11 +219,13 @@ CLI.prototype.withPhrase = function(params, callback) {
 };
 
 CLI.prototype.export = function(path, callback, context) {
-  this._store.export(function(error, config) {
+  var self = this;
+  this._store.export(function(error, store, config) {
     if (error) return callback.call(context, error);
     config = config || {global: {}, services: {}};
     var json = JSON.stringify(config, true, 2);
     fs.writeFile(path, json, function() {
+      self._out.write('Exported settings from "' + store + '" to ' + path + '\n');
       callback.apply(context, arguments);
     });
   });
@@ -234,7 +236,11 @@ CLI.prototype.import = function(path, callback, context) {
   fs.readFile(path, function(error, content) {
     if (error) return callback.call(context, error);
     var config = JSON.parse(content.toString());
-    self._store.import(config, callback, context);
+    self._store.import(config, function(error, store) {
+      if (error) return callback.call(context, error);
+      self._out.write('Imported settings from ' + path + ' to "' + store + '"\n');
+      callback.call(context);
+    });
   });
 };
 
