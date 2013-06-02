@@ -174,9 +174,17 @@ CLI.prototype.addSource = function(source, options, callback, context) {
 CLI.prototype.showSource = function(source, callback, context) {
   this._store.showSource(source, function(error, settings) {
     if (error) return callback.call(context, error);
-    console.log(settings);
+    this._out.write('Address:       ' + settings.state + '\n');
+    this._out.write('Type:          ' + settings.type + ', version ' + settings.version + '\n');
+    this._out.write('OAuth URL:     ' + settings.oauth + '\n');
+    this._out.write('Storage URL:   ' + settings.storage + '\n');
+    this._out.write('Token:         ' + settings.token + '\n');
+
+    if (settings.ca)
+      this._out.write('\n' + settings.ca + '\n');
+
     callback.call(context, null);
-  });
+  }, this);
 };
 
 CLI.prototype.listSources = function(callback, context) {

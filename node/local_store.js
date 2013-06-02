@@ -54,15 +54,27 @@ LocalStore.prototype.addSource = function(address, options, callback, context) {
   }, this);
 };
 
+LocalStore.prototype.isSource = function(address, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var ok = address !== LocalStore.LOCAL &&
+             !/^__.+__$/.test(address) &&
+             config.sources[address];
+
+    callback.call(context, ok ? null : new Error('Source "' + address + '" does not exist'));
+  });
+};
+
 LocalStore.prototype.deleteSource = function(address, callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
 
-    if (!config.sources || !config.sources[address])
-      return callback.call(context, new Error('Source "' + address + '" does not exist'));
-
-    delete config.sources[address];
-    this.dump(config, callback, context);
+    this.isSource(address, function(error) {
+      if (error) return callback.call(context, error);
+      delete config.sources[address];
+      this.dump(config, callback, context);
+    }, this);
   }, this);
 };
 
@@ -70,12 +82,24 @@ LocalStore.prototype.setDefaultSource = function(address, callback, context) {
   this.load(function(error, config) {
     if (error) return callback.call(context, error);
 
-    if (address !== LocalStore.LOCAL && (!config.sources || !config.sources[address]))
-      return callback.call(context, new Error('Source "' + address + '" does not exist'));
+    this.isSource(address, function(error) {
+      if (error) return callback.call(context, error);
 
-    config.sources = config.sources || {};
-    config.sources.__current__ = address;
-    this.dump(config, callback, context);
+      config.sources = config.sources || {};
+      config.sources.__current__ = address;
+      this.dump(config, callback, context);
+    }, this);
+  }, this);
+};
+
+LocalStore.prototype.showSource = function(address, callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    this.isSource(address, function(error) {
+      if (error) return callback.call(context, error);
+      callback.call(context, null, config.sources[address]);
+    }, this);
   }, this);
 };
 
@@ -85,23 +109,12 @@ LocalStore.prototype.listSources = function(callback, context) {
 
     var sources     = config.sources || {},
         sourceNames = Object.keys(sources)
-                        .filter(function(s) { return !/^__[a-z]+__$/.test(s) });
+                        .filter(function(s) { return !/^__.+__$/.test(s) });
 
     var current = this._source || sources.__current__;
     if (!current || !sources[current]) current = LocalStore.LOCAL;
 
     callback.call(context, null, sourceNames.concat(LocalStore.LOCAL), current);
-  }, this);
-};
-
-LocalStore.prototype.showSource = function(address, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-
-    if (address !== LocalStore.LOCAL && (!config.sources || !config.sources[address]))
-      return callback.call(context, new Error('Source "' + address + '" does not exist'));
-
-    callback.call(context, null, config.sources[address]);
   }, this);
 };
 
