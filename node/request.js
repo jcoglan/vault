@@ -37,15 +37,15 @@ module.exports = function(method, _url, params, headers, options, callback, cont
   Vault.extend(requestOptions, options);
   var req = client.request(requestOptions);
 
-  req.addListener('response', function(response) {
+  req.on('response', function(response) {
     var chunks = [],
         length = 0;
 
-    response.addListener('data', function(chunk) {
+    response.on('data', function(chunk) {
       chunks.push(chunk);
       length += chunk.length;
     });
-    response.addListener('end', function() {
+    response.on('end', function() {
       var buffer = new Buffer(length),
           offset = 0;
 
@@ -58,7 +58,7 @@ module.exports = function(method, _url, params, headers, options, callback, cont
     });
   });
 
-  req.addListener('error', function(error) {
+  req.on('error', function(error) {
     callback.call(context, error);
   });
 

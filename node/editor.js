@@ -37,7 +37,7 @@ Editor.prototype.edit = function(content, callback, context) {
     },
     function(next) {
       var proc = child.spawn(editor, [_path], {stdio: [0,1,2]});
-      proc.addListener('exit', function(status) {
+      proc.on('exit', function(status) {
         next(status === 0 ? null : new Error('Editor exited with non-zero status (' + status + ')'));
       });
     },
