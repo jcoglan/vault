@@ -5,8 +5,6 @@ var http  = require('http'),
     qs    = require('querystring'),
     Vault = require('../lib/vault');
 
-var fileCache = {};
-
 module.exports = function(method, _url, params, headers, options, callback, context) {
   var uri    = url.parse(_url),
       client = (uri.protocol === 'https:') ? https : http,
