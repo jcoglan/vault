@@ -25,7 +25,8 @@ var fs         = require('fs'),
                 'import':         String,
 
                 'initpath':       Boolean,
-                'cmplt':          String
+                'cmplt':          String,
+                'help':           Boolean
               },
 
     SHORTS  = { 'c': '--config',
@@ -36,7 +37,25 @@ var fs         = require('fs'),
                 'l': '--length',
                 'r': '--repeat',
                 'e': '--export',
-                'i': '--import'
+                'i': '--import',
+                'h': '--help'
+              },
+
+    HELPS   = { 'config': ['save passphrase, global or service-specific settings'],
+                'delete': ['remove settings for SERVICE'],
+                'delete-globals': ['remove global settings'],
+                'clear': ['delete all saved settings'],
+
+                'phrase': ['prompt for passphrase'],
+                'key': ['use a private key to generate passwords'],
+                'length': ['generate passwords of length N'],
+                'repeat': ['set the maximum number of times the same ' +
+                           'character can appear in a row'],
+
+                'export': ['save a plain-text copy of the encrypted settings ' +
+                           'file to FILENAME', 'FILENAME'],
+                'import': ['reads FILENAME and stores it encrypted in your ' +
+                           '.vault file', 'FILENAME'],
               };
 
 var CLI = function(options) {
@@ -65,6 +84,9 @@ CLI.prototype.run = function(argv, callback, context) {
 
     if (params.cmplt !== undefined)
       return this.complete(params.cmplt, callback, context);
+
+    if (params.help)
+      return this.help(callback, context);
 
     this.withPhrase(params, function() {
       if (params['delete-globals']) this.deleteGlobals(callback, context);
@@ -95,6 +117,59 @@ CLI.prototype.complete = function(word, callback, context) {
       callback.call(context, error);
     }, this);
   }
+};
+
+CLI.prototype.help = function(callback, context) {
+  var table = Object.keys(OPTIONS).map(function(o) {
+    var opt = '--' + o;
+    var s = Object.keys(SHORTS).filter(function(s) { return SHORTS[s] == opt; })[0];
+    var shrt = '';
+
+    if (s !== undefined)
+      shrt = '-' + s + ',';
+
+    var argMeta = undefined;
+    var helpText = '';
+
+    if (HELPS[o] !== undefined) {
+      helpText = HELPS[o][0];
+      argMeta = HELPS[o][1];
+    }
+
+    if (OPTIONS[o] === Number)
+      argMeta = 'N';
+
+    var optWithArg = opt;
+    if (argMeta !== undefined)
+      optWithArg = opt + ' ' + argMeta;
+
+    return [shrt, optWithArg, helpText];
+  });
+
+  var widths = table.reduce(
+    function(previousValue, currentValue) {
+      var currentWidths = currentValue.map(function(cell) { return cell.length; });
+
+      if (previousValue === null)
+        return currentWidths;
+
+      return previousValue.map(function(width, i) {
+        return Math.max(width, currentWidths[i]);
+      });
+    }, null);
+
+  var out = this._out;
+  out.write('Usage: vault [OPTIONS] [SERVICE]\n');
+  out.write('Options:\n');
+  table.forEach(function(row) {
+    row.forEach(function(cell, i) {
+      out.write(' ' + cell);
+      out.write(Array(1 + (widths[i] - cell.length)).join(' '));
+    });
+    out.write('\n');
+  });
+
+  callback.call(context);
 };
 
 CLI.prototype.withPhrase = function(params, callback) {

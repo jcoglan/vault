@@ -89,7 +89,9 @@ var cli = new CLI({
 cli.run(process.argv, function(error) {
   if (error) {
     console.error(error.message);
-    process.exit(1);
+    cli.help(function() {
+      process.exit(1);
+    });
   } else {
     process.exit(0);
   }
