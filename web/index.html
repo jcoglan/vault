@@ -21,15 +21,15 @@
       </div>
     </div>
 
-    <div class="form">
+    <form class="form" action="">
       <div class="sub">
         <label for="service">Service name <span>e.g. &ldquo;twitter&rdquo;</span></label>
         <input type="text" class="text" name="service" id="service" autocomplete="off" autocapitalize="off">
 
         <div class="password">
           <label for="passphrase">Passphrase <span>e.g. &ldquo;I&rsquo;m the best 17-year old ever.&rdquo;</span></label>
-          <input type="password" class="password" name="passphrase" id="passphrase" autocomplete="off">
-          <input type="text" class="text" name="passphrase-text" id="passphrase-text" autocomplete="off" autocapitalize="off">
+          <input type="password" class="password" id="passphrase" autocomplete="off">
+          <input type="text" class="text" id="passphrase-text" autocomplete="off" autocapitalize="off">
           <span class="show">
             <label for="show-passphrase">Show</label>
             <input type="checkbox" name="show-passphrase" id="show-passphrase">
@@ -38,12 +38,12 @@
 
         <div class="length">
           <label for="vlength">Password length <span>e.g. 12</span></label>
-          <input type="text" class="text" name="vlength" id="vlength" value="20" autocomplete="off">
+          <input type="number" class="text" name="vlength" id="vlength" value="20" autocomplete="off" maxlength="4" required min="1" max="9999">
         </div>
 
         <div class="repeat">
           <label for="repeat">Max repetition <span>e.g. 2</span></label>
-          <input type="text" class="text" name="repeat" id="repeat" value="" autocomplete="off">
+          <input type="number" class="text" name="repeat" id="repeat" value="" autocomplete="off" maxlength="3" min="1" max="999">
         </div>
 
         <div class="field">
@@ -63,7 +63,7 @@
               <tr>
                 <th scope="row">
                   <label for="required">Required</label>
-                  (<input type="text" class="text" name="required" id="required" value="2" autocomplete="off">)
+                  (<input type="number" class="text" name="required" id="required" value="2" autocomplete="off" size="1" maxlength="1" min="1" max="6">)
                 </th>
                 <td><input type="radio" name="lower" value="required"></td>
                 <td><input type="radio" name="upper" value="required"></td>
@@ -93,13 +93,16 @@
             </tbody>
           </table>
         </div>
+        <div>
+            <button type="submit">Create bookmarkable URL for the above settings</button>
+        </div>
       </div>
-    </div>
+    </form>
 
     <div class="generator">
       <div class="sub">
         <label for="word">Generated password</label>
-        <input type="text" class="text" id="word" autocomplete="off" autocapitalize="off">
+        <input type="text" class="text" id="word" autocomplete="off" autocapitalize="off" readonly />
       </div>
     </div>
 

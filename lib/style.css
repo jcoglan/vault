@@ -57,7 +57,7 @@ input.text, input.password {
 .password {
 }
 .password input.text, .password input.password {
-  display: inline;
+  display: inline-block;
   margin-right: 1em;
   width: 80%;
 }
@@ -88,8 +88,8 @@ table label {
   display: inline;
 }
 table input.text {
-  display: inline;
-  width: 1em;
+  display: inline-block;
+  width: 3em;
 }
 
 table {
