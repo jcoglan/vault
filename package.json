@@ -15,7 +15,7 @@
                       , "ssh-agent": "~0.2.1"
                       , "vault-cipher": "~0.3.0"
                       }
-, "devDependencies" : { "jsclass": "" }
+, "devDependencies" : { "jstest": "" }
 
 , "scripts"         : { "postinstall" : "./node/scripts/postinstall"
                       , "test"        : "node spec/node.js"
