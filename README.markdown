@@ -26,13 +26,17 @@ strong.
 
 ## Installation
 
-This program is written in JavaScript and is available as a Node program:
+This program is written in JavaScript. It provides a CLI and a web-based interface.
+The command line interface is available as a Node program. To install with npm run:
 
     npm install -g vault
 
 To enable tab-completion for bash, add this to your .bashrc scripts:
 
     which vault > /dev/null && . "$( vault --initpath )"
+
+If you want to use the web interface provided with vault (like https://getvau.lt/) you need
+to serve the static files found in the `web` folder using your favourite web server.
 
 
 ## Usage
