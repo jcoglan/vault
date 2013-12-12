@@ -24,7 +24,7 @@
                       , "test"        : "node spec/node.js"
                       }
 
-, "repository  "    : { "type"  : "git"
+, "repository"      : { "type"  : "git"
                       , "url"   : "git://github.com/jcoglan/vault.git"
                       }
 
