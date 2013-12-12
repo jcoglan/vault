@@ -19,7 +19,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     this.confirm    = true
 
     this.cli = new CLI({
-      config: {path: configPath, key: "the key"},
+      config: {path: configPath, key: "the key", cache: false},
       stdout: this.stdout,
       stderr: this.stderr,
       tty:    false,
@@ -214,7 +214,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("reports an error if the key is wrong", function(resume) { with(this) {
-      cli._store = new LocalStore({path: configPath, key: "the wrong key"})
+      cli._store = new LocalStore({path: configPath, key: "the wrong key", cache: false})
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )

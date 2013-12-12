@@ -42,7 +42,10 @@ var cli = new CLI({
 
   password: function(callback) {
     process.stderr.write('Passphrase: ');
-    pw('*', process.stdin, process.stderr, callback);
+    pw('*', process.stdin, process.stderr, function(password) {
+      password = new Buffer(password, 'binary').toString('utf8');
+      callback(password);
+    });
   },
 
   selectKey: function(callback) {
