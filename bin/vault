@@ -28,11 +28,14 @@ var readline = (parseInt(version[2], 10) <= 6)
 
 var cli = new CLI({
   config: {path: path, key: key},
-  output: process.stdout,
+  stdout: process.stdout,
+  stderr: process.stderr,
   tty:    tty.isatty(1),
 
   confirm: function(message, callback) {
-    readline().question(message + ' (Y/n): ', function(input) {
+    var rl = readline();
+    rl.question(message + ' (Y/n): ', function(input) {
+      rl.close();
       callback(input === 'Y');
     });
   },

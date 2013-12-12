@@ -3,14 +3,17 @@
 , "homepage"        : "https://getvau.lt/"
 , "author"          : "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)"
 , "keywords"        : ["security", "passwords"]
+, "license"         : "MIT"
 
-, "version"         : "0.3.0"
+, "version"         : "0.4.0"
 , "engines"         : {"node": ">=0.4.0"}
 , "main"            : "./lib/vault.js"
 , "bin"             : {"vault": "./bin/vault"}
 , "preferGlobal"    : true
 
-, "dependencies"    : { "posix-argv-parser": "~0.4.2"
+, "dependencies"    : { "async": "~0.2.0"
+                      , "mkdirp": "~0.3.0"
+                      , "posix-argv-parser": "~0.4.2"
                       , "pw": "~0.0.4"
                       , "ssh-agent": "~0.2.1"
                       , "vault-cipher": "~0.3.0"
@@ -21,16 +24,10 @@
                       , "test"        : "node spec/node.js"
                       }
 
+, "repository  "    : { "type"  : "git"
+                      , "url"   : "git://github.com/jcoglan/vault.git"
+                      }
+
 , "bugs"            : "http://github.com/jcoglan/vault/issues"
-
-, "licenses"        : [ { "type"  : "MIT"
-                        , "url"   : "http://www.opensource.org/licenses/mit-license.php"
-                        }
-                      ]
-
-, "repositories"    : [ { "type"  : "git"
-                        , "url"   : "git://github.com/jcoglan/vault.git"
-                        }
-                      ]
 }
 
