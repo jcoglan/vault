@@ -56,39 +56,39 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   describe("with no config file", function() { with(this) {
     it("outputs a generated password", function(resume) { with(this) {
       expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
-      cli.run(["node", "bin/vault", "google", "-p"], function() { resume() })
+      cli.run(["node", "bin/vault", "google", "-p"], resume)
     }})
 
     it("generates a password using a private key", function(resume) { with(this) {
       expect(stdout, "write").given("c8<BHXZMc*Gxks&%%=F4")
-      cli.run(["node", "bin/vault", "google", "-k"], function() { resume() })
+      cli.run(["node", "bin/vault", "google", "-k"], resume)
     }})
 
     it("outputs a password with no symbols", function(resume) { with(this) {
       expect(stdout, "write").given("Bb4uFmAEUnTPJh23ecdQ")
-      cli.run(["node", "bin/vault", "google", "-p", "--symbol", "0"], function() { resume() })
+      cli.run(["node", "bin/vault", "google", "-p", "--symbol", "0"], resume)
     }})
 
     it("outputs a password with required dashes and uppercase", function(resume) { with(this) {
       expect(stdout, "write").given('2-[w]thuTK8unIUVH"Lp')
-      cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], function() { resume() })
+      cli.run(["node", "bin/vault", "google", "-p", "--dash", "1", "--upper", "1"], resume)
     }})
 
     it("outputs a password with all character types", function(resume) { with(this) {
       expect(stdout, "write").given(": : fv_wqt>a-4w1S  R")
       passphrase = "She cells C shells bye the sea shoars"
-      cli.run(["node", "bin/vault", "google", "-p", "--dash", "2", "--lower", "2", "--space", "3", "--upper", "2", "--symbol", "1", "--number", "1"], function() { resume() })
+      cli.run(["node", "bin/vault", "google", "-p", "--dash", "2", "--lower", "2", "--space", "3", "--upper", "2", "--symbol", "1", "--number", "1"], resume)
     }})
 
     it("outputs a password with a length", function(resume) { with(this) {
       expect(stdout, "write").given("Tc8k~8")
-      cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], function() { resume() })
+      cli.run(["node", "bin/vault", "google", "-p", "-l", "6"], resume)
     }})
 
     it("outputs a password with a repetition limit", function(resume) { with(this) {
       passphrase = ""
       expect(stdout, "write").given("IVTDzACftqopUXqDHPkuCIhV")
-      cli.run(["node", "bin/vault", "asd", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "1"], function() { resume() })
+      cli.run(["node", "bin/vault", "asd", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "1"], resume)
     }})
 
     it("reports an error if no passphrase given", function(resume) { with(this) {
@@ -247,7 +247,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
     it("completes option fragments", function(resume) { with(this) {
       expect(stdout, "write").given("--lower")
-      cli.run(["node", "bin/vault", "--cmplt", "--lo"], function() { resume() })
+      cli.run(["node", "bin/vault", "--cmplt", "--lo"], resume)
     }})
 
     it("completes option fragments with no letters", function(resume) { with(this) {
@@ -259,48 +259,48 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         "--set-source", "--show-source", "--source", "--space", "--symbol",
         "--text-browser", "--upper"].join("\n") )
 
-      cli.run(["node", "bin/vault", "--cmplt", "--"], function() { resume() })
+      cli.run(["node", "bin/vault", "--cmplt", "--"], resume)
     }})
 
     it("completes service names", function(resume) { with(this) {
       expect(stdout, "write").given("twitter")
-      cli.run(["node", "bin/vault", "--cmplt", "tw"], function() { resume() })
+      cli.run(["node", "bin/vault", "--cmplt", "tw"], resume)
     }})
 
     it("completes empty service names", function(resume) { with(this) {
       expect(stdout, "write").given(["facebook", "local", "nothing", "twitter"].join("\n"))
-      cli.run(["node", "bin/vault", "--cmplt", ""], function() { resume() })
+      cli.run(["node", "bin/vault", "--cmplt", ""], resume)
     }})
 
     it("outputs a password using the stored passphrase", function(resume) { with(this) {
       expect(stdout, "write").given("(JA!4O'+&5I'/-V{N100")
-      cli.run(["node", "bin/vault", "google"], function() { resume() })
+      cli.run(["node", "bin/vault", "google"], resume)
     }})
 
     it("outputs a password using a service-specific passphrase", function(resume) { with(this) {
       expect(stdout, "write").given("199pS3LWcTpgGBMEDkx9")
-      cli.run(["node", "bin/vault", "twitter"], function() { resume() })
+      cli.run(["node", "bin/vault", "twitter"], resume)
     }})
 
     it("outputs a password using a service-specific private key", function(resume) { with(this) {
       expect(stdout, "write").given('++IAP:^*$6,"9~R-}%R-')
-      cli.run(["node", "bin/vault", "facebook"], function() { resume() })
+      cli.run(["node", "bin/vault", "facebook"], resume)
     }})
 
     it("allows the --phrase flag to override stored keys", function(resume) { with(this) {
       expect(stdout, "write").given("Q}T.}#S+SE#@+'|}5Q\\A")
-      cli.run(["node", "bin/vault", "facebook", "-p"], function() { resume() })
+      cli.run(["node", "bin/vault", "facebook", "-p"], resume)
     }})
 
     it("outputs a password using service-specific settings with overrides", function(resume) { with(this) {
       expect(stdout, "write").given("^g;Y4[k+Sg!1Z1fxY<mO")
-      cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], function() { resume() })
+      cli.run(["node", "bin/vault", "twitter", "--symbol", "4"], resume)
     }})
 
     it("outputs a password on stdout and the notes on stderr", function(resume) { with(this) {
       expect(stdout, "write").given("1$5QC<'<?[FWE~&'P(]U")
       expect(stderr, "write").given("\nSome notes!\n===========\n\n")
-      cli.run(["node", "bin/vault", "nothing"], function() { resume() })
+      cli.run(["node", "bin/vault", "nothing"], resume)
     }})
 
     it("reports an error if no service given", function(resume) { with(this) {
@@ -419,7 +419,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
           expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
           expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "  me@local.dev", "* person@example.com", ""].join("\n") )
           cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
-            cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+            cli.run(["node", "bin/vault", "--list-sources"], resume)
           })
         }})
 
@@ -430,7 +430,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
             expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
             expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", "  person@example.com", ""].join("\n") )
             cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
-              cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+              cli.run(["node", "bin/vault", "--list-sources"], resume)
             })
           }})
         }})
@@ -492,7 +492,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
         it("does not delete the saved sources", function(resume) { with(this) {
           expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
-          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+          cli.run(["node", "bin/vault", "--list-sources"], resume)
         }})
       }})
 
@@ -505,7 +505,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
         it("does not delete the saved sources", function(resume) { with(this) {
           expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
-          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+          cli.run(["node", "bin/vault", "--list-sources"], resume)
         }})
       }})
 
@@ -595,25 +595,25 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         stub(_5apps, "get").given("/vault/services/").yields([null, {content: "{}"}])
         stub(_local, "get").given("/vault/services/").yields([null, {content: "{}"}])
         expect(stdout, "write").given("me@local.dev")
-        cli.run(["node", "bin/vault", "--cmplt", "me"], function() { resume() })
+        cli.run(["node", "bin/vault", "--cmplt", "me"], resume)
       }})
 
       it("lists the available sources", function(resume) { with(this) {
         expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", "  me@local.dev", ""].join("\n") )
-        cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+        cli.run(["node", "bin/vault", "--list-sources"], resume)
       }})
 
       it("lets you change the default source", function(resume) { with(this) {
         expect(stdout, "write").given( ["  jcoglan@5apps.com", "  local", "* me@local.dev", ""].join("\n") )
         cli.run(["node", "bin/vault", "--set-source", "me@local.dev"], function() {
-          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+          cli.run(["node", "bin/vault", "--list-sources"], resume)
         })
       }})
 
       it("shows local as the current source if the current remote is deleted", function(resume) { with(this) {
         expect(stdout, "write").given( ["  jcoglan@5apps.com", "* local", ""].join("\n") )
         cli.run(["node", "bin/vault", "--delete-source", "me@local.dev"], function() {
-          cli.run(["node", "bin/vault", "--list-sources"], function() { resume() })
+          cli.run(["node", "bin/vault", "--list-sources"], resume)
         })
       }})
     }})
