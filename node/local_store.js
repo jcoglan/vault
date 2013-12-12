@@ -1,6 +1,7 @@
-var fs     = require('fs'),
-    Cipher = require('vault-cipher'),
-    Vault  = require('../lib/vault');
+var fs             = require('fs'),
+    Cipher         = require('vault-cipher'),
+    Vault          = require('../lib/vault'),
+    CompositeStore = require('./composite_store');
 
 var LocalStore = function(options) {
   this._path   = options.path;
@@ -26,6 +27,25 @@ LocalStore.prototype.clear = function(callback, context) {
     config.services = {};
 
     this.dump(config, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.composite = function() {
+  return new CompositeStore(this);
+};
+
+LocalStore.prototype.listSources = function(callback, context) {
+  this.load(function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var sources     = config.sources || {},
+        sourceNames = Object.keys(sources)
+                        .filter(function(s) { return !/^__.+__$/.test(s) });
+
+    var current = this._source || sources.__current__;
+    if (!current || !sources[current]) current = LocalStore.LOCAL;
+
+    callback.call(context, null, sourceNames.concat(LocalStore.LOCAL), current);
   }, this);
 };
 

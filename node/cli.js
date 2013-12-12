@@ -48,7 +48,7 @@ var exists = fs.existsSync || path.existsSync;
 
 var CLI = function(options) {
   this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
-  this._store  = new LocalStore(options.config);
+  this._store  = new LocalStore(options.config).composite();
   this._out    = options.stdout;
   this._err    = options.stderr;
   this._tty    = options.tty;
@@ -105,11 +105,15 @@ CLI.prototype.complete = function(word, callback, context) {
     this._out.write(names.sort().join('\n'));
     callback.call(context, null);
   } else {
-    this._store.listServices(function(error, services) {
-      if (error) return callback.call(context, new Error('\n' + error.message));
-      var all = services.filter(function(s) { return s.indexOf(word) === 0 });
-      this._out.write(all.sort().join('\n'));
-      callback.call(context, error);
+    this._store.listSources(function(error, sources) {
+      sources = []; // temporary measure until remote sources are added
+      this._store.listServices(function(error, services) {
+        if (error) return callback.call(context, new Error('\n' + error.message));
+        var all = services.concat(sources);
+        all = all.filter(function(s) { return s.indexOf(word) === 0 });
+        this._out.write(all.sort().join('\n'));
+        callback.call(context, error);
+      }, this);
     }, this);
   }
 };
@@ -159,8 +163,7 @@ CLI.prototype.withPhrase = function(params, callback) {
 
 CLI.prototype.export = function(path, callback, context) {
   var self = this;
-  this._store.export(function(error, config) {
-    var store = 'local';
+  this._store.export(function(error, store, config) {
     if (error) return callback.call(context, error);
     config = config || {global: {}, services: {}};
     var json = JSON.stringify(config, true, 2);
