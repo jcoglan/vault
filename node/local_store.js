@@ -154,7 +154,6 @@ LocalStore.prototype.load = function(callback, context) {
       return callback.call(context, null, {global: {}, services: {}, sources: {}});
 
     self._cipher.decrypt(content.toString(), function(error, plaintext) {
-
       var err = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
       if (error) return callback.call(context, err);
 
