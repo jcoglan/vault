@@ -13,7 +13,7 @@
 
 , "dependencies"    : { "async": "~0.2.0"
                       , "mkdirp": "~0.3.0"
-                      , "posix-argv-parser": "~0.4.2"
+                      , "posix-argv-parser": "~1.0.0"
                       , "pw": "~0.0.4"
                       , "ssh-agent": "~0.2.1"
                       , "vault-cipher": "~0.3.0"
