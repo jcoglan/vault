@@ -23,7 +23,7 @@ Editor.edit = function(path, content, callback, context) {
 
 Editor.prototype.edit = function(content, callback, context) {
   if (!this._editor)
-    return callback.call(context, new Error('No editor detected, please set $EDITOR and retry'));
+    return callback.call(context, new Error('No editor detected, please set EDITOR and retry'));
 
   var _path  = this._path,
       editor = this._editor;

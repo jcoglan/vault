@@ -1,27 +1,29 @@
 Usage: vault [OPTIONS] [SERVICE]
 
 Password generation:
-  -p, --phrase                  prompt the user for the passphrase
-  -k, --key                     use SSH private key to generate passwords
-  -l, --length NUMBER           emit password of length NUMBER
-  -r, --repeat NUMBER           allow maximum of NUMBER repeated adjacent chars
-      --lower NUMBER            include at least NUMBER lowercase letters
-      --upper NUMBER            include at least NUMBER uppercase letters
-      --number NUMBER           include at least NUMBER digits
-      --space NUMBER            include at least NUMBER spaces
-      --dash NUMBER             include at least NUMBER of "-" or "_"
-      --symbol NUMBER           include at least NUMBER symbol chars
+  -p, --phrase                  prompts you for your passphrase
+  -k, --key                     uses your SSH private key to generate passwords
+  -l, --length NUMBER           emits password of length NUMBER
+  -r, --repeat NUMBER           allows maximum of NUMBER repeated adjacent chars
+      --lower NUMBER            includes at least NUMBER lowercase letters
+      --upper NUMBER            includes at least NUMBER uppercase letters
+      --number NUMBER           includes at least NUMBER digits
+      --space NUMBER            includes at least NUMBER spaces
+      --dash NUMBER             includes at least NUMBER of "-" or "_"
+      --symbol NUMBER           includes at least NUMBER symbol chars
+
+Use NUMBER=0, e.g. "--symbol 0", to exclude a character type from the output
 
 Configuration:
-  -n, --notes                   open $EDITOR to edit notes for SERVICE
-  -c, --config                  save the given settings for SERVICE or global
-  -x, --delete NAME             delete settings for SERVICE
-      --delete-globals          delete the global shared settings
-  -X, --clear                   delete all settings
+  -n, --notes SERVICE           opens $EDITOR to edit notes for SERVICE
+  -c, --config                  saves the given settings for SERVICE or global
+  -x, --delete SERVICE          deletes settings for SERVICE
+      --delete-globals          deletes the global shared settings
+  -X, --clear                   deletes all settings
 
 Environment variables:
-  VAULT_KEY                     encryption key for settings file
-  VAULT_PATH                    path to settings file, default is $HOME/.vault
+  VAULT_KEY                     encryption key for the settings file
+  VAULT_PATH                    path to the settings file, default is $HOME/.vault
 
 Full documentation is available at http://github.com/jcoglan/vault
 
