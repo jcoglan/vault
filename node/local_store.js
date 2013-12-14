@@ -79,7 +79,7 @@ LocalStore.prototype.listServices = function(callback, context) {
 
 LocalStore.prototype.saveGlobals = function(settings, callback, context) {
   this.load(function(error, config) {
-    if (error) return callback.cal(context, error);
+    if (error) return callback.call(context, error);
 
     var saved   = config.global || {},
         updated = {};
@@ -94,7 +94,7 @@ LocalStore.prototype.saveGlobals = function(settings, callback, context) {
 
 LocalStore.prototype.saveService = function(service, settings, callback, context) {
   this.load(function(error, config) {
-    if (error) return callback.cal(context, error);
+    if (error) return callback.call(context, error);
 
     config.services = config.services || {};
 
