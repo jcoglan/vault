@@ -197,7 +197,7 @@ CLI.prototype.configure = function(service, params, callback, context) {
     }
 
     if (service)
-      this._store.saveService(service, settings, function(error, store) {
+      this._store.saveService(service, settings, false, function(error, store) {
         if (error) return callback.call(context, error);
         this._out.write('Settings for service "' + service + '" saved to "' + store + '"\n');
         callback.call(context, null);

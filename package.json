@@ -15,8 +15,9 @@
                       , "mkdirp": "~0.3.0"
                       , "posix-argv-parser": "~1.0.0"
                       , "pw": "~0.0.4"
+                      , "rimraf": "~2.2.5"
                       , "ssh-agent": "~0.2.1"
-                      , "vault-cipher": "~0.3.0"
+                      , "vault-cipher": "~0.4.0"
                       }
 , "devDependencies" : { "jstest": "" }
 
