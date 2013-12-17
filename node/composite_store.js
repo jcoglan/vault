@@ -2,15 +2,6 @@ var CompositeStore = function(local) {
   this._local = local;
 };
 
-CompositeStore.prototype.setSource = function(source) {
-  this._source = source;
-  this._local.setSource(source);
-};
-
-CompositeStore.prototype.currentStore = function(callback, context) {
-  this._local.currentStore(callback, context);
-};
-
 var single = function(name) {
   CompositeStore.prototype[name] = function() {
     var args     = Array.prototype.slice.call(arguments),
@@ -116,23 +107,28 @@ var local = function(name) {
   };
 };
 
-single('saveGlobals');
-single('saveService');
+CompositeStore.prototype.setSource = function(source) {
+  this._source = source;
+  return this._local.setSource(source);
+};
+
+local('addSource');
+local('currentStore');
+local('deleteSource');
+local('listSources');
+local('setDefaultSource');
+local('showSource');
+
+single('clear');
 single('deleteGlobals');
 single('deleteService');
-single('clear');
+single('export');
+single('import');
+single('saveGlobals');
+single('saveService');
 
 multi('listServices', true);
 multi('serviceSettings', false);
-
-local('addSource');
-local('deleteSource');
-local('setDefaultSource');
-local('showSource');
-local('listSources');
-
-single('export');
-single('import');
 
 module.exports = CompositeStore;
 

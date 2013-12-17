@@ -1,5 +1,7 @@
 var fs            = require('fs'),
     path          = require('path'),
+    async         = require('async'),
+    rmrf          = require('rimraf'),
     editor        = require('../../node/editor'),
     LocalStore    = require('../../node/local_store'),
     RemoteStorage = require('../../lib/remotestorage'),
@@ -11,8 +13,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
   before(function() { with(this) {
     createStubs()
 
-    this.configPath = path.resolve(__dirname + "/.vault")
-    this.exportPath = path.resolve(__dirname + "/export.json")
+    this.configPath = path.join(__dirname, ".vault")
+    this.exportPath = path.join(__dirname, "export.json")
     this.stdout     = {write: function() {}}
     this.stderr     = {write: function() {}}
     this.passphrase = "something"
@@ -47,10 +49,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     this.storage = new LocalStore({path: configPath, key: "the key", cache: false})
   }})
 
-  after(function() { with(this) {
-    [configPath, exportPath].forEach(function(path) {
-      try { fs.unlinkSync(path) } catch (e) {}
-    })
+  after(function(resume) { with(this) {
+    async.forEach([configPath, exportPath], rmrf, resume)
   }})
 
   describe("with no config file", function() { with(this) {
@@ -202,14 +202,14 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
   describe("with a config file", function() { with(this) {
     before(function(resume) { with(this) {
-      storage.load(function(error, config) {
-        config.global = {lower: 0, phrase: "saved passphrase"}
-
-        config.services.twitter  = {lower: 1, symbol: 0}
-        config.services.nothing  = {notes: "\nSome notes!\n===========\n\n\n\n"}
-        config.services.facebook = {key: "AAAAPUBLICKEY"}
-
-        storage.dump(config, resume)
+      storage.saveGlobals({lower: 0, phrase: "saved passphrase"}, function() {
+        async.forEach([
+          ["twitter",   {lower: 1, symbol: 0}],
+          ["nothing",   {notes: "\nSome notes!\n===========\n\n\n\n"}],
+          ["facebook",  {key: "AAAAPUBLICKEY"}]
+        ], function(service, done) {
+          storage.saveService(service[0], service[1], true, done)
+        }, resume)
       })
     }})
 
@@ -217,31 +217,34 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       cli._store = new LocalStore({path: configPath, key: "the wrong key", cache: false})
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
-          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+          assertEqual( "Your .vault database is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
       })})
     }})
 
     it("reports an error if the file has been tampered", function(resume) { with(this) {
-      fs.writeFileSync(configPath, fs.readFileSync(configPath).toString().replace(/.$/, "X"))
+      var _path = path.join(configPath, "sources")
+      fs.writeFileSync(_path, "X")
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
-          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+          assertEqual( "Your .vault database is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
       })})
     }})
 
     it("reports an error if the file has a zero-length payload", function(resume) { with(this) {
-      fs.writeFileSync(configPath, "DqOnhLAQ98oZtClj0lYjT2Y4YjU2NzRhZGVmMjRlN2E1ZWViYjJhYzRjODZlZjlkYThjNGRhYTVmOTEyZmIyNjdiNmJhNGExMWRiMTEwNWU=")
+      var _path = path.join(configPath, "sources")
+      fs.writeFileSync(_path, "DqOnhLAQ98oZtClj0lYjT2Y4YjU2NzRhZGVmMjRlN2E1ZWViYjJhYzRjODZlZjlkYThjNGRhYTVmOTEyZmIyNjdiNmJhNGExMWRiMTEwNWU=")
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
-          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+          assertEqual( "Your .vault database is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
       })})
     }})
 
     it("reports an error if the file is too short", function(resume) { with(this) {
-      fs.writeFileSync(configPath, "42")
+      var _path = path.join(configPath, "sources")
+      fs.writeFileSync(_path, "42")
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
-          assertEqual( "Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
+          assertEqual( "Your .vault database is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )
       })})
     }})
 
@@ -379,10 +382,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         stub(RemoteStorage.prototype, "connect").given("jcoglan@5apps.com", {}).returns(_5apps)
         stub(RemoteStorage.prototype, "connect").given("me@local.dev", {}).returns(_local)
 
-        storage.load(function(error, config) {
-          config.sources["me@local.dev"] = {}
-          config.sources["jcoglan@5apps.com"] = {}
-          storage.dump(config, resume)
+        storage.load("sources", function(error, config) {
+          config["me@local.dev"] = {}
+          config["jcoglan@5apps.com"] = {}
+          storage.dump("sources", config, resume)
         })
       }})
 
@@ -401,7 +404,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         it("adds the source to the local store", function(resume) { with(this) {
           expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
           cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
-            storage.load(function(error, config) {
+            storage.load("sources", function(error, config) {
               resume(function() {
                 assertEqual({
                   browser: null,
@@ -411,7 +414,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                   token:   "HsLEuMkjrkDBluj5jSy0doPx/b8=",
                   type:    "remotestorage",
                   version: "draft.00"
-                }, config.sources["person@example.com"])
+                }, config["person@example.com"])
           })})})
         }})
 
@@ -451,7 +454,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         it("adds the source to the local store", function(resume) { with(this) {
           expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
           cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
-            storage.load(function(error, config) {
+            storage.load("sources", function(error, config) {
               resume(function() {
                 assertEqual({
                   browser: "elinks",
@@ -461,7 +464,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
                   token:   "HsLEuMkjrkDBluj5jSy0doPx/b8=",
                   type:    "remotestorage",
                   version: "draft.00"
-                }, config.sources["person@example.com"])
+                }, config["person@example.com"])
           })})})
         }})
       }})
@@ -477,10 +480,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
         it("does not add the source to the local store", function(resume) { with(this) {
           cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function(error) {
-            storage.load(function(err, config) {
+            storage.load("sources", function(err, config) {
               resume(function() {
                 assertEqual( "Could not find remoteStorage endpoints for person@example.com", error.message )
-                assertEqual( undefined, config.sources["person@example.com"] )
+                assertEqual( undefined, config["person@example.com"] )
           })})})
         }})
       }})

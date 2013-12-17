@@ -1,4 +1,9 @@
-var fs             = require('fs'),
+var crypto         = require('crypto'),
+    fs             = require('fs'),
+    path           = require('path'),
+    mkdirp         = require('mkdirp'),
+    rmrf           = require('rimraf'),
+    async          = require('async'),
     Cipher         = require('vault-cipher'),
     Vault          = require('../lib/vault'),
     RemoteStore    = require('../lib/remote_store'),
@@ -7,223 +12,292 @@ var fs             = require('fs'),
 var LocalStore = function(options) {
   this._path   = options.path;
   this._cipher = new Cipher(options.key, {format: 'base64', work: 100, salt: Vault.UUID});
-  this._cache  = options.cache !== false;
+  this._cache  = options.cache !== false ? {} : null;
 };
 
-LocalStore.LOCAL = 'local';
-
-LocalStore.prototype.getName = function() {
-  return LocalStore.LOCAL;
-};
-
-LocalStore.prototype.setSource = function(source) {
-  this._source = source;
-};
-
-LocalStore.prototype.clear = function(callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-
-    config.global = {};
-    config.services = {};
-
-    this.dump(config, callback, context);
-  }, this);
-};
+LocalStore.BUCKETS = '0123456789abcdef'.split('');
+LocalStore.LOCAL   = 'local';
 
 LocalStore.prototype.composite = function() {
   return new CompositeStore(this);
 };
+
+//==============================================================================
+// Multi-store methods
 
 LocalStore.prototype.addSource = function(address, options, callback, context) {
   var remote = new RemoteStore(address, options);
   remote.connect(function(error, response) {
     if (error) return callback.call(context, error);
 
-    this.load(function(error, config) {
+    this.load('sources', function(error, config) {
       if (error) return callback.call(context, error);
 
       response.type = remote.getType();
       Vault.extend(response, options);
+      config[address] = response;
 
-      config.sources = config.sources || {};
-      config.sources[address] = response;
+      this.dump('sources', config, callback, context);
+    }, this);
+  }, this);
+};
 
-      this.dump(config, callback, context);
+LocalStore.prototype.deleteSource = function(address, callback, context) {
+  this.load('sources', function(error, config) {
+    if (error) return callback.call(context, error);
+
+    this.isSource(address, function(error) {
+      if (error) return callback.call(context, error);
+      delete config[address];
+      this.dump('sources', config, callback, context);
     }, this);
   }, this);
 };
 
 LocalStore.prototype.isSource = function(address, callback, context) {
-  this.load(function(error, config) {
+  this.load('sources', function(error, config) {
     if (error) return callback.call(context, error);
 
     var ok = address !== LocalStore.LOCAL &&
              !/^__.+__$/.test(address) &&
-             config.sources[address];
+             config[address];
 
     callback.call(context, ok ? null : new Error('Source "' + address + '" does not exist'));
   });
 };
 
-LocalStore.prototype.deleteSource = function(address, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-
-    this.isSource(address, function(error) {
-      if (error) return callback.call(context, error);
-      delete config.sources[address];
-      this.dump(config, callback, context);
-    }, this);
-  }, this);
-};
-
-LocalStore.prototype.setDefaultSource = function(address, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-
-    this.isSource(address, function(error) {
-      if (error) return callback.call(context, error);
-
-      config.sources = config.sources || {};
-      config.sources.__current__ = address;
-      this.dump(config, callback, context);
-    }, this);
-  }, this);
-};
-
-LocalStore.prototype.showSource = function(address, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-
-    this.isSource(address, function(error) {
-      if (error) return callback.call(context, error);
-      callback.call(context, null, config.sources[address]);
-    }, this);
-  }, this);
-};
-
 LocalStore.prototype.listSources = function(callback, context) {
-  this.load(function(error, config) {
+  this.load('sources', function(error, config) {
     if (error) return callback.call(context, error);
 
-    var sources     = config.sources || {},
-        sourceNames = Object.keys(sources)
-                        .filter(function(s) { return !/^__.+__$/.test(s) });
+    var sourceNames = Object.keys(config)
+                      .filter(function(s) { return !/^__.+__$/.test(s) });
 
-    var current = this._source || sources.__current__;
-    if (!current || !sources[current]) current = LocalStore.LOCAL;
+    var current = this._source || config.__current__;
+    if (!current || !config[current]) current = LocalStore.LOCAL;
 
     callback.call(context, null, sourceNames.concat(LocalStore.LOCAL), current);
   }, this);
 };
 
+LocalStore.prototype.setDefaultSource = function(address, callback, context) {
+  this.load('sources', function(error, config) {
+    if (error) return callback.call(context, error);
+
+    this.isSource(address, function(error) {
+      if (error) return callback.call(context, error);
+      config.__current__ = address;
+      this.dump('sources', config, callback, context);
+    }, this);
+  }, this);
+};
+
+LocalStore.prototype.setSource = function(source) {
+  this._source = source;
+};
+
+LocalStore.prototype.showSource = function(address, callback, context) {
+  this.load('sources', function(error, config) {
+    if (error) return callback.call(context, error);
+
+    this.isSource(address, function(error) {
+      if (error) return callback.call(context, error);
+      callback.call(context, null, config[address]);
+    }, this);
+  }, this);
+};
+
+LocalStore.prototype.currentStore = function(callback, context) {
+  this.load('sources', function(error, config) {
+    if (error) return callback.call(context, error);
+
+    var current = this._source || config.__current__;
+    this.getStore(current, callback, context);
+  }, this);
+};
+
+LocalStore.prototype.getName = function() {
+  return LocalStore.LOCAL;
+};
+
 LocalStore.prototype.getStore = function(source, callback, context) {
-  this.load(function(error, config) {
+  this.load('sources', function(error, config) {
     if (error) return callback.call(context, error);
 
     var store = (!source || source === LocalStore.LOCAL)
               ? this
-              : new RemoteStore(source, config.sources[source]);
+              : new RemoteStore(source, config[source]);
 
     callback.call(context, null, store);
   }, this);
 };
 
-LocalStore.prototype.currentStore = function(callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-
-    var current = this._source || (config.sources || {}).__current__;
-    this.getStore(current, callback, context);
-  }, this);
-};
+//==============================================================================
 
 LocalStore.prototype.listServices = function(callback, context) {
-  this.load(function(error, config) {
+  var self = this;
+  async.map(LocalStore.BUCKETS, function(name, done) {
+    self.load(path.join('services', name), function(error, config) {
+      done(error, config && Object.keys(config));
+    });
+  }, function(error, services) {
     if (error) return callback.call(context, error);
-    callback.call(context, null, Object.keys(config.services || {}).sort());
+    services = services.reduce(function(a, b) { return a.concat(b) });
+    callback.call(context, error, services.sort());
   });
 };
 
 LocalStore.prototype.saveGlobals = function(settings, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.cal(context, error);
+  var pathname = 'global';
+  this.load(pathname, function(error, config) {
+    if (error) return callback.call(context, error);
 
-    var saved   = config.global || {},
-        updated = {};
-
+    var updated = {};
     Vault.extend(updated, settings);
-    Vault.extend(updated, saved);
-    config.global = updated;
+    Vault.extend(updated, config);
 
-    this.dump(config, callback, context);
-  }, this);
-};
-
-LocalStore.prototype.saveService = function(service, settings, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.cal(context, error);
-
-    config.services = config.services || {};
-
-    var saved   = config.services[service] || {},
-        updated = {};
-
-    Vault.extend(updated, settings);
-    Vault.extend(updated, saved);
-    config.services[service] = updated;
-
-    this.dump(config, callback, context);
+    this.dump(pathname, updated, callback, context);
   }, this);
 };
 
 LocalStore.prototype.deleteGlobals = function(callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-    config.global = {};
-    this.dump(config, callback, context);
+  rmrf(path.join(this._path, 'global'), function(error) {
+    callback.call(context, error);
+  });
+};
+
+LocalStore.prototype.saveService = function(service, settings, override, callback, context) {
+  this._pathForService(service, function(error, pathname) {
+    if (error) return callback.call(error);
+
+    this.load(pathname, function(error, config) {
+      if (error) return callback.call(context, error);
+
+      var saved   = config[service] || {},
+          updated = {};
+
+      if (override) {
+        updated = settings;
+      } else {
+        Vault.extend(updated, settings);
+        Vault.extend(updated, saved);
+      }
+      config[service] = updated;
+
+      this.dump(pathname, config, callback, context);
+    }, this);
   }, this);
 };
 
 LocalStore.prototype.deleteService = function(service, callback, context) {
-  this.load(function(error, config) {
+  this._pathForService(service, function(error, pathname) {
     if (error) return callback.call(context, error);
 
-    if (!config.services || !config.services[service])
-      return callback.call(context, new Error('Service "' + service + '" is not configured'));
+    this.load(pathname, function(error, config) {
+      if (error) return callback.call(context, error);
 
-    delete config.services[service];
-    this.dump(config, callback, context);
+      if (!config.hasOwnProperty(service))
+        return callback.call(context, new Error('Service "' + service + '" is not configured'));
+
+      delete config[service];
+      this.dump(pathname, config, callback, context);
+    }, this);
   }, this);
 };
 
 LocalStore.prototype.serviceSettings = function(service, includeGlobal, callback, context) {
-  this.load(function(error, config) {
+  var self = this;
+
+  this._pathForService(service, function(error, pathname) {
     if (error) return callback.call(context, error);
 
-    if (!includeGlobal && (!config.services || !config.services[service]))
-      return callback.call(context, null, null);
+    async.parallel({
+      global: function(done) {
+        if (!includeGlobal) return done(null, {});
+        self.load('global', done);
+      },
+      service: function(done) {
+        self.load(pathname, done);
+      }
+    }, function(error, stored) {
+      if (error) return callback.call(context, error);
 
-    var settings = {};
-    Vault.extend(settings, (config.services || {})[service] || {});
-    Vault.extend(settings, config.global || {});
+      var settings = {};
+      Vault.extend(settings, stored.service[service] || {});
+      Vault.extend(settings, stored.global);
 
-    callback.call(context, null, settings);
+      callback.call(context, null, settings);
+    });
   });
 };
 
-LocalStore.prototype.load = function(callback, context) {
-  if (this._cache && this._configCache)
-    return callback.call(context, null, this._configCache);
-
+LocalStore.prototype.import = function(settings, callback, context) {
   var self = this;
-  fs.readFile(this._path, function(error, content) {
-    if (error)
-      return callback.call(context, null, {global: {}, services: {}, sources: {}});
+
+  this.dump('global', settings.global || {}, function(error) {
+    if (error) return callback.call(context, error);
+
+    var services = Object.keys(settings.services || {});
+
+    async.forEachSeries(services, function(service, done) {
+      self.saveService(service, settings.services[service], true, done);
+    }, function(error){
+      callback.call(context, error);
+    });
+  }, this);
+};
+
+LocalStore.prototype.export = function(callback, context) {
+  var exported = {services: {}},
+      self     = this;
+
+  this.load('global', function(error, config) {
+    if (error) return callback.call(context, error);
+    exported.global = config;
+    async.forEach(LocalStore.BUCKETS, function(name, done) {
+      self.load(path.join('services', name), function(error, config) {
+        if (!error) Vault.extend(exported.services, config);
+        done(error);
+      });
+    }, function(error) {
+      callback.call(context, error, exported);
+    });
+  });
+};
+
+LocalStore.prototype.clear = function(callback, context) {
+  var servicesPath = path.join(this._path, 'services'),
+      globalPath   = path.join(this._path, 'global');
+
+  async.forEach([servicesPath, globalPath], rmrf, function(error) {
+    callback.call(context, error);
+  });
+};
+
+LocalStore.prototype._pathForService = function(service, callback, context) {
+  if (!service)
+    return callback.call(context, new Error('No service name given'));
+
+  this._cipher.deriveKeys(function(encryptionKey, signingKey) {
+    var hmac = crypto.createHmac('sha256', signingKey);
+    hmac.update(new Buffer(service, 'utf8').toString('hex'));
+
+    callback.call(context, null, path.join('services', hmac.digest('hex')[0]));
+  }, this);
+};
+
+LocalStore.prototype.load = function(pathname, callback, context) {
+  if (this._cache && this._cache[pathname])
+    return callback.call(context, null, this._cache[pathname]);
+
+  var fullPath = path.join(this._path, pathname),
+      self     = this;
+
+  fs.readFile(fullPath, function(error, content) {
+    if (error) return callback.call(context, null, {});
 
     self._cipher.decrypt(content.toString(), function(error, plaintext) {
-      var err = new Error('Your .vault file is unreadable; check your VAULT_KEY and VAULT_PATH settings');
+      var err = new Error('Your .vault database is unreadable; check your VAULT_KEY and VAULT_PATH settings');
       if (error) return callback.call(context, err);
 
       var config;
@@ -232,38 +306,26 @@ LocalStore.prototype.load = function(callback, context) {
       } catch (e) {
         return callback.call(context, err);
       }
-      self._configCache = config;
+      if (self._cache) self._cache[pathname] = config;
       callback.call(context, null, config);
     });
   });
 };
 
-LocalStore.prototype.dump = function(config, callback, context) {
+LocalStore.prototype.dump = function(pathname, config, callback, context) {
   config = sort(config);
-  var json = JSON.stringify(config, true, 2);
+  if (this._cache) this._cache[pathname] = config;
+
+  var fullPath = path.join(this._path, pathname),
+      json     = JSON.stringify(config, true, 2);
 
   this._cipher.encrypt(json, function(error, ciphertext) {
-    fs.writeFile(this._path, ciphertext, function() {
-      if (callback) callback.apply(context, arguments);
+    mkdirp(path.dirname(fullPath), function() {
+      fs.writeFile(fullPath, ciphertext, function() {
+        if (callback) callback.apply(context, arguments);
+      });
     });
   }, this);
-};
-
-LocalStore.prototype.import = function(settings, callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-    Vault.extend(config.global, settings.global);
-    Vault.extend(config.services, settings.services);
-    this.dump(config, callback, context);
-  }, this);
-};
-
-LocalStore.prototype.export = function(callback, context) {
-  this.load(function(error, config) {
-    if (error) return callback.call(context, error);
-    var exported = {global: config.global, services: config.services};
-    callback.call(context, null, exported);
-  });
 };
 
 var sort = function(object) {
