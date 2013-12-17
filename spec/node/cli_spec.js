@@ -2,9 +2,11 @@ var fs            = require('fs'),
     path          = require('path'),
     async         = require('async'),
     rmrf          = require('rimraf'),
-    editor        = require('../../node/editor'),
-    LocalStore    = require('../../node/local_store'),
+    Cipher        = require('vault-cipher'),
+    Store         = require('../../lib/store'),
     RemoteStorage = require('../../lib/remotestorage'),
+    editor        = require('../../node/editor'),
+    FileAdapter   = require('../../node/file_adapter'),
     CLI           = require('../../node/cli')
 
 JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
@@ -46,7 +48,8 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       }
     })
 
-    this.storage = new LocalStore({path: configPath, key: "the key", cache: false})
+    var cipher   = new Cipher("the key", {format: "base64", work: 100, salt: Vault.UUID})
+    this.storage = new Store(new FileAdapter(configPath), cipher, {cache: false})
   }})
 
   after(function(resume) { with(this) {
@@ -214,7 +217,9 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("reports an error if the key is wrong", function(resume) { with(this) {
-      cli._store = new LocalStore({path: configPath, key: "the wrong key", cache: false})
+      var cipher = new Cipher("the wrong key", {format: "base64", work: 100, salt: Vault.UUID})
+      cli._store = new Store(new FileAdapter(configPath), cipher, {cache: false})
+
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
           assertEqual( "Your .vault database is unreadable; check your VAULT_KEY and VAULT_PATH settings", e.message )

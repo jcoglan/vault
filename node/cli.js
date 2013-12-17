@@ -1,9 +1,12 @@
-var fs         = require('fs'),
-    path       = require('path'),
-    OptParser  = require('./optparser'),
-    editor     = require('./editor'),
-    Vault      = require('../lib/vault'),
-    LocalStore = require('./local_store'),
+var fs             = require('fs'),
+    path           = require('path'),
+    Cipher         = require('vault-cipher'),
+    Vault          = require('../lib/vault'),
+    Store          = require('../lib/store'),
+    OptParser      = require('./optparser'),
+    editor         = require('./editor'),
+    CompositeStore = require('./composite_store'),
+    FileAdapter    = require('./file_adapter'),
 
     OPTIONS = { 'phrase':         Boolean,
                 'key':            Boolean,
@@ -62,10 +65,14 @@ var exists = fs.existsSync || path.existsSync;
 
 var CLI = function(options) {
   this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
-  this._store  = new LocalStore(options.config).composite();
-  this._out    = options.stdout;
-  this._err    = options.stderr;
-  this._tty    = options.tty;
+
+  this._cipher = new Cipher(options.config.key, {format: 'base64', work: 100, salt: Vault.UUID});
+  this._local  = new Store(new FileAdapter(options.config.path), this._cipher, {cache: options.config.cache});
+  this._store  = new CompositeStore(this._local);
+
+  this._out = options.stdout;
+  this._err = options.stderr;
+  this._tty = options.tty;
 
   this._requestPassword = options.password;
   this._confirmAction = options.confirm;
