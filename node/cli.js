@@ -1,6 +1,5 @@
 var fs             = require('fs'),
     path           = require('path'),
-    Cipher         = require('vault-cipher'),
     Vault          = require('../lib/vault'),
     Store          = require('../lib/store'),
     OptParser      = require('./optparser'),
@@ -64,11 +63,11 @@ var fs             = require('fs'),
 var exists = fs.existsSync || path.existsSync;
 
 var CLI = function(options) {
-  this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
+  var pathname = options.config.path, key = options.config.key;
 
-  this._cipher = new Cipher(options.config.key, {format: 'base64', work: 100, salt: Vault.UUID});
-  this._local  = new Store(new FileAdapter(options.config.path), this._cipher, {cache: options.config.cache});
+  this._local  = new Store(new FileAdapter(pathname), key, {cache: options.config.cache});
   this._store  = new CompositeStore(this._local);
+  this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
 
   this._out = options.stdout;
   this._err = options.stderr;

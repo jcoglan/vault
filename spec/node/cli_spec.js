@@ -2,7 +2,6 @@ var fs            = require('fs'),
     path          = require('path'),
     async         = require('async'),
     rmrf          = require('rimraf'),
-    Cipher        = require('vault-cipher'),
     Store         = require('../../lib/store'),
     RemoteStorage = require('../../lib/remotestorage'),
     editor        = require('../../node/editor'),
@@ -48,8 +47,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
       }
     })
 
-    var cipher   = new Cipher("the key", {format: "base64", work: 100, salt: Vault.UUID})
-    this.storage = new Store(new FileAdapter(configPath), cipher, {cache: false})
+    this.storage = new Store(new FileAdapter(configPath), "the key", {cache: false})
   }})
 
   after(function(resume) { with(this) {
@@ -217,8 +215,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     }})
 
     it("reports an error if the key is wrong", function(resume) { with(this) {
-      var cipher = new Cipher("the wrong key", {format: "base64", work: 100, salt: Vault.UUID})
-      cli._store = new Store(new FileAdapter(configPath), cipher, {cache: false})
+      cli._store = new Store(new FileAdapter(configPath), "the wrong key", {cache: false})
 
       cli.run(["node", "bin/vault", "google"], function(e) {
         resume(function() {
