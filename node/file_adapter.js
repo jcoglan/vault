@@ -7,6 +7,14 @@ var FileAdapter = function(pathname) {
   this._path = pathname;
 };
 
+FileAdapter.prototype.getName = function() {
+  return 'local';
+};
+
+FileAdapter.prototype.getType = function() {
+  return 'filesystem';
+};
+
 FileAdapter.prototype.load = function(pathname, callback, context) {
   var fullPath = path.join(this._path, pathname);
 

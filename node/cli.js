@@ -34,6 +34,7 @@ var fs             = require('fs'),
                 'list-sources':   Boolean,
                 'browser':        String,
                 'text-browser':   String,
+                'master-key':     String,
 
                 'export':         String,
                 'import':         String,
@@ -51,6 +52,7 @@ var fs             = require('fs'),
                 'i': '--import',
                 'k': '--key',
                 'l': '--length',
+                'm': '--master-key',
                 'n': '--notes',
                 'p': '--phrase',
                 'r': '--repeat',
@@ -106,7 +108,8 @@ CLI.prototype.run = function(argv, callback, context) {
     var opts = {
           browser: params.browser || params['text-browser'] || null,
           inline:  params['text-browser'] !== undefined,
-          ca:      params.cert && fs.readFileSync(params.cert).toString('utf8')
+          ca:      params.cert && fs.readFileSync(params.cert).toString('utf8'),
+          key:     params['master-key']
         },
         source;
 
@@ -162,6 +165,9 @@ CLI.prototype.complete = function(word, callback, context) {
 };
 
 CLI.prototype.addSource = function(source, options, callback, context) {
+  if (!options.key)
+    return callback.call(context, new Error('No encryption key given; run again with `--master-key`'));
+
   this._store.addSource(source, options, function(error) {
     if (error) return callback.call(context, error);
 
