@@ -384,10 +384,10 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         stub(RemoteStorage.prototype, "connect").given("jcoglan@5apps.com", {}).returns(_5apps)
         stub(RemoteStorage.prototype, "connect").given("me@local.dev", {}).returns(_local)
 
-        storage.load("sources", function(error, config) {
+        storage._loader.load("sources", function(error, config) {
           config["me@local.dev"] = {}
           config["jcoglan@5apps.com"] = {}
-          storage.dump("sources", config, resume)
+          storage._loader.dump("sources", config, resume)
         })
       }})
 
@@ -406,7 +406,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         it("adds the source to the local store", function(resume) { with(this) {
           expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
           cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function() {
-            storage.load("sources", function(error, config) {
+            storage._loader.load("sources", function(error, config) {
               resume(function() {
                 assertEqual({
                   browser: null,
@@ -456,7 +456,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         it("adds the source to the local store", function(resume) { with(this) {
           expect(stdout, "write").given('Source "person@example.com" was successfully added.\n')
           cli.run(["node", "bin/vault", "--text-browser", "elinks", "--add-source", "person@example.com"], function() {
-            storage.load("sources", function(error, config) {
+            storage._loader.load("sources", function(error, config) {
               resume(function() {
                 assertEqual({
                   browser: "elinks",
@@ -482,7 +482,7 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
 
         it("does not add the source to the local store", function(resume) { with(this) {
           cli.run(["node", "bin/vault", "--add-source", "person@example.com"], function(error) {
-            storage.load("sources", function(err, config) {
+            storage._loader.load("sources", function(err, config) {
               resume(function() {
                 assertEqual( "Could not find remoteStorage endpoints for person@example.com", error.message )
                 assertEqual( undefined, config["person@example.com"] )
