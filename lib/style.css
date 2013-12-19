@@ -91,7 +91,8 @@ input.text, input.password {
   border-bottom: 1px solid #666;
   font-size: 1em;
 }
-.password {
+button {
+  margin-top: 1.5em;
 }
 .password input.text, .password input.password {
   display: inline;
