@@ -1,9 +1,10 @@
-var http  = require('http'),
-    https = require('https'),
-    fs    = require('fs'),
-    url   = require('url'),
-    qs    = require('querystring'),
-    Vault = require('../lib/vault');
+var http   = require('http'),
+    https  = require('https'),
+    fs     = require('fs'),
+    url    = require('url'),
+    qs     = require('querystring'),
+    cipher = require('vault-cipher'),
+    Vault  = require('../lib/vault');
 
 module.exports = function(method, _url, params, headers, options, callback, context) {
   var uri    = url.parse(_url),
@@ -39,19 +40,10 @@ module.exports = function(method, _url, params, headers, options, callback, cont
     var chunks = [],
         length = 0;
 
-    response.on('data', function(chunk) {
-      chunks.push(chunk);
-      length += chunk.length;
-    });
-    response.on('end', function() {
-      var buffer = new Buffer(length),
-          offset = 0;
+    response.on('data', function(c) { chunks.push(c) });
 
-      for (var i = 0, n = chunks.length; i < n; i++) {
-        chunks[i].copy(buffer, offset);
-        offset += chunks[i].length;
-      }
-      response.body = buffer;
+    response.on('end', function() {
+      response.body = cipher.concatBuffer(chunks);
       callback.call(context, null, response);
     });
   });
