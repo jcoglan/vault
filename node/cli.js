@@ -186,7 +186,7 @@ CLI.prototype.addSource = function(source, options, callback, context) {
 CLI.prototype.showSource = function(source, callback, context) {
   this._store.showSource(source, function(error, settings) {
     if (error) return callback.call(context, error);
-    this._out.write('Address:       ' + settings.state + '\n');
+    this._out.write('Address:       ' + settings.address + '\n');
     this._out.write('Type:          ' + settings.type + ', version ' + settings.version + '\n');
     this._out.write('OAuth URL:     ' + settings.oauth + '\n');
     this._out.write('Storage URL:   ' + settings.storage + '\n');
