@@ -86,7 +86,8 @@ CLI.prototype.run = function(argv, callback, context) {
     if (params.export) return this.export(params.export, callback, context);
     if (params.import) return this.import(params.import, callback, context);
 
-    this.withPhrase(params, function() {
+    this.withPhrase(params, function(error) {
+      if (error) return callback.call(context, error);
       if (params.config) {
         delete params.config;
         this.configure(service, params, callback, context);
