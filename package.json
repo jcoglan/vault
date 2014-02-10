@@ -20,7 +20,7 @@
                       }
 , "devDependencies" : { "jstest": "" }
 
-, "scripts"         : { "postinstall" : "./node/scripts/postinstall"
+, "scripts"         : { "postinstall" : "node ./node/scripts/postinstall"
                       , "test"        : "node spec/node.js"
                       }
 
