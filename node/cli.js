@@ -9,6 +9,7 @@ var fs         = require('fs'),
                 'key':            Boolean,
                 'length':         Number,
                 'repeat':         Number,
+                'iteration':      Number,
 
                 'lower':          Number,
                 'upper':          Number,
@@ -40,6 +41,7 @@ var fs         = require('fs'),
                 'n': '--notes',
                 'p': '--phrase',
                 'r': '--repeat',
+                't': '--iteration',
                 'x': '--delete',
                 'X': '--clear'
               };
