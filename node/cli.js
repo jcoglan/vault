@@ -1,7 +1,7 @@
 var fs             = require('fs'),
     path           = require('path'),
     Vault          = require('../lib/vault'),
-    Store          = require('../lib/store'),
+    Backend        = require('../lib/backend'),
     OptParser      = require('./optparser'),
     editor         = require('./editor'),
     CompositeStore = require('./composite_store'),
@@ -38,6 +38,7 @@ var fs             = require('fs'),
 
                 'export':         String,
                 'import':         String,
+                'migrate':        String,
 
                 'initpath':       Boolean,
                 'cmplt':          String,
@@ -58,6 +59,7 @@ var fs             = require('fs'),
                 'r': '--repeat',
                 's': '--source',
                 'S': '--set-source',
+                't': '--migrate',
                 'x': '--delete',
                 'X': '--clear'
               };
@@ -67,7 +69,7 @@ var exists = fs.existsSync || path.existsSync;
 var CLI = function(options) {
   var pathname = options.config.path, key = options.config.key;
 
-  this._local  = new Store(new FileAdapter(pathname), key, {cache: options.config.cache});
+  this._local  = new Backend(new FileAdapter(pathname), key, {cache: options.config.cache});
   this._store  = new CompositeStore(this._local);
   this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
 

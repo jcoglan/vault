@@ -260,9 +260,9 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
         "--clear", "--cmplt", "--config", "--dash", "--delete",
         "--delete-globals", "--delete-source", "--export", "--help",
         "--import", "--initpath", "--key", "--length", "--list-sources",
-        "--lower", "--master-key", "--notes", "--number", "--phrase",
-        "--repeat", "--set-source", "--show-source", "--source", "--space",
-        "--symbol", "--text-browser", "--upper"].join("\n") )
+        "--lower", "--master-key", "--migrate", "--notes", "--number",
+        "--phrase", "--repeat", "--set-source", "--show-source", "--source",
+        "--space", "--symbol", "--text-browser", "--upper"].join("\n") )
 
       cli.run(["node", "bin/vault", "--cmplt", "--"], resume)
     }})

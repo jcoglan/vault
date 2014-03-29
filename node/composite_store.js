@@ -1,24 +1,22 @@
+var Vault = require('../lib/vault');
+
 var CompositeStore = function(local) {
   this._local = local;
 };
 
 var single = function(name) {
   CompositeStore.prototype[name] = function() {
-    var args     = Array.prototype.slice.call(arguments),
-        arity    = this._local[name].length,
-        params   = args.slice(0, arity - 2),
-        callback = args[arity - 2],
-        context  = args[arity - 1];
+    var args = Vault.parseArgs(arguments);
 
     this._local.currentStore(function(error, store) {
-      if (error) return callback.call(context, error);
+      if (error) return args.callback.call(args.context, error);
 
-      params.push(function(error) {
+      args.params.push(function(error) {
         var result = [error, store.getName()].concat(Array.prototype.slice.call(arguments, 1));
-        callback.apply(context, result);
+        args.callback.apply(args.context, result);
       });
       var method = store[name];
-      method.apply(store, params);
+      method.apply(store, args.params);
     }, this);
   };
 };
@@ -44,20 +42,16 @@ var resolveChoice = function(results, backends, current, name, params, callback,
 
 var multi = function(name, concat) {
   CompositeStore.prototype[name] = function() {
-    var args     = Array.prototype.slice.call(arguments),
-        arity    = this._local[name].length,
-        params   = args.slice(0, arity - 2),
-        callback = args[arity - 2],
-        context  = args[arity - 1];
+    var args = Vault.parseArgs(arguments);
 
     if (this._source)
       return this._local.getStore(this._source, function(error, store) {
-        if (error) return callback.call(context, error);
+        if (error) return args.callback.call(args.context, error);
         store[name].apply(store, args);
       });
 
     this._local.listSources(function(error, stores, current) {
-      if (error) return callback.call(context, error);
+      if (error) return args.callback.call(args.context, error);
 
       var backends = {},
           results  = {},
@@ -70,13 +64,13 @@ var multi = function(name, concat) {
         if (concat || result !== null) results[storeName] = result;
         complete += 1;
         if (error) {
-          callback.call(context, error);
+          args.callback.call(args.context, error);
           called = true;
         } else if (complete === length) {
           if (concat)
-            resolveConcat(results, callback, context);
+            resolveConcat(results, args.callback, args.context);
           else
-            resolveChoice(results, backends, current, name, params, callback, context);
+            resolveChoice(results, backends, current, name, args.params, args.callback, args.context);
 
           called = true;
         }
@@ -87,12 +81,12 @@ var multi = function(name, concat) {
           backends[source] = store;
 
           var method  = store[name],
-              message = params.slice();
+              message = args.params.slice();
 
           message.push(function(error, result) {
             collect(store.getName(), error, result);
           });
-          message[arity - 3] = false;
+          message[args.params.length - 1] = false;
           method.apply(store, message);
         });
       }, this);
