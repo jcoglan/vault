@@ -6,3 +6,6 @@ node_js:
   - "0.10"
   - "0.11"
 
+before_install:
+  - mkdir node_modules
+  - git clone https://github.com/jcoglan/vault-cipher.git node_modules/vault-cipher
