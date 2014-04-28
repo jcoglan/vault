@@ -65,7 +65,7 @@ JS.Test.describe("Config file", function() { with(this) {
     expect(stdout, "write").given( ["--add-source", "--browser", "--cert",
       "--clear", "--cmplt", "--config", "--dash", "--delete",
       "--delete-globals", "--delete-source", "--export", "--help",
-      "--import", "--initpath", "--key", "--length", "--list-sources",
+      "--import", "--initpath", "--iteration", "--key", "--length", "--list-sources",
       "--lower", "--master-key", "--notes", "--number", "--phrase",
       "--repeat", "--set-source", "--show-source", "--source", "--space",
       "--symbol", "--text-browser", "--upper"].join("\n") )

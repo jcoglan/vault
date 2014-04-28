@@ -57,7 +57,7 @@ var fs             = require('fs'),
                 'n': '--notes',
                 'p': '--phrase',
                 'r': '--repeat',
-                't': '--iteration',
+                'I': '--iteration',
                 'x': '--delete',
                 'X': '--clear'
               };
