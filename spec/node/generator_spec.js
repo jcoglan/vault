@@ -42,6 +42,12 @@ JS.ENV.CliSpec = JS.Test.describe("CLI", function() { with(this) {
     cli.run(["node", "bin/vault", "asd", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-r", "1"], resume)
   }})
 
+  it("outputs a password with custom iteration count", function(resume) { with(this) {
+    passphrase = ""
+    expect(stdout, "write").given("pJtwTDsuxPicpMAieLkqCvVv")
+    cli.run(["node", "bin/vault", "asd", "-p", "--number", "0", "--symbol", "0", "-l", "24", "-I", "10"], resume)
+  }})
+
   it("reports an error if no passphrase given", function(resume) { with(this) {
     cli.run(["node", "bin/vault", "google"], function(e) {
       resume(function() {
