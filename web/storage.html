@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+    <title>Vault</title>
+    <link rel="stylesheet" href="./lib/style.css">
+  </head>
+  <body>
+
+    <div class="nav">
+      <div class="sub">
+        <div id="message"></div>
+        <ul>
+          <li><a href="./">Home</a></li>
+          <li class="current"><a href="./storage.html">Storage</a></li>
+          <li><a href="./faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub">
+      <p>If you have a <a href="http://remotestorage.io/">remoteStorage</a>
+        account, you can use it to save your Vault settings.</p>
+    </div>
+
+    <div class="form">
+      <div class="sub">
+        <form id="connectForm" action="./storage.html">
+          <label for="address">Address</label>
+          <input type="email" class="text" name="address" id="address" value="" autocomplete="off" autocapitalize="off">
+          <label for="key">Encryption key</label>
+          <input type="text" class="text" name="key" id="key" value="" autocomplete="off" autocapitalize="off">
+          <button>Connect</button>
+        </form>
+        <p id="feedback"></p>
+
+        <div id="connectResult">
+          <p>You have successfully connected the account <b id="userId"></b>.
+            Follow this link to continue:</p>
+
+          <p><a id="bookmark" href="">Continue using Vault</a></p>
+
+          <p>If you&rsquo;re using Vault on your personal computer, you can
+            bookmark this link to reopen Vault with your settings available.</p>
+
+          <p><strong>If you&rsquo;re using a shared computer</strong>, you
+            should make sure you clear this browser&rsquo;s history before you
+            leave.</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="./vault-min.js"></script>
+
+  </body>
+</html>
+

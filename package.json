@@ -15,12 +15,15 @@
                       , "mkdirp": "~0.3.0"
                       , "posix-argv-parser": "~1.0.0"
                       , "pw": "~0.0.4"
+                      , "remotestorage-oauth": "~0.2.0"
+                      , "rimraf": "~2.2.0"
                       , "ssh-agent": "~0.2.1"
-                      , "vault-cipher": "~0.3.0"
+                      , "vault-cipher": "~0.4.0"
                       }
-, "devDependencies" : { "jstest": "" }
+, "devDependencies" : { "jstest": "", "wake": "" }
 
-, "scripts"         : { "postinstall" : "./node/scripts/postinstall"
+, "scripts"         : { "build"       : "wake"
+                      , "postinstall" : "./node/scripts/postinstall"
                       , "test"        : "node spec/node.js"
                       }
 
@@ -29,5 +32,30 @@
                       }
 
 , "bugs"            : "http://github.com/jcoglan/vault/issues"
+
+, "wake": {
+    "javascript": {
+      "sourceDirectory": ".",
+      "targetDirectory": "web",
+      "builds": {
+        "min": {"digest": false, "tag": "suffix"}
+      },
+      "targets": {
+        "vault":  [ "node_modules/vault-cipher/lib/crypto-js",
+                    "node_modules/vault-cipher/lib/buffer",
+                    "node_modules/vault-cipher/lib/crypto-shim",
+                    "node_modules/vault-cipher/lib/vault-cipher",
+                    "node_modules/async/lib/async",
+                    "lib/vault",
+                    "lib/adapter",
+                    "lib/remotestorage",
+                    "lib/rs_adapter",
+                    "lib/loader",
+                    "lib/store",
+                    "lib/app"
+                  ]
+      }
+    }
+  }
 }
 

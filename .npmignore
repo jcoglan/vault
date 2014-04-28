@@ -1,7 +1,9 @@
 .git
 .gitignore
+.keychain
 .npmignore
 .travis.yml
+.wake.json
 chrome
 node_modules
 spec

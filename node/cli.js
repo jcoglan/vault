@@ -1,9 +1,11 @@
-var fs         = require('fs'),
-    path       = require('path'),
-    OptParser  = require('./optparser'),
-    editor     = require('./editor'),
-    Vault      = require('../lib/vault'),
-    LocalStore = require('./local_store'),
+var fs             = require('fs'),
+    path           = require('path'),
+    Vault          = require('../lib/vault'),
+    Store          = require('../lib/store'),
+    OptParser      = require('./optparser'),
+    editor         = require('./editor'),
+    CompositeStore = require('./composite_store'),
+    FileAdapter    = require('./file_adapter'),
 
     OPTIONS = { 'phrase':         Boolean,
                 'key':            Boolean,
@@ -24,6 +26,17 @@ var fs         = require('fs'),
                 'delete-globals': Boolean,
                 'clear':          Boolean,
 
+                'source':         String,
+                'cert':           String,
+                'add-source':     String,
+                'delete-source':  String,
+                'set-source':     String,
+                'show-source':    String,
+                'list-sources':   Boolean,
+                'browser':        String,
+                'text-browser':   String,
+                'master-key':     String,
+
                 'export':         String,
                 'import':         String,
 
@@ -32,12 +45,15 @@ var fs         = require('fs'),
                 'help':           Boolean
               },
 
-    SHORTS  = { 'c': '--config',
+    SHORTS  = { 'a': '--add-source',
+                'c': '--config',
+                'd': '--delete-source',
                 'e': '--export',
                 'h': '--help',
                 'i': '--import',
                 'k': '--key',
                 'l': '--length',
+                'm': '--master-key',
                 'n': '--notes',
                 'p': '--phrase',
                 'r': '--repeat',
@@ -49,11 +65,15 @@ var fs         = require('fs'),
 var exists = fs.existsSync || path.existsSync;
 
 var CLI = function(options) {
+  var pathname = options.config.path, key = options.config.key;
+
+  this._local  = new Store(new FileAdapter(pathname), key, {cache: options.config.cache});
+  this._store  = new CompositeStore(this._local);
   this._parser = new OptParser(OPTIONS, SHORTS, ['service']);
-  this._store  = new LocalStore(options.config).composite();
-  this._out    = options.stdout;
-  this._err    = options.stderr;
-  this._tty    = options.tty;
+
+  this._out = options.stdout;
+  this._err = options.stderr;
+  this._tty = options.tty;
 
   this._requestPassword = options.password;
   this._confirmAction = options.confirm;
@@ -82,6 +102,31 @@ CLI.prototype.run = function(argv, callback, context) {
     if (params.cmplt !== undefined)
       return this.complete(params.cmplt, callback, context);
 
+    if (params.cert && !exists(params.cert))
+      return callback.call(context, new Error('File "' + params.cert + '" does not exist'));
+
+    var opts = {
+          browser: params.browser || params['text-browser'] || null,
+          inline:  params['text-browser'] !== undefined,
+          ca:      params.cert && fs.readFileSync(params.cert).toString('utf8'),
+          key:     params['master-key']
+        },
+        source;
+
+    if (source = params['add-source'])
+      return this.addSource(source, opts, callback, context);
+    if (source = params['delete-source'])
+      return this._store.deleteSource(source, callback, context);
+    if (source = params['set-source'])
+      return this._store.setDefaultSource(source, callback, context);
+    if (source = params['show-source'])
+      return this.showSource(source, callback, context);
+
+    if (params['list-sources']) return this.listSources(callback, context);
+
+    if (source = params.source) this._store.setSource(source);
+    delete params.source;
+
     if (params['delete-globals']) return this.deleteGlobals(callback, context);
     if (params.delete) return this.delete(params.delete, callback, context);
     if (params.clear)  return this.deleteAll(callback, context);
@@ -108,7 +153,6 @@ CLI.prototype.complete = function(word, callback, context) {
     callback.call(context, null);
   } else {
     this._store.listSources(function(error, sources) {
-      sources = []; // temporary measure until remote sources are added
       this._store.listServices(function(error, services) {
         if (error) return callback.call(context, new Error('\n' + error.message));
         var all = services.concat(sources);
@@ -118,6 +162,55 @@ CLI.prototype.complete = function(word, callback, context) {
       }, this);
     }, this);
   }
+};
+
+CLI.prototype.addSource = function(source, options, callback, context) {
+  if (!options.key)
+    return callback.call(context, new Error('No encryption key given; run again with `--master-key`'));
+
+  this._store.addSource(source, options, function(error) {
+    if (error) return callback.call(context, error);
+
+    this._out.write('Source "' + source + '" was successfully added.\n');
+    var self = this;
+
+    this._confirmAction('Do you want to set "' + source + '" as your default source?', function(confirm) {
+      if (confirm)
+        self._store.setDefaultSource(source, callback, context);
+      else
+        callback.call(context, null);
+    });
+  }, this);
+};
+
+CLI.prototype.showSource = function(source, callback, context) {
+  this._store.showSource(source, function(error, settings) {
+    if (error) return callback.call(context, error);
+    this._out.write('Address:       ' + settings.address + '\n');
+    this._out.write('Type:          ' + settings.type + ', version ' + settings.version + '\n');
+    this._out.write('OAuth URL:     ' + settings.oauth + '\n');
+    this._out.write('Storage URL:   ' + settings.storage + '\n');
+    this._out.write('Token:         ' + settings.token + '\n');
+
+    if (settings.ca)
+      this._out.write('\n' + settings.ca + '\n');
+
+    callback.call(context, null);
+  }, this);
+};
+
+CLI.prototype.listSources = function(callback, context) {
+  this._store.listSources(function(error, sources, current) {
+    if (error) return callback.call(context, error);
+    sources = sources.sort();
+    var output = '';
+    for (var i = 0, n = sources.length; i < n; i++) {
+      output += (sources[i] === current) ? '*' : ' ';
+      output += ' ' + sources[i] + '\n';
+    }
+    this._out.write(output);
+    callback.call(context, null);
+  }, this);
 };
 
 CLI.prototype.withNotes = function(service, params, callback) {
@@ -199,7 +292,7 @@ CLI.prototype.configure = function(service, params, callback, context) {
     }
 
     if (service)
-      this._store.saveService(service, settings, function(error, store) {
+      this._store.saveService(service, settings, false, function(error, store) {
         if (error) return callback.call(context, error);
         this._out.write('Settings for service "' + service + '" saved to "' + store + '"\n');
         callback.call(context, null);

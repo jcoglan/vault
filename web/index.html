@@ -4,20 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
     <title>Vault</title>
-    <script src="./lib/crypto-js-3.1.2.js"></script>
-    <script src="./lib/vault.js"></script>
     <link rel="stylesheet" href="./lib/style.css">
   </head>
   <body>
 
-    <div class="info">
+    <div class="nav">
       <div class="sub">
-        <p><strong>Using the same password for every site?</strong> Well, you
-          shouldn&rsquo;t. Enter your passphrase and the service you&rsquo;re
-          logging into, and get a unique password for that service. Come back
-          here next time you need to look up your passwords.</p>
-
-        <p>Still have <a href="./faq.html">questions</a>?</p>
+        <div id="message"></div>
+        <ul>
+          <li class="current"><a href="./">Home</a></li>
+          <li><a href="./storage.html">Storage</a></li>
+          <li><a href="./faq.html">FAQ</a></li>
+        </ul>
       </div>
     </div>
 
@@ -108,7 +106,7 @@
       </div>
     </div>
 
-    <script src="./lib/app.js"></script>
+    <script src="./vault-min.js"></script>
 
   </body>
 </html>
