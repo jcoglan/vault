@@ -58,6 +58,8 @@ var fs             = require('fs'),
                 'p': '--phrase',
                 'r': '--repeat',
                 'I': '--iteration',
+                's': '--source',
+                'S': '--set-source',
                 'x': '--delete',
                 'X': '--clear'
               };
