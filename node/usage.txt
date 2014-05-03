@@ -5,7 +5,7 @@ Password generation:
   -k, --key                     uses your SSH private key to generate passwords
   -l, --length NUMBER           emits password of length NUMBER
   -r, --repeat NUMBER           allows maximum of NUMBER repeated adjacent chars
-  -t, --iteration NUMBER        allows maximum of NUMBER of PBKDF2 iterations
+  -I, --iteration NUMBER        sets NUMBER of PBKDF2 generator iterations
       --lower NUMBER            includes at least NUMBER lowercase letters
       --upper NUMBER            includes at least NUMBER uppercase letters
       --number NUMBER           includes at least NUMBER digits
