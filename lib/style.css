@@ -40,7 +40,7 @@ body, input {
 .sub {
   margin: 0 auto;
   padding: 0 1em 1.2em;
-  width: 400px;
+  width: 500px;
 }
 .form {
   background: #f4f4f4;
@@ -109,14 +109,21 @@ button {
 .password .show label {
   display: inline;
 }
-.length, .repeat {
+.length, .repeat, .iteration {
   float: left;
   margin-bottom: 1em;
-  width: 47%;
+  width: 40%;
+}
+.iteration {
+    width: 19%;
+    margin-right: 5%;
+}
+.repeat {
+    width: 31%;
 }
 .length {
   clear: both;
-  margin-right: 6%;
+  margin-right: 5%;
 }
 .generator input {
   font-family: Monaco, Courier New, monospace;

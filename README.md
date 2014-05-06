@@ -89,6 +89,12 @@ of times the same character can appear in a row.
 
     $ vault google -p -r 2
 
+An additional option is to extend vault's default cryptop-js iteration count
+(which is 8) by using `--iteration` or `-I`.
+This option increases the cost of producing the key but also increases
+the difficulty of an attack. You can use a number between 1 and 99.
+
+    $ vault google -p -I 9
 
 ## Using your SSH private key
 

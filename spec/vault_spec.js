@@ -35,6 +35,14 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
     }})
   }})
 
+  describe("with a specified iteration", function() { with(this) {
+    define("options", function() { return {phrase: PHRASE, length: 24, iteration: 10} })
+
+    it("generates a password with 10 iterations", function() { with(this) {
+        assertEqual( "U xt(?#bB1T?y%+DTv?Qy52|", vault.generate("asd") )
+    }})
+  }})
+
   describe("with a repetition limit", function() { with(this) {
     define("options", function() { return {phrase: "", length: 24, symbol: 0, number: 0, repeat: 1} })
 
