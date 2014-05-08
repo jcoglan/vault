@@ -3,7 +3,7 @@
 , "homepage"        : "https://getvau.lt/"
 , "author"          : "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)"
 , "keywords"        : ["security", "passwords"]
-, "license"         : "MIT"
+, "license"         : "GPL-3.0"
 
 , "version"         : "0.4.0"
 , "engines"         : {"node": ">=0.4.0"}
