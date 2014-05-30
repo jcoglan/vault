@@ -26,6 +26,18 @@ var readline = (parseInt(version[2], 10) <= 6)
                  return rl.createInterface({input: process.stdin, output: process.stderr});
                };
 
+// node-pw exits with success on ^C which is awful. Intercepting that
+// and exiting with an error so scripts work is slightly less awful.
+// https://github.com/substack/node-pw/pull/6
+function intercept_interrupt(code) {
+  // If intercepting some other abnormal exit, don't mess with it.
+  if (code === 0) {
+    // SIGINT is signal 2 on most (not all) POSIX systems, which
+    // means exit code 130 if exiting due to a signal.
+    process.exit(130);
+  }
+}
+
 var cli = new CLI({
   config: {path: path, key: key},
   stdout: process.stdout,
@@ -42,7 +54,9 @@ var cli = new CLI({
 
   password: function(callback) {
     process.stderr.write('Passphrase: ');
+    process.on('exit', intercept_interrupt);
     pw('*', process.stdin, process.stderr, function(password) {
+      process.removeListener('exit', intercept_interrupt);
       password = new Buffer(password, 'binary').toString('utf8');
       callback(password);
     });
