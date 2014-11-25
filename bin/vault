@@ -53,6 +53,9 @@ var cli = new CLI({
         snip   = 12;
 
     client.requestIdentities(function(error, keys) {
+      if (keys === undefined)
+        return callback(new Error('No keys were found'));
+
       keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
 
       if (keys.length === 0)
