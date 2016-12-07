@@ -21,7 +21,7 @@
 , "devDependencies" : { "jstest": "" }
 
 , "scripts"         : { "build"       : "wake"
-                      , "postinstall" : "./node/scripts/postinstall"
+                      , "postinstall" : "./lib/cli/scripts/postinstall"
                       , "test"        : "node spec/node.js"
                       }
 
