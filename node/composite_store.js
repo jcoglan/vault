@@ -1,134 +1,109 @@
+'use strict';
+
+var Promise = require('storeroom').Promise,
+    util    = require('../lib/util');
+
+var slice = Array.prototype.slice;
+
 var CompositeStore = function(local) {
   this._local = local;
 };
 
-var single = function(name) {
-  CompositeStore.prototype[name] = function() {
-    var args     = Array.prototype.slice.call(arguments),
-        arity    = this._local[name].length,
-        params   = args.slice(0, arity - 2),
-        callback = args[arity - 2],
-        context  = args[arity - 1];
-
-    this._local.currentStore(function(error, store) {
-      if (error) return callback.call(context, error);
-
-      params.push(function(error) {
-        var result = [error, store.getName()].concat(Array.prototype.slice.call(arguments, 1));
-        callback.apply(context, result);
-      });
-      var method = store[name];
-      method.apply(store, params);
-    }, this);
+var local = function(method) {
+  CompositeStore.prototype[method] = function() {
+    return this._local[method].apply(this._local, arguments);
   };
-};
-
-var resolveConcat = function(results, callback, context) {
-  output = Object.keys(results)
-             .map(function(s) { return results[s] })
-             .reduce(function(a, b) { return a.concat(b) });
-
-  callback.call(context, null, output);
-};
-
-var resolveChoice = function(results, backends, current, name, params, callback, context) {
-  var candidates = Object.keys(results);
-      selected   = (candidates.length === 1) ? candidates[0] : current,
-      method     = backends[selected][name];
-
-  params.push(function(error, result) {
-    callback.call(context, null, result);
-  });
-  method.apply(backends[selected], params);
-};
-
-var multi = function(name, concat) {
-  CompositeStore.prototype[name] = function() {
-    var args     = Array.prototype.slice.call(arguments),
-        arity    = this._local[name].length,
-        params   = args.slice(0, arity - 2),
-        callback = args[arity - 2],
-        context  = args[arity - 1];
-
-    if (this._source)
-      return this._local.getStore(this._source, function(error, store) {
-        if (error) return callback.call(context, error);
-        store[name].apply(store, args);
-      });
-
-    this._local.listSources(function(error, stores, current) {
-      if (error) return callback.call(context, error);
-
-      var backends = {},
-          results  = {},
-          length   = stores.length,
-          complete = 0,
-          called   = false;
-
-      var collect = function(storeName, error, result) {
-        if (called) return;
-        if (concat || result !== null) results[storeName] = result;
-        complete += 1;
-        if (error) {
-          callback.call(context, error);
-          called = true;
-        } else if (complete === length) {
-          if (concat)
-            resolveConcat(results, callback, context);
-          else
-            resolveChoice(results, backends, current, name, params, callback, context);
-
-          called = true;
-        }
-      };
-
-      stores.forEach(function(source) {
-        this._local.getStore(source, function(error, store) {
-          backends[source] = store;
-
-          var method  = store[name],
-              message = params.slice();
-
-          message.push(function(error, result) {
-            collect(store.getName(), error, result);
-          });
-          message[arity - 3] = false;
-          method.apply(store, message);
-        });
-      }, this);
-    }, this);
-  };
-};
-
-var local = function(name) {
-  CompositeStore.prototype[name] = function() {
-    var method = this._local[name];
-    return method.apply(this._local, arguments);
-  };
-};
-
-CompositeStore.prototype.setSource = function(source) {
-  this._source = source;
-  return this._local.setSource(source);
 };
 
 local('addSource');
-local('currentStore');
 local('deleteSource');
 local('listSources');
 local('setDefaultSource');
-local('showSource');
+local('getSource');
+local('currentStore');
 
-single('clear');
-single('deleteGlobals');
-single('deleteService');
-single('export');
-single('import');
+CompositeStore.prototype.setSource = function(address) {
+  this._address = address;
+  this._local.setSource(address);
+};
+
+var single = function(method) {
+  CompositeStore.prototype[method] = function() {
+    var args = slice.call(arguments);
+
+    return this._local.currentStore().then(function(store) {
+      var result = store[method].apply(store, args);
+      return Promise.all([store.getName(), result]);
+    });
+  };
+};
+
 single('saveGlobals');
+single('deleteGlobals');
 single('saveService');
+single('deleteService');
+single('import');
+single('export');
+single('clear');
 
-multi('listServices', true);
-multi('serviceSettings', false);
+CompositeStore.prototype.listServices = function() {
+  var local   = this._local,
+      sources = this._address ? [this._address] : local.listSources();
+
+  return Promise.resolve(sources).then(function(sources) {
+    var stores = sources.map(function(source) { return local.getStore(source.address) });
+    return Promise.all(stores);
+
+  }).then(function(stores) {
+    var services = stores.map(function(store) { return store.listServices() });
+    return Promise.all(services);
+
+  }).then(function(services) {
+    services = services.reduce(function(a, b) { return a.concat(b) });
+    return util.unique(services);
+  });
+};
+
+CompositeStore.prototype.serviceSettings = function(service, includeGlobal) {
+  if (this._address)
+    return this._local.currentStore().then(function(store) {
+      return store.serviceSettings(service, includeGlobal);
+    });
+
+  var local   = this._local,
+      stores  = {},
+      results = {},
+      addresses,
+      current,
+      selected;
+
+  return local.listSources().then(function(sources) {
+    addresses = sources.map(function(source) { return source.address });
+    current   = sources.filter(function(source) { return source.current })[0].address;
+
+    var _stores = addresses.map(function(address) { return local.getStore(address) });
+    return Promise.all(_stores);
+
+  }).then(function(_stores) {
+    addresses.forEach(function(address, i) { stores[address] = _stores[i] });
+
+    var settings = _stores.map(function(store) { return store.serviceSettings(service, false) });
+    return Promise.all(settings);
+
+  }).then(function(settings) {
+    addresses.forEach(function(address, i) {
+      var setting = settings[i];
+      if (setting) results[address] = setting;
+    });
+
+    var available = Object.keys(results);
+    selected = (available.length === 1) ? available[0] : current;
+
+    return includeGlobal ? stores[selected].globalSettings() : null;
+      
+  }).then(function(global) {
+    return util.assign({}, global, results[selected]);
+  });
+};
 
 module.exports = CompositeStore;
-

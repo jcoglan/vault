@@ -1,9 +1,10 @@
-var Vault = require('../lib/vault'),
-    pap   = require('posix-argv-parser');
+var pap     = require('posix-argv-parser'),
+    Promise = require('storeroom').Promise,
+    util    = require('../lib/util');
  
 var OptParser = function(options, shorts, args) {
-  this._options = Vault.extend({}, options);
-  this._shorts  = Vault.extend({}, shorts);
+  this._options = util.assign({}, options);
+  this._shorts  = util.assign({}, shorts);
   this._args    = args;
 
   this._parser = pap.create();
@@ -31,21 +32,24 @@ var OptParser = function(options, shorts, args) {
     this._parser.createOperand(args[i]);
 };
 
-OptParser.prototype.parse = function(argv, callback, context) {
+OptParser.prototype.parse = function(argv) {
   var self = this;
-  this._parser.parse(argv.slice(2), function(error, opt) {
-    if (error) return callback.call(context, new Error(error[0]));
 
-    var processed = {}, name, type;
+  return new Promise(function(resolve, reject) {
+    self._parser.parse(argv.slice(2), function(error, opt) {
+      if (error) return reject(new Error(error[0]));
 
-    for (var key in opt) {
-      if (!/^-[a-z]/i.test(key) && opt[key].isSet) {
-        name = key.replace(/^--/, '');
-        type = (self._options[name] || [])[0];
-        processed[name] = (type === Boolean) ? true : opt[key].value;
+      var processed = {}, name, type;
+
+      for (var key in opt) {
+        if (!/^-[a-z]/i.test(key) && opt[key].isSet) {
+          name = key.replace(/^--/, '');
+          type = (self._options[name] || [])[0];
+          processed[name] = (type === Boolean) ? true : opt[key].value;
+        }
       }
-    }
-    callback.call(context, null, processed);
+      resolve(processed);
+    });
   });
 };
 

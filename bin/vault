@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-var CLI  = require('../node/cli'),
-    SSH  = require('ssh-agent'),
-    pw   = require('pw'),
-    rl   = require('readline'),
-    tty  = require('tty'),
+'use strict';
+
+var CLI     = require('../node/cli'),
+    Promise = require('storeroom').Promise,
+    SSH     = require('ssh-agent'),
+    pw      = require('pw'),
+    rl      = require('readline'),
+    tty     = require('tty'),
 
     home = process.env.HOME ||
            process.env.USERPROFILE,
@@ -16,15 +19,10 @@ var CLI  = require('../node/cli'),
 
     path = require('path').resolve(home, process.env.VAULT_PATH || '.vault');
 
-var version = process.versions.node.match(/(\d+)\.(\d+)\.(\d+)/), rl;
 
-var readline = (parseInt(version[2], 10) <= 6)
-             ? function() {
-                 return rl.createInterface(process.stdin, process.stderr);
-               }
-             : function() {
-                 return rl.createInterface({input: process.stdin, output: process.stderr});
-               };
+var readline = function() {
+  return rl.createInterface({input: process.stdin, output: process.stderr});
+};
 
 var cli = new CLI({
   config: {path: path, key: key},
@@ -32,72 +30,81 @@ var cli = new CLI({
   stderr: process.stderr,
   tty:    tty.isatty(1),
 
-  confirm: function(message, callback) {
-    var rl = readline();
-    rl.question(message + ' (Y/n): ', function(input) {
-      rl.close();
-      callback(input === 'Y');
+  confirm: function(message) {
+    return new Promise(function(resolve, reject) {
+      var rl = readline();
+      rl.question(message + ' (y/n): ', function(input) {
+        rl.close();
+        if (input.toLowerCase() === 'y')
+          resolve();
+        else
+          reject();
+      });
     });
   },
 
-  password: function(callback) {
-    process.stderr.write('Passphrase: ');
-    pw('*', process.stdin, process.stderr, function(password) {
-      password = new Buffer(password, 'binary').toString('utf8');
-      callback(password);
+  password: function() {
+    return new Promise(function(resolve, reject) {
+      process.stderr.write('Passphrase: ');
+      pw('*', process.stdin, process.stderr, function(password) {
+        password = new Buffer(password, 'binary').toString('utf8');
+        resolve(password);
+      });
     });
   },
 
-  selectKey: function(callback) {
+  selectKey: function() {
     var client = new SSH(),
         snip   = 12;
 
-    client.requestIdentities(function(error, keys) {
-      keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
+    return new Promise(function(resolve, reject) {
+      client.requestIdentities(function(error, keys) {
+        keys = keys.filter(function(k) { return k.type === 'ssh-rsa' });
 
-      if (keys.length === 0)
-        return callback(new Error('No usable RSA keys were found'));
+        if (keys.length === 0)
+          return reject(new Error('No usable RSA keys were found'));
 
-      if (keys.length === 1) return callback(null, keys[0].ssh_key);
+        if (keys.length === 1) return resolve(keys[0].ssh_key);
 
-      console.error('\nWhich key would you like to use?\n');
+        console.error('\nWhich key would you like to use?\n');
 
-      keys.forEach(function(key, i) {
-        var abbrev = key.ssh_key.substr(0, snip) + '...' + key.ssh_key.substr(key.ssh_key.length - snip);
-        console.error((i+1) + ': ' + key.comment + ', ' + abbrev);
-      });
-      readline().question('\nEnter a number (1-' + keys.length + '): ', function(index) {
-        index = parseInt(index, 10);
-        if (index >= 1 && index <= keys.length)
-          callback(null, keys[index - 1].ssh_key);
-        else
-          callback(new Error('Selected key must be between 1 and ' + keys.length));
+        keys.forEach(function(key, i) {
+          var abbrev = key.ssh_key.substr(0, snip) + '...' + key.ssh_key.substr(key.ssh_key.length - snip);
+          console.error((i+1) + ': ' + key.comment + ', ' + abbrev);
+        });
+        readline().question('\nEnter a number (1-' + keys.length + '): ', function(index) {
+          index = parseInt(index, 10);
+          if (index >= 1 && index <= keys.length)
+            resolve(keys[index - 1].ssh_key);
+          else
+            reject(new Error('Selected key must be between 1 and ' + keys.length));
+        });
       });
     });
   },
 
-  sign: function(sshKey, message, callback) {
+  sign: function(sshKey, message) {
     var client = new SSH();
-    client.requestIdentities(function(error, keys) {
-      var key = keys.filter(function(k) { return k.ssh_key === sshKey })[0];
-      if (!key) return callback(new Error('Private key not found'));
 
-      client.sign(key, new Buffer(message), function(error, signature) {
-        if (signature)
-          callback(null, signature.signature);
-        else
-          callback(new Error('Private key signing failed'));
+    return new Promise(function(resolve, reject) {
+      client.requestIdentities(function(error, keys) {
+        var key = keys.filter(function(k) { return k.ssh_key === sshKey })[0];
+        if (!key) return reject(new Error('Private key not found'));
+
+        client.sign(key, new Buffer(message), function(error, signature) {
+          if (signature)
+            resolve(signature.signature);
+          else
+            reject(new Error('Private key signing failed'));
+        });
       });
     });
   }
 });
 
-cli.run(process.argv, function(error) {
-  if (error) {
-    console.error(error.message);
-    process.exit(1);
-  } else {
-    process.exit(0);
-  }
+cli.run(process.argv).then(function() {
+  process.exit(0);
+}, function(error) {
+  if (error) console.error(error.stack);
+  process.exit(1);
 });
-
