@@ -1,4 +1,7 @@
-JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
+var Vault  = require("../lib/vault"),
+    jstest = require("jstest").Test
+
+jstest.describe("Stream", function() { with(this) {
   before(function() { with(this) {
     this.bits = [
       1,0,0,1,1,1,0,1,0,0,0,1,0,1,0,0,0,1,1,0,1,1,1,0,0,0,1,1,0,0,0,1,0,1,0,1,0,
@@ -35,7 +38,7 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
     this.stream._bases[2] = bits.slice()
   }})
 
-  define("generate", function(base) { with(this) {
+  this.define("generate", function(base) { with(this) {
     var result = [], value = true
     while (value !== null) {
       value = stream.generate(base)
@@ -428,4 +431,3 @@ JS.ENV.StreamSpec = JS.Test.describe("Stream", function() { with(this) {
     ], generate(94) )
   }})
 }})
-

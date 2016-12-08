@@ -18,7 +18,8 @@
                       , "ssh-agent": "~0.2.1"
                       , "storeroom": "~0.1.0"
                       }
-, "devDependencies" : { "jstest": "" }
+, "devDependencies" : { "jstest": "*"
+                      , "webpack": "*" }
 
 , "scripts"         : { "build"       : "wake"
                       , "postinstall" : "./lib/cli/scripts/postinstall"

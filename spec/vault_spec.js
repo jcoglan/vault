@@ -1,12 +1,15 @@
-JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
+var Vault  = require("../lib/vault"),
+    jstest = require("jstest").Test
+
+jstest.describe("Vault", function() { with(this) {
   var PHRASE = "She cells C shells bye the sea shoars"
 
   before(function() { this.vault = new Vault(this.options()) })
 
-  define("options", function() { return {} })
+  this.define("options", function() { return {} })
 
   describe("with a passphrase", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE} })
+    this.define("options", function() { return {phrase: PHRASE} })
 
     it("generates a password", function() { with(this) {
       assertEqual( ": 4TVH#5:aZl8LueOT\\{", vault.generate("google") )
@@ -28,7 +31,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with a length", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, length: 4} })
+    this.define("options", function() { return {phrase: PHRASE, length: 4} })
 
     it("generates a password of the given length", function() { with(this) {
       assertEqual( "xDFu", vault.generate("google") )
@@ -36,7 +39,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with a repetition limit", function() { with(this) {
-    define("options", function() { return {phrase: "", length: 24, symbol: 0, number: 0, repeat: 1} })
+    this.define("options", function() { return {phrase: "", length: 24, symbol: 0, number: 0, repeat: 1} })
 
     it("generates a password with no repeated characters", function() { with(this) {
       assertEqual( "IVTDzACftqopUXqDHPkuCIhV", vault.generate("asd") )
@@ -44,7 +47,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with no symbols", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, symbol: 0} })
+    this.define("options", function() { return {phrase: PHRASE, symbol: 0} })
 
     it("generates a password containing no symbols", function() { with(this) {
       assertEqual( "XZ4wRe0bZCazbljCaMqR", vault.generate("google") )
@@ -52,7 +55,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with more symbols than will fit", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, symbol: 100} })
+    this.define("options", function() { return {phrase: PHRASE, symbol: 100} })
 
     it("throws an error", function() { with(this) {
       assertThrows(Error, function() { vault.generate("google") })
@@ -60,7 +63,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with no numbers", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, number: 0} })
+    this.define("options", function() { return {phrase: PHRASE, number: 0} })
 
     it("generates a password containing no digits", function() { with(this) {
       assertEqual( "_*$TVH.%^aZl(LUeOT?>", vault.generate("google") )
@@ -68,7 +71,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with no lowercase letters", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, lower: 0} })
+    this.define("options", function() { return {phrase: PHRASE, lower: 0} })
 
     it("generates a password containing no lowercase letters", function() { with(this) {
       assertEqual( ":{?)+7~@OA:L]!0E$)(+", vault.generate("google") )
@@ -76,7 +79,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with at least 5 numbers", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, length: 8, number: 5} })
+    this.define("options", function() { return {phrase: PHRASE, length: 8, number: 5} })
 
     it("generates a password with at least 5 digits", function() { with(this) {
       assertEqual( "i0908.7[", vault.generate("songkick") )
@@ -84,7 +87,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with lots of spaces", function() { with(this) {
-    define("options", function() { return {phrase: PHRASE, space: 12} })
+    this.define("options", function() { return {phrase: PHRASE, space: 12} })
 
     it("generates a password that's almost all spaces", function() { with(this) {
       assertEqual( " c   6 Bq  % 5fR    ", vault.generate("songkick") )
@@ -92,7 +95,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with no viable characters", function() { with(this) {
-    define("options", function() {
+    this.define("options", function() {
       return {phrase: PHRASE, lower: 0, upper: 0, number: 0, space: 0, dash: 0, symbol: 0}
     })
 
@@ -102,7 +105,7 @@ JS.ENV.VaultSpec = JS.Test.describe("Vault", function() { with(this) {
   }})
 
   describe("with all character classes", function() { with(this) {
-    define("options", function() {
+    this.define("options", function() {
       return {phrase: PHRASE, lower: 2, upper: 2, number: 1, space: 3, dash: 2, symbol: 1}
     })
 
