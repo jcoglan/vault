@@ -8,4 +8,3 @@ elif [ -n "$ZSH_VERSION" ]; then
   root="$(dirname "$0")"
   source "$root/completion.zsh"
 fi
-

@@ -8,4 +8,3 @@ _vault_complete() {
 }
 
 complete -f -F _vault_complete vault
-

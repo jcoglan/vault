@@ -37,4 +37,3 @@ Environment variables:
   VAULT_PATH                    path to the settings file, default is $HOME/.vault
 
 Full documentation is available at http://github.com/jcoglan/vault
-

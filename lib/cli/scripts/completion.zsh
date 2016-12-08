@@ -12,4 +12,3 @@ _vault_complete() {
 }
 
 compctl -f -K _vault_complete vault
-
