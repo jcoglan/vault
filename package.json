@@ -11,14 +11,13 @@
 , "bin"             : {"vault": "./bin/vault"}
 , "preferGlobal"    : true
 
-, "dependencies"    : { "mkdirp": "~0.3.0"
-                      , "posix-argv-parser": "~1.0.0"
+, "dependencies"    : { "posix-argv-parser": "~1.0.0"
                       , "pw": "~0.0.4"
-                      , "rimraf": "~2.2.0"
                       , "ssh-agent": "~0.2.1"
                       , "storeroom": "~0.1.0"
                       }
 , "devDependencies" : { "jstest": "*"
+                      , "rimraf": "*"
                       , "webpack": "*" }
 
 , "scripts"         : { "test": "node spec/node.js" }
