@@ -21,10 +21,7 @@
 , "devDependencies" : { "jstest": "*"
                       , "webpack": "*" }
 
-, "scripts"         : { "build"       : "wake"
-                      , "postinstall" : "./lib/cli/scripts/postinstall"
-                      , "test"        : "node spec/node.js"
-                      }
+, "scripts"         : { "test": "node spec/node.js" }
 
 , "repository"      : { "type"  : "git"
                       , "url"   : "git://github.com/jcoglan/vault.git"
