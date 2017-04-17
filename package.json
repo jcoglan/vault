@@ -13,6 +13,7 @@
 
 , "dependencies"    : { "posix-argv-parser": "~1.0.0"
                       , "pw": "~0.0.4"
+                      , "sequin": "~0.1.0"
                       , "ssh-agent": "~0.2.1"
                       , "storeroom": "git://github.com/jcoglan/storeroom.git"
                       }
