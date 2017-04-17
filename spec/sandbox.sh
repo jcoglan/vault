@@ -7,4 +7,4 @@ alias inspect="rm -f export.json && vault -e export.json && cat export.json"
 alias inspectdb="cat .keychain/.keys && ls -la .keychain"
 alias cleandb="rm -rf .keychain"
 
-. node/scripts/init
+. lib/cli/scripts/init
