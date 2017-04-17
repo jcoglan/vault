@@ -2,8 +2,9 @@
 
 'use strict';
 
-var CLI = require('../lib/cli'),
-    tty = require('tty'),
+var CLI  = require('../lib/cli'),
+    path = require('path'),
+    tty  = require('tty'),
 
     home = process.env.HOME ||
            process.env.USERPROFILE,
@@ -13,11 +14,12 @@ var CLI = require('../lib/cli'),
            process.env.USER ||
            process.env.USERNAME,
 
-    path = require('path').resolve(home, process.env.VAULT_PATH || '.vault');
+    vaultPath = process.env.VAULT_PATH || '.vault',
+    pathname  = path.resolve(home, vaultPath);
 
 
 var cli = new CLI({
-  config: {path: path, key: key},
+  config: {path: vaultPath, key: key},
   stdout: process.stdout,
   stderr: process.stderr,
   tty:    tty.isatty(1),
