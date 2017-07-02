@@ -114,4 +114,3 @@ jstest.describe("Vault", function() { with(this) {
     }})
   }})
 }})
-

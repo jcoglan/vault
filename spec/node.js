@@ -1,8 +1,9 @@
 var jstest = require("jstest").Test
 
 require("./vault_spec")
-// require("./node/generator_spec")
-// require("./node/config_file_spec")
-// require("./node/remote_sources_spec")
+
+require("./cli/generator_spec")
+require("./cli/config_spec")
+require("./cli/completion_spec")
 
 jstest.autorun()

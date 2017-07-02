@@ -33,7 +33,7 @@ function test(generator) {
   console.log('Std.dev.: ' + stddev);
 }
 
-var Vault = require('../../lib/vault'),
+var Vault = require('../lib/vault'),
     vault = new Vault({phrase: rand()});
 
 var random = {
