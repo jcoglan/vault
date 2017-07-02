@@ -33,6 +33,6 @@ var cli = new CLI({
 cli.run(process.argv).then(function() {
   process.exit(0);
 }, function(error) {
-  if (error) console.error(error.stack);
+  if (error) console.error(process.env.DEBUG ? error.stack : error.message);
   process.exit(1);
 });
