@@ -18,7 +18,6 @@
                       , "storeroom": "git://github.com/jcoglan/storeroom.git"
                       }
 , "devDependencies" : { "jstest": "*"
-                      , "rimraf": "*"
                       , "webpack": "*" }
 
 , "scripts"         : { "test": "node spec/node.js" }
