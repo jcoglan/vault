@@ -8,7 +8,7 @@ jstest.describe("CLI generator", function() { with(this) {
 
   before(function() { with(this) {
     stub(fileStore, "get").returns(Promise.resolve(null))
-    stub(fileStore, "entries").returns(Promise.resolve([]))
+    stub(fileStore, "entries").given("/sources/sessions/").returns(Promise.resolve([]))
 
     settings.password = "something"
   }})
