@@ -3,7 +3,7 @@ export VAULT_KEY=foo
 export PATH=~+/bin:$PATH
 
 alias vault="env vault"
-alias inspect="rm -f export.json && vault -e export.json && cat export.json"
+alias inspect="node spec/inspector.js"
 alias inspectdb="cat .keychain/.keys && ls -la .keychain"
 alias cleandb="rm -rf .keychain"
 
