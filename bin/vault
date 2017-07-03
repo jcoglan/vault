@@ -2,9 +2,10 @@
 
 'use strict';
 
-var CLI  = require('../lib/cli'),
-    path = require('path'),
-    tty  = require('tty'),
+var CLI    = require('../lib/cli'),
+    legacy = require('../lib/legacy'),
+    path   = require('path'),
+    tty    = require('tty'),
 
     home = process.env.HOME ||
            process.env.USERPROFILE,
@@ -30,9 +31,16 @@ var cli = new CLI({
   sign:      require('../lib/cli/sign')
 });
 
-cli.run(process.argv).then(function() {
+
+legacy.migrateConfig(pathname, key).then(function() {
+  return cli.run(process.argv);
+
+}).then(function() {
   process.exit(0);
+
 }, function(error) {
-  if (error) console.error(process.env.DEBUG ? error.stack : error.message);
+  if (error)
+    console.error('[ERROR] ' + (process.env.DEBUG ? error.stack : error.message));
+
   process.exit(1);
 });
