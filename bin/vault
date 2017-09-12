@@ -20,7 +20,7 @@ var CLI    = require('../lib/cli'),
 
 
 var cli = new CLI({
-  config: {path: vaultPath, key: key},
+  config: {path: pathname, key: key},
   stdout: process.stdout,
   stderr: process.stderr,
   tty:    tty.isatty(1),
