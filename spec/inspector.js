@@ -1,18 +1,21 @@
 'use strict';
 
-var path      = require('path'),
-    storeroom = require('storeroom');
+var path   = require('path'),
+    escodb = require('../lib/escodb');
 
-var local = storeroom.createStore({
-  password: process.env.VAULT_KEY,
-  adapter:  storeroom.createFileAdapter(path.resolve(process.env.VAULT_PATH))
-});
+async function streamToArray(stream) {
+  let items = []
+  for await (let item of stream) {
+    items.push(item)
+  }
+  return items
+}
 
 function list(name, store) {
-  return store.findRecursive('/').then(function(entries) {
+  return streamToArray(store.find('/')).then(function(entries) {
     return Promise.all([
       entries,
-      Promise.all(entries.map(store.get, store))
+      Promise.all(entries.map((e) => store.get('/' + e)))
     ]);
 
   }).then(function(results) {
@@ -24,19 +27,11 @@ function list(name, store) {
   });
 }
 
-list('LOCAL', local);
+var local = escodb.createStore({
+  password: process.env.VAULT_KEY,
+  adapter:  escodb.createFileAdapter(path.resolve(process.env.VAULT_PATH))
+});
 
-var DIR = '/sources/sessions/';
-
-local.entries(DIR).then(function(sources) {
-  return Promise.all(sources.map(function(s) { return local.get(DIR + s) }));
-
-}).then(function(sessions) {
-  sessions.forEach(function(source) {
-    var store = storeroom.createStore({
-      password: source.options.key,
-      adapter:  storeroom.createRemoteStorageAdapter(source.session)
-    });
-    list(source.session.address, store);
-  });
+local.then(function(store) {
+  list('LOCAL', store);
 });

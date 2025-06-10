@@ -1,26 +1,23 @@
-var storeroom = require("storeroom"),
-    Module    = require("jstest").Module,
-    CLI       = require("../../lib/cli")
+var escodb = require("../../lib/escodb"),
+    Module = require("jstest").Module,
+    CLI    = require("../../lib/cli")
+
+var MemoryAdapter = require("@escodb/core").MemoryAdapter
 
 module.exports = new Module({
   extend: {
     included: function(suite) {
-      suite.before(function() { with(this) {
+      suite.before(function(resume) { with(this) {
         this.settings = {}
 
-        var fileAdapter = {}
-        stub(storeroom, "createFileAdapter").given("storeroom path").returns(fileAdapter)
-
-        this.fileStore = {}
-        stub(storeroom, "createStore")
-          .given({adapter: fileAdapter, password: "storeroom key"})
-          .returns(fileStore)
+        this.memoryAdapter = new MemoryAdapter()
+        stub(escodb, "createFileAdapter").given("escodb path").returns(memoryAdapter)
 
         this.stdout = {}
         this.stderr = {}
 
         this.cli = new CLI({
-          config: {path: "storeroom path", key: "storeroom key"},
+          config: {path: "escodb path", key: "escodb key"},
 
           stdout: stdout,
           stderr: stderr,
@@ -30,6 +27,11 @@ module.exports = new Module({
           password:  function() { return Promise.resolve(settings.password) },
           selectKey: function() { return Promise.resolve(settings.selectKey) },
           sign:      function() { return Promise.resolve(settings.signature) }
+        })
+
+        escodb.createStore({adapter: memoryAdapter, password: "escodb key"}).then(function(store) {
+          this.escoStore = store
+          resume()
         })
       }})
     }

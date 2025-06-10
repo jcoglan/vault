@@ -6,9 +6,6 @@ jstest.describe("CLI generator", function() { with(this) {
   include(CliHelper)
 
   before(function() { with(this) {
-    stub(fileStore, "get").returns(Promise.resolve(null))
-    stub(fileStore, "entries").given("/sources/sessions/").returns(Promise.resolve([]))
-
     settings.password = "something"
   }})
 
@@ -69,54 +66,84 @@ jstest.describe("CLI generator", function() { with(this) {
   }})
 
   it("does not require the --phrase flag if there's a global setting", function(resume) { with(this) {
-    stub(fileStore, "get").given("/global").returns(Promise.resolve({phrase: "something"}))
-    expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
-    call(["google"]).then(resume, resume)
+    escoStore.update("/global", () => ({phrase: "something"})).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
+        call(["google"]).then(resume, resume)
+      })
+    })
   }})
 
   it("does not require the --phrase flag if there's a service setting", function(resume) { with(this) {
-    stub(fileStore, "get").given("/services/google").returns(Promise.resolve({phrase: "something"}))
-    expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
-    call(["google"]).then(resume, resume)
+    escoStore.update("/services/google", () => ({phrase: "something"})).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
+        call(["google"]).then(resume, resume)
+      })
+    })
   }})
 
   it("uses a global setting if present", function(resume) { with(this) {
-    stub(fileStore, "get").given("/global").returns(Promise.resolve({length: 6}))
-    expect(stdout, "write").given("Tc8k~8")
-    call(["google", "-p"]).then(resume, resume)
+    escoStore.update("/global", () => ({length: 6})).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("Tc8k~8")
+        call(["google", "-p"]).then(resume, resume)
+      })
+    })
   }})
 
   it("uses a service setting if present", function(resume) { with(this) {
-    stub(fileStore, "get").given("/services/google").returns(Promise.resolve({length: 8}))
-    expect(stdout, "write").given("T=pf~mM=")
-    call(["google", "-p"]).then(resume, resume)
+    escoStore.update("/services/google", () => ({length: 8})).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("T=pf~mM=")
+        call(["google", "-p"]).then(resume, resume)
+      })
+    })
   }})
 
   it("merges global and service settings", function(resume) { with(this) {
-    stub(fileStore, "get").given("/global").returns(Promise.resolve({symbol: 0}))
-    stub(fileStore, "get").given("/services/google").returns(Promise.resolve({length: 8}))
-    expect(stdout, "write").given("w0H6fT9g")
-    call(["google", "-p"]).then(resume, resume)
+    Promise.all([
+      escoStore.update("/global", () => ({symbol: 0})),
+      escoStore.update("/services/google", () => ({length: 8}))
+    ]).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("w0H6fT9g")
+        call(["google", "-p"]).then(resume, resume)
+      })
+    })
   }})
 
   it("uses a service setting in preference to a global one", function(resume) { with(this) {
-    stub(fileStore, "get").given("/global").returns(Promise.resolve({length: 6}))
-    stub(fileStore, "get").given("/services/google").returns(Promise.resolve({length: 8}))
-    expect(stdout, "write").given("T=pf~mM=")
-    call(["google", "-p"]).then(resume, resume)
+    Promise.all([
+      escoStore.update("/global", () => ({length: 6})),
+      escoStore.update("/services/google", () => ({length: 8}))
+    ]).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("T=pf~mM=")
+        call(["google", "-p"]).then(resume, resume)
+      })
+    })
   }})
 
   it("uses a command-line argument in preference to stored settings", function(resume) { with(this) {
-    stub(fileStore, "get").given("/global").returns(Promise.resolve({length: 6}))
-    stub(fileStore, "get").given("/services/google").returns(Promise.resolve({length: 8}))
-    expect(stdout, "write").given("~#9?(:p<@VkI")
-    call(["google", "-p", "--length", "12"]).then(resume, resume)
+    Promise.all([
+      escoStore.update("/global", () => ({length: 6})),
+      escoStore.update("/services/google", () => ({length: 8}))
+    ]).then(function() {
+      resume(function(resume) {
+        expect(stdout, "write").given("~#9?(:p<@VkI")
+        call(["google", "-p", "--length", "12"]).then(resume, resume)
+      })
+    })
   }})
 
   it("prints notes associated with a service", function(resume) { with(this) {
-    stub(fileStore, "get").given("/services/google").returns(Promise.resolve({notes: "google notes"}))
-    expect(stderr, "write").given("\ngoogle notes\n\n")
-    expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
-    call(["google", "-p"]).then(resume, resume)
+    escoStore.update("/services/google", () => ({notes: "google notes"})).then(function() {
+      resume(function(resume) {
+        expect(stderr, "write").given("\ngoogle notes\n\n")
+        expect(stdout, "write").given("2hk!W[L,2rWWI=~=l>,E")
+        call(["google", "-p"]).then(resume, resume)
+      })
+    })
   }})
 }})
