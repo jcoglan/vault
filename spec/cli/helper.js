@@ -1,5 +1,4 @@
 var storeroom = require("storeroom"),
-    Promise   = storeroom.Promise,
     Module    = require("jstest").Module,
     CLI       = require("../../lib/cli")
 

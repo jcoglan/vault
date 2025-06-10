@@ -1,8 +1,7 @@
 'use strict';
 
 var path      = require('path'),
-    storeroom = require('storeroom'),
-    Promise   = storeroom.Promise;
+    storeroom = require('storeroom');
 
 var local = storeroom.createStore({
   password: process.env.VAULT_KEY,

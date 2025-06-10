@@ -1,5 +1,4 @@
 var jstest    = require("jstest").Test,
-    Promise   = require("storeroom").Promise,
     CliHelper = require("./helper")
 
 jstest.describe("CLI completion", function() { with(this) {
