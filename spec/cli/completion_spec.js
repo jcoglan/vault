@@ -4,36 +4,24 @@ var jstest    = require("jstest").Test,
 jstest.describe("CLI completion", function() { with(this) {
   include(CliHelper)
 
-  before(function() { with(this) {
-    stub(fileStore, "get").given("/sources/default").returns(Promise.resolve(null))
-  }})
-
   it("completes option names", function(resume) { with(this) {
     expect(stdout, "write").given(["--notes", "--number"].join("\n"))
     call(["--cmplt", "--n"]).then(resume, resume)
   }})
 
   describe("service names", function() { with(this) {
-    before(function() { with(this) {
-      stub(fileStore, "entries").given("/services/").returns(Promise.resolve([
-        "acme/",
-        "bar",
-        "bee",
-        "queue",
-        "zzz",
-        "zzz/"
-      ]))
-      stub(fileStore, "entries").given("/services/acme/").returns(Promise.resolve([
-        "password",
-        "username"
-      ]))
-      stub(fileStore, "entries").given("/services/zzz/").returns(Promise.resolve([
-        "hello/"
-      ]))
-      stub(fileStore, "entries").given("/services/zzz/hello/").returns(Promise.resolve([
-        "world"
-      ]))
-      stub(fileStore, "entries").given("/sources/sessions/").returns(Promise.resolve([]))
+    before(function(resume) { with(this) {
+      Promise.all([
+        escoStore.update("/services/acme/username", () => ({})),
+        escoStore.update("/services/acme/password", () => ({})),
+        escoStore.update("/services/bar", () => ({})),
+        escoStore.update("/services/bee", () => ({})),
+        escoStore.update("/services/queue", () => ({})),
+        escoStore.update("/services/zzz", () => ({})),
+        escoStore.update("/services/zzz/hello/world", () => ({}))
+      ]).then(function() {
+        resume()
+      })
     }})
 
     it("completes a simple service name", function(resume) { with(this) {
