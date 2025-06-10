@@ -1,7 +1,6 @@
 var fs        = require("fs"),
     path      = require("path"),
     jstest    = require("jstest").Test,
-    Promise   = require("storeroom").Promise,
     CliHelper = require("./helper"),
     editor    = require("../../lib/cli/editor")
 

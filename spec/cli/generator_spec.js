@@ -1,5 +1,4 @@
 var jstest    = require("jstest").Test,
-    Promise   = require("storeroom").Promise,
     Vault     = require("../../lib/vault"),
     CliHelper = require("./helper")
 
