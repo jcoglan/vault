@@ -16,7 +16,6 @@
                       , "prompt": "~1.3.0"
                       , "sequin": "~0.1.0"
                       , "ssh-agent": "~0.2.1"
-                      , "storeroom": "git://github.com/jcoglan/storeroom.git"
                       }
 , "devDependencies" : { "jstest": "*"
                       , "webpack": "^2.0.0" }
