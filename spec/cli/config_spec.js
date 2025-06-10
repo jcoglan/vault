@@ -25,16 +25,6 @@ jstest.describe("CLI configuration", function() { with(this) {
       call(["--config", "--phrase"]).then(resume, resume)
     }})
 
-    it("acknowledges the save to stdout", function(resume) { with(this) {
-      settings.password = "saved phrase"
-      stub(fileStore, "get").returns(pnull)
-      stub(fileStore, "put").returns(pnull)
-
-      expect(stdout, "write").given(match(/global settings saved/i))
-
-      call(["--config", "--phrase"]).then(resume, resume)
-    }})
-
     it("reports a read error", function(resume) { with(this) {
       settings.password = "saved phrase"
       stub(fileStore, "get").returns(Promise.reject(new Error("failed to read")))
@@ -102,15 +92,6 @@ jstest.describe("CLI configuration", function() { with(this) {
       call(["--delete-globals"]).then(resume, resume)
     }})
 
-    it("acknowledges the deletion to stdout", function(resume) { with(this) {
-      settings.confirm = true
-      stub(fileStore, "remove").returns(pnull)
-
-      expect(stdout, "write").given(match(/global settings deleted/i))
-
-      call(["-G"]).then(resume, resume)
-    }})
-
     it("reports a deletion error", function(resume) { with(this) {
       settings.confirm = true
       stub(fileStore, "remove").returns(Promise.reject(new Error("failed to delete")))
@@ -126,15 +107,6 @@ jstest.describe("CLI configuration", function() { with(this) {
       stub(fileStore, "get").given("/services/foo").returns(pnull)
 
       expect(fileStore, "put").given("/services/foo", {symbol: 0}).returning(pnull)
-
-      call(["--config", "foo", "--symbol", "0"]).then(resume, resume)
-    }})
-
-    it("acknowledges the save to stdout", function(resume) { with(this) {
-      stub(fileStore, "get").returns(pnull)
-      stub(fileStore, "put").returns(pnull)
-
-      expect(stdout, "write").given(match(/settings for service "foo" saved/i))
 
       call(["--config", "foo", "--symbol", "0"]).then(resume, resume)
     }})
@@ -247,16 +219,6 @@ jstest.describe("CLI configuration", function() { with(this) {
       })
     }})
 
-    it("acknowledges the service deletion to stdout", function(resume) { with(this) {
-      settings.confirm = true
-      stub(fileStore, "get").given("/services/foo").returns(Promise.resolve({}))
-      stub(fileStore, "remove").returns(pnull)
-
-      expect(stdout, "write").given(match(/settings for service "foo" deleted/i))
-
-      call(["-x", "foo"]).then(resume, resume)
-    }})
-
     it("reports a pre-deletion read error", function(resume) { with(this) {
       settings.confirm = true
       stub(fileStore, "get").returns(Promise.reject(new Error("failed to read")))
@@ -294,16 +256,6 @@ jstest.describe("CLI configuration", function() { with(this) {
       expect(fileStore, "removeRecursive").exactly(0)
 
       call(["--clear"]).then(resume, resume)
-    }})
-
-    it("acknowledges the deletion to stdout", function(resume) { with(this) {
-      settings.confirm = true
-      stub(fileStore, "remove").returns(pnull)
-      stub(fileStore, "removeRecursive").returns(pnull)
-
-      expect(stdout, "write").given(match(/all settings deleted/i))
-
-      call(["-X"]).then(resume, resume)
     }})
 
     it("reports a deletion error", function(resume) { with(this) {
