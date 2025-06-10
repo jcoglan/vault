@@ -11,7 +11,8 @@
 , "bin"             : {"vault": "./bin/vault"}
 , "preferGlobal"    : true
 
-, "dependencies"    : { "posix-argv-parser": "~1.0.0"
+, "dependencies"    : { "@escodb/core": "github:escodb/core"
+                      , "posix-argv-parser": "~1.0.0"
                       , "prompt": "~1.3.0"
                       , "sequin": "~0.1.0"
                       , "ssh-agent": "~0.2.1"
@@ -20,7 +21,7 @@
 , "devDependencies" : { "jstest": "*"
                       , "webpack": "^2.0.0" }
 
-, "scripts"         : { "test": "node spec/node.js" }
+, "scripts"         : { "test": "NODE_ENV=test node spec/node.js" }
 
 , "repository"      : { "type"  : "git"
                       , "url"   : "git://github.com/jcoglan/vault.git"
