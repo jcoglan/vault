@@ -32,7 +32,7 @@
     "webpack": "^2.0.0"
   },
   "scripts": {
-    "test": "NODE_ENV=test node spec/node.js"
+    "test": "NODE_ENV=test mocha --recursive"
   },
   "repository": {
     "type": "git",
