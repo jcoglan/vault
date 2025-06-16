@@ -1,9 +1,9 @@
 export VAULT_PATH=~+/.keychain
-export VAULT_KEY=foo
+export VAULT_KEY='open sesame'
 export PATH=~+/bin:$PATH
 
-alias inspect="node spec/inspector.js"
+alias inspect="node sandbox/inspector.js"
 alias inspectdb="tree -a .keychain && cat .keychain/config"
 alias cleandb="rm -rf .keychain"
 
-. lib/cli/scripts/init
+source lib/cli/scripts/init
