@@ -1,26 +1,25 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var CLI    = require('../lib/cli'),
-    legacy = require('../lib/legacy'),
-    path   = require('path'),
-    tty    = require('tty'),
+const CLI = require('../lib/cli')
+const legacy = require('../lib/legacy')
+const path = require('path')
+const tty = require('tty')
 
-    home = process.env.HOME ||
-           process.env.USERPROFILE,
+const home = process.env.HOME ||
+             process.env.USERPROFILE
 
-    key  = process.env.VAULT_KEY ||
-           process.env.LOGNAME ||
-           process.env.USER ||
-           process.env.USERNAME,
+const key = process.env.VAULT_KEY ||
+            process.env.LOGNAME ||
+            process.env.USER ||
+            process.env.USERNAME
 
-    vaultPath = process.env.VAULT_PATH || '.vault',
-    pathname  = path.resolve(home, vaultPath);
+const vaultPath = process.env.VAULT_PATH || '.vault'
+const pathname = path.resolve(home, vaultPath)
 
-
-var cli = new CLI({
-  config: {path: pathname, key: key},
+let cli = new CLI({
+  config: { path: pathname, key },
   stdout: process.stdout,
   stderr: process.stderr,
   tty:    tty.isatty(1),
@@ -29,18 +28,17 @@ var cli = new CLI({
   password:  require('../lib/cli/password'),
   selectKey: require('../lib/cli/select_key'),
   sign:      require('../lib/cli/sign')
-});
+})
 
+async function main () {
+  try {
+    await legacy.migrateConfig(pathname, key)
+    await cli.run(process.argv)
+    process.exit(0)
+  } catch (error) {
+    console.error('[ERROR] ' + (process.env.DEBUG ? error.stack : error.message))
+    process.exit(1)
+  }
+}
 
-legacy.migrateConfig(pathname, key).then(function() {
-  return cli.run(process.argv);
-
-}).then(function() {
-  process.exit(0);
-
-}, function(error) {
-  if (error)
-    console.error('[ERROR] ' + (process.env.DEBUG ? error.stack : error.message));
-
-  process.exit(1);
-});
+main()
