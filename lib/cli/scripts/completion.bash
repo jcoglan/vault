@@ -3,7 +3,7 @@
 _vault_complete() {
   COMPREPLY=()
   local word="${COMP_WORDS[COMP_CWORD]}"
-  local completions="$(vault --cmplt "$word")"
+  local completions="$(vault --cmplt="$word")"
   COMPREPLY=( $(compgen -W "$completions" -- "$word") )
 }
 
