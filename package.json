@@ -1,30 +1,39 @@
-{ "name"            : "vault"
-, "description"     : "Generates safe passwords for the web"
-, "homepage"        : "https://getvau.lt/"
-, "author"          : "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)"
-, "keywords"        : ["security", "passwords"]
-, "license"         : "GPL-3.0"
-
-, "version"         : "0.4.0"
-, "engines"         : {"node": ">=0.10.0"}
-, "main"            : "./lib/vault.js"
-, "bin"             : {"vault": "./bin/vault"}
-, "preferGlobal"    : true
-
-, "dependencies"    : { "@escodb/core": "github:escodb/core"
-                      , "posix-argv-parser": "~1.0.0"
-                      , "prompt": "~1.3.0"
-                      , "sequin": "~0.1.0"
-                      , "ssh-agent": "~0.2.1"
-                      }
-, "devDependencies" : { "jstest": "*"
-                      , "webpack": "^2.0.0" }
-
-, "scripts"         : { "test": "NODE_ENV=test node spec/node.js" }
-
-, "repository"      : { "type"  : "git"
-                      , "url"   : "git://github.com/jcoglan/vault.git"
-                      }
-
-, "bugs"            : "http://github.com/jcoglan/vault/issues"
+{
+  "name": "vault",
+  "description": "Generates safe passwords for the web",
+  "homepage": "https://getvau.lt/",
+  "author": "James Coglan <jcoglan@gmail.com> (http://jcoglan.com/)",
+  "keywords": [
+    "security",
+    "passwords"
+  ],
+  "license": "GPL-3.0",
+  "version": "0.4.0",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "main": "./lib/vault.js",
+  "bin": {
+    "vault": "./bin/vault"
+  },
+  "preferGlobal": true,
+  "dependencies": {
+    "@escodb/core": "github:escodb/core",
+    "posix-argv-parser": "~1.0.0",
+    "prompt": "~1.3.0",
+    "sequin": "~0.1.0",
+    "ssh-agent": "~0.2.1"
+  },
+  "devDependencies": {
+    "jstest": "*",
+    "webpack": "^2.0.0"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test node spec/node.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jcoglan/vault.git"
+  },
+  "bugs": "http://github.com/jcoglan/vault/issues"
 }
