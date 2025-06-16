@@ -19,7 +19,7 @@
   "preferGlobal": true,
   "dependencies": {
     "@escodb/core": "github:escodb/core",
-    "posix-argv-parser": "~1.0.0",
+    "posix-argv-parser": "^2.0.0",
     "prompt": "~1.3.0",
     "sequin": "~0.1.0",
     "ssh-agent": "~0.2.1"
