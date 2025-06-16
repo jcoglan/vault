@@ -25,7 +25,10 @@
     "ssh-agent": "~0.2.1"
   },
   "devDependencies": {
+    "chai": "^4.5.0",
     "jstest": "*",
+    "mocha": "^9.2.2",
+    "sinon": "^9.2.4",
     "webpack": "^2.0.0"
   },
   "scripts": {
