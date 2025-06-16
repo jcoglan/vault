@@ -16,7 +16,7 @@ describe('CLI completion', () => {
   })
 
   it('completes option names', async () => {
-    await helper.call('--cmplt', '--n')
+    await helper.call('--cmplt=--n')
     helper.assertStdout(['--notes', '--number'].join('\n'))
   })
 

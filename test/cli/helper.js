@@ -52,7 +52,7 @@ class CliHelper {
   }
 
   call (...args) {
-    return this.cli.run(['', '', ...args])
+    return this.cli.run(args)
   }
 
   assertStdout (content) {

@@ -7,7 +7,7 @@ fi
 _vault_complete() {
   local word completions
   word="$1"
-  completions="$(vault --cmplt "${word}")"
+  completions="$(vault --cmplt="${word}")"
   reply=( "${(ps:\n:)completions}" )
 }
 

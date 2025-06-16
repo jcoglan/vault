@@ -42,7 +42,7 @@ let cli = new CLI({
 async function main () {
   try {
     await legacy.migrate(logger, pathname, key)
-    await cli.run(process.argv)
+    await cli.run(process.argv.slice(2))
     process.exit(0)
   } catch (error) {
     logger.error(error)
