@@ -18,6 +18,15 @@ const key = process.env.VAULT_KEY ||
 const vaultPath = process.env.VAULT_PATH || '.vault'
 const pathname = path.resolve(home, vaultPath)
 
+let logger = {
+  info (...args) {
+    console.error('[info]', ...args)
+  },
+  error (error) {
+    console.error('[error]', process.env.DEBUG ? error.stack : error.message)
+  }
+}
+
 let cli = new CLI({
   config: { path: pathname, key },
   stdout: process.stdout,
@@ -32,11 +41,11 @@ let cli = new CLI({
 
 async function main () {
   try {
-    await legacy.migrateConfig(pathname, key)
+    await legacy.migrate(logger, pathname, key)
     await cli.run(process.argv)
     process.exit(0)
   } catch (error) {
-    console.error('[ERROR] ' + (process.env.DEBUG ? error.stack : error.message))
+    logger.error(error)
     process.exit(1)
   }
 }
