@@ -1,4 +1,4 @@
 .keychain
 node_modules
 package-lock.json
-spec/*bundle*
+test/browser/*bundle*

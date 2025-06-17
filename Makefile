@@ -4,7 +4,9 @@ PATH  := node_modules/.bin:$(PATH)
 .PHONY: all clean
 
 all:
-	webpack --display-modules --watch
+	esbuild --bundle --sourcemap --watch \
+		test/browser/index.js \
+		--outfile=test/browser/bundle.js
 
 clean:
-	rm -rf spec/browser_bundle.js*
+	rm -rf test/browser/bundle*
