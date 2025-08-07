@@ -31,7 +31,7 @@
     "sinon": "^9.2.4"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha 'test/**/*_test.js'"
+    "test": "NODE_ENV=test mocha"
   },
   "repository": {
     "type": "git",
